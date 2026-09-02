@@ -155,20 +155,34 @@ const ASKCHIPS=%(chips)s;
   }
   function callAI(){
     var t=q.value.trim(); if(t.length<2) return;
-    var b=ai.querySelector('button'); b.disabled=true; b.textContent='물어보는 중…';
+    var b=ai.querySelector('button'); b.disabled=true;
     var box=document.createElement('div'); box.className='aiout';
-    box.innerHTML='<div class="h">AI 답변</div>…';
+    box.innerHTML='<div class="h">AI 답변</div>생각하는 중…';
     r.insertBefore(box,r.firstChild);
+    /* 10초 넘게 걸릴 때가 있다. 멈춘 것처럼 보이지 않게 경과를 보여준다 */
+    var t0=Date.now();
+    var tick=setInterval(function(){
+      var sec=Math.round((Date.now()-t0)/1000);
+      b.textContent='물어보는 중 '+sec+'초';
+      box.innerHTML='<div class="h">AI 답변</div>생각하는 중… '+sec+'초';
+    },1000);
     fetch(cfg('ep')+'/ask',{method:'POST',
       headers:{'Content-Type':'application/json','x-ask-pass':cfg('pw')},
       body:JSON.stringify({q:t,region:REGION,cards:pickCards(t)})})
       .then(function(x){return x.json().then(function(j){return {ok:x.ok,j:j};});})
       .then(function(o){
-        box.innerHTML='<div class="h">AI 답변'+(o.j.used?' \u00b7 이번 달 '+o.j.used+'/'+o.j.cap+'회':'')+'</div>'+
+        var meta=[];
+        if(o.j.used) meta.push('이번 달 '+o.j.used+'/'+o.j.cap+'회');
+        if(o.j.ms) meta.push(Math.round(o.j.ms/1000)+'초');
+        box.innerHTML='<div class="h">AI 답변'+(meta.length?' \u00b7 '+meta.join(' \u00b7 '):'')+'</div>'+
           (o.ok ? (o.j.answer||'(빈 응답)') : ('오류 \u2014 '+(o.j.error||'알 수 없음')));
       })
-      .catch(function(e){ box.innerHTML='<div class="h">AI 답변</div>연결 실패 \u2014 '+e.message; })
-      .finally(function(){ b.disabled=false; b.textContent='AI 답변 만들기'; });
+      .catch(function(e){
+        var sec=Math.round((Date.now()-t0)/1000);
+        box.innerHTML='<div class="h">AI 답변</div>연결 실패 ('+sec+'초) \u2014 '+e.message+
+          '<br><span style="color:#8b949e">아래 카드 답변은 그대로 쓸 수 있습니다. 다시 눌러 보세요.</span>';
+      })
+      .finally(function(){ clearInterval(tick); b.disabled=false; b.textContent='AI 답변 만들기'; });
   }
   drawAI();
 
