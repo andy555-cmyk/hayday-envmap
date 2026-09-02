@@ -514,7 +514,7 @@ details.fold .note b.n{display:inline-block;min-width:15px;color:#ff9d6e}
 
   <div class="pane" id="p11">
     <h2>교통 — 어디로 드나들고 어디가 막히나</h2>
-    <div class="asof">기준 — 도로망 OSM 2026-08 · 경전철 2025 · 버스 2025 · 고속도로 2024</div>
+    <div class="asof">기준 — 도로망 OSM 2026-08&nbsp;· 경전철 2025&nbsp;· 버스 2025&nbsp;· 고속도로 2024&nbsp;· <b>시내도로 교통량 2024(김해시 자체조사)</b></div>
     <div class="note" style="border-left:3px solid #ff7a5c">
       <b>현재 지도 표시 항목 3종</b><br>
       <div class="li"><b style="color:#ff5a3d">①</b><span class="lit"><b>도로</b> — 굵은 빨강 = 대로(간선가로), 주황 = 중로, 얇은 회색 = 이면도로(골목)</span></div><div class="li"><b style="color:#ff5a3d">②</b><span class="lit"><b>동그라미 6개</b> — 차량 진출입 동선. 총 6곳에 불과</span></div><div class="li"><b style="color:#ff5a3d">③</b><span class="lit"><b>색이 다른 면</b> — 그 입구가 맡는 구역. 흰 글씨가 담당 점포 수</span></div><span style="font-size:10.5px;color:#8b949e">점 1,662개(점포)와 조사지점 43곳은 <b>근거 자료</b>로 기본 비활성.
@@ -590,8 +590,35 @@ details.fold .note b.n{display:inline-block;min-width:15px;color:#ff9d6e}
     <div class="note"><b>원천</b> — 경전철: 부산김해경전철 역사별 시간대별 승하차(2024~2025) /
       버스: 김해시 정류장별 이용객수(2025) + 정류소 좌표 대사 /
       고속도로: 한국도로공사 상시 교통량(2024, 김해 통과 21개 구간)<br>
-      <span class="warn"><b>한계</b> — <b>원도심 시내 도로 차량통행량 자료 여전히 미확보</b>(TMS 조사지점 부재. 2026-08-17 확인).
+      <span class="warn"><b>한계</b> — ~~원도심 시내 도로 차량통행량 미확보~~ → <b>2026-09-02 해소</b>: 김해시 자체조사 2024 21개 지점 확보(아래 표). 다만 <b>지점 좌표 미보유</b>로 지도 표시는 못 한다. (국토부 TMS 에 원도심 지점이 없다는 2026-08-17 확인은 TMS 범위에서는 여전히 유효)
       버스 이용객수는 승차만인지 승하차 합인지 원자료에 표기 없음 → 정류장 간 상대 비교로만 사용</span></div>
+    <h3 style="margin-top:22px">원도심 시내도로 교통량 — 김해시 자체조사 2024</h3>
+    <div class="scope">21개 지점 · 24시간 전량 · 정보공개청구 17345205</div>
+    <div class="kpi"><div><b>378,585</b><span>21지점 합계(대/일)</span></div><div><b>26,281</b><span>최다 연지2교사거리-1</span></div><div><b>9 : 12</b><span>오전 : 오후 첨두</span></div></div>
+    <table><tr><th>지점</th><th style="text-align:right">차로</th><th style="text-align:right">일교통량</th><th style="text-align:center">첨두</th></tr>
+      <tr><td>연지2교사거리-1(북부)</td><td style="text-align:right">6</td><td style="text-align:right">26,281</td><td style="text-align:center">17~18</td></tr>
+      <tr><td>연지2교사거리-2(북부)</td><td style="text-align:right">6</td><td style="text-align:right">25,556</td><td style="text-align:center">18~19</td></tr>
+      <tr><td>시청앞-1(부원동)</td><td style="text-align:right">6</td><td style="text-align:right">25,227</td><td style="text-align:center">17~18</td></tr>
+      <tr><td>시청앞-2(부원동)</td><td style="text-align:right">6</td><td style="text-align:right">22,950</td><td style="text-align:center">07~08</td></tr>
+      <tr><td>삼계사거리-4(북부)</td><td style="text-align:right">6</td><td style="text-align:right">20,927</td><td style="text-align:center">07~08</td></tr>
+      <tr><td>호계로 고속道 하부박스-2(부원동)</td><td style="text-align:right">4</td><td style="text-align:right">20,375</td><td style="text-align:center">17~18</td></tr>
+      <tr><td>부원교차로-2(부원동)</td><td style="text-align:right">5</td><td style="text-align:right">20,000</td><td style="text-align:center">17~18</td></tr>
+      <tr><td>삼계사거리-3(북부)</td><td style="text-align:right">6</td><td style="text-align:right">19,588</td><td style="text-align:center">17~18</td></tr>
+      <tr><td>부원교차로-1(부원동)</td><td style="text-align:right">5</td><td style="text-align:right">18,798</td><td style="text-align:center">07~08</td></tr>
+      <tr><td>호계로 고속道 박스-1(부원동)</td><td style="text-align:right">4</td><td style="text-align:right">18,241</td><td style="text-align:center">07~08</td></tr>
+      <tr><td>신명소류지-1(북부)</td><td style="text-align:right">5</td><td style="text-align:right">17,893</td><td style="text-align:center">07~08</td></tr>
+      <tr><td>신명소류지-2(북부)</td><td style="text-align:right">5</td><td style="text-align:right">17,698</td><td style="text-align:center">17~18</td></tr>
+      <tr><td colspan="4" style="color:#8b949e;font-size:10.5px">그 밖 9개 지점 — 삼계사거리 방향별 등</td></tr>
+    </table>
+    <div class="note"><b>판독</b> — <b>연지2교사거리·시청앞이 최상위</b>(각 26,281 · 25,227대/일).
+      <b>유동인구 1위 연지공원과 같은 축</b>이다 — 사람과 차가 같은 곳에 몰린다.
+      첨두가 오전 9 · 오후 12지점으로 갈리는 것은 <b>통근 통과교통</b> 성격을 뜻한다(원도심 목적통행이 아니다).
+      4~6차로가 원도심을 관통하므로 <b>보행 단절</b> 근거로 쓸 수 있다.<br>
+      <b>삼계사거리는 8개 방향 전량</b>이 있어 회전교통량 산출이 가능한 유일한 지점이다.<br>
+      <b>원천</b> — 김해시 도로과 자체 정기조사(2024) · 정보공개청구 접수번호 17345205 (2026-08-28 공개결정)<br>
+      <span class="warn"><b>한계</b> — <b>지점 좌표가 없다.</b> 지점명으로 행정동(부원동·북부동)까지는 확정되나
+      <b>사업구역 51.8ha 경계 안팎은 판별 불가</b>. 도로과(055-330-3857)에 위경도 요청이 필요하다.
+      그래서 지도에 점으로 찍지 않고 표로만 싣는다.</span></div>
   </div>
 
   <div class="pane" id="p8">
