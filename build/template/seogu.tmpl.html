@@ -71,7 +71,14 @@ select{width:100%;background:rgba(255,255,255,.04);color:var(--ink);border:1px s
 <div id="top"><div class="brand">Hay<b>Day</b> · 환경분석맵</div>
 <div class="site">● 부산 서구 전체 · 메인 사업지 남부민동 611 일원</div><div class="rgsw"><a href="./gijang.html" class="rg">기장 만화천</a><a href="./seogu.html" class="rgon">부산 서구</a><a href="./saha.html" class="rg">부산 사하구</a><a href="./busan-traffic.html" class="rg">부산 교통망</a><a href="./pohang.html" class="rg">포항 원도심</a><a href="./gimhae-wondosim.html" class="rg">김해 원도심</a><a href="./gis.html" class="rg rggis" title="내 파일을 올려서 바로 분석">GIS</a><a href="./" class="rghome" title="지역 선택">전체</a></div><div class="spacer"></div>
 <div class="credit">VWorld 건물·연속지적도·용도지역 · 건축물대장(준공연도) · KOSIS 주민등록<br>빈집: 서구 고시 제2025-54호·주민공람(2025) / 빈집애 누리집(2026) · 위성 Esri</div></div>
-<div id="panel">
+<div id="panel"><!--ASKUI-->
+  <div id="ask">
+    <div class="ah"><b>질문하면 바로 답합니다</b><span>현장에서 물어보는 것 위주</span></div>
+    <input id="askq" type="text" autocomplete="off" placeholder="예) 노후율이 얼마인가 · 빈집 몇 호 · 메인 사업지 현황">
+    <div id="askc"></div>
+    <div id="askr"></div>
+  </div>
+  
   <div class="sec"><h3>레이어</h3>
     <div class="toggle"><span>건물 3D <span style="color:var(--sub);font-size:11px">21,146동</span></span><div class="sw on" id="t-bld"></div></div>
     <div class="toggle"><span>용도지역</span><div class="sw" id="t-zone"></div></div>
@@ -1099,5 +1106,83 @@ body.pfold #detail{display:none!important}
 #hint{bottom:32px!important;right:52px!important}
 /* ── 마지막 줄에 한두 글자만 남는 것을 줄인다 ── */
 #detail-b .note,#detail-b .warn,#detail-b .popdiag{text-wrap:pretty}
+
+/* 현장 질문 답변 */
+#ask{background:#0e131b;border:1px solid #232c39;border-radius:10px;padding:9px 10px 8px;margin:0 0 8px}
+#ask .ah{font-size:11px;color:#8b949e;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+#ask .ah b{color:#ffb84d;font-size:11.5px}
+#askq{width:100%;box-sizing:border-box;background:#070a0e;border:1px solid #2c3644;border-radius:7px;
+  color:#e6edf3;font-size:13.5px;padding:8px 10px;outline:none;font-family:inherit}
+#askq:focus{border-color:#ff7a5c}
+#askc{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+#askc button{background:#151c26;border:1px solid #2c3644;color:#a9b4c0;font-size:10.5px;
+  padding:3px 8px;border-radius:12px;cursor:pointer;font-family:inherit}
+#askc button:hover{background:#ff7a5c;color:#1a0f0a;border-color:#ff7a5c}
+#askr{margin-top:7px}
+.acard{background:#121a24;border-left:3px solid #ff7a5c;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:6px}
+.acard .q{font-size:11px;color:#8b949e;margin-bottom:2px}
+.acard .a{font-size:18px;font-weight:800;color:#ffd8cf;line-height:1.25;word-break:keep-all}
+.acard .m{font-size:10.5px;color:#a9b4c0;line-height:1.55;margin-top:5px}
+.acard .m b{color:#cfd8e3}
+.acard .l{font-size:10.5px;color:#ffb84d;line-height:1.5;margin-top:4px}
+.acard .go{display:inline-block;margin-top:6px;font-size:10.5px;color:#7cc4ff;cursor:pointer;text-decoration:underline}
+.anone{font-size:11.5px;color:#ffb84d;line-height:1.6;padding:7px 2px}
 </style>
+
+<script>
+/* 현장 질문 답변 — build/ask_inject.py 로 주입. 손으로 고치지 말고 카드 JSON 을 고친 뒤 다시 주입한다. */
+const FACTS=[{"k":"건물 몇 동 21146 총 동수","q":"건물이 몇 동인가","a":"21,146동","s":"VWorld 건물통합정보(LT_C_SPBD) 실수집","d":"2026-07","u":"서구 전역","l":"","p":".navitem[title='현황 통계']"},{"k":"노후 노후율 89.8 오래된","q":"노후율이 얼마인가","a":"89.8%","s":"건축물대장 사용승인일","d":"2026-07","u":"서구 전역","l":"미상+30년 이상 정의다. 준공연도 미확인이 10,274동(48.6%)이라 미상이 노후에 포함된 값이다","p":".navitem[title='현황 분석 (3종)']"},{"k":"층수 평균 1.9 몇층","q":"평균 층수가 얼마인가","a":"평균 지상 1.9층 (최고 69층)","s":"건축물대장 표제부 grndFlrCnt","d":"2026-07","u":"서구 전역","l":"VWorld 층수는 85%가 '1'로 결측이라 쓰지 않는다. 대장 페어링 11,575동 기준이고 미페어링 9,571동은 VWorld 폴백이라 과소집계된다","p":".navitem[title='현황 통계']"},{"k":"저층 중층 고층 분포 17442","q":"층수 분포가 어떤가","a":"저층 1~2층 17,442동 · 중층 3~5층 2,997 · 고층 6층+ 707","s":"건축물대장","d":"2026-07","u":"서구 전역","l":"","p":".navitem[title='현황 통계']"},{"k":"준공 미상 미확인 10274 48.6","q":"준공연도를 모르는 건물이 얼마나 되나","a":"10,274동 (48.6%)","s":"건축물대장 페어링 결과","d":"2026-07","u":"서구 전역","l":"대장 미등재 7,232동 + 표제부 초과 폴리곤 2,339동이 주 원인이다. 노후율이 이만큼 불확실하다","p":"p"},{"k":"빈집 몇 호 1855 빈집애","q":"빈집이 몇 호인가 (빈집애 기준)","a":"1,855호","s":"빈집애 누리집(국토부·한국부동산원)","d":"2026","u":"법정동 24개","l":"아래 674호와는 조사주체·정의·시점이 다른 별개 수치다. 합산·비교 불가","p":".navitem[title='빈집 현황 ② 법정동']"},{"k":"빈집 고시 683 674 정비계획","q":"빈집이 몇 호인가 (서구 고시 기준)","a":"실태조사 683호 → 정비계획 대상 674호","s":"서구 빈집정비계획 주민공람자료 · 고시 제2025-54호","d":"2025","u":"행정동","l":"빈집애 1,855호와 정의가 다르다. 통계청 빈집(11월 1일 하루 미거주)과 빈집법 빈집(1년 이상 미거주)도 서로 다르다","p":".navitem[title='빈집 현황 ① 행정동']"},{"k":"빈집 어디 많 남부민 152","q":"빈집이 어느 동에 많은가","a":"남부민2동 152호(22.2%) · 동대신2동 92 · 아미동 66","s":"서구 빈집정비계획 주민공람자료","d":"2025","u":"행정동","l":"","p":".navitem[title='빈집 현황 ① 행정동']"},{"k":"빈집 등급 1등급 248","q":"빈집 등급 분포는","a":"1등급 248호(36.3%) · 2등급 396호 · 3등급 30호","s":"주민공람자료","d":"2025","u":"행정동","l":"1등급 ≤40점, 2등급 41~69, 3등급 ≥70. 대상지 내 3등급은 0호다","p":".navitem[title='빈집 현황 ① 행정동']"},{"k":"빈집 유형 단독 481 70.4","q":"빈집이 어떤 주택인가","a":"단독주택 481호 (70.4%)","s":"주민공람자료","d":"2025","u":"행정동","l":"","p":".navitem[title='빈집 현황 ① 행정동']"},{"k":"밀집구역 10개소 지정","q":"빈집밀집구역이 몇 개소인가","a":"10개소","s":"부산시 고시 제2025-54호","d":"2025","u":"구역","l":"","p":".navitem[title='빈집밀집구역 3요건 판정']"},{"k":"아 611-290 메인 사업지 7257","q":"메인 사업지(611-290) 현황은","a":"7,257.9㎡ · 빈집 11호 · 빈집면적률 16.1% · 노후율 95.6% · 건물 68동","s":"주민공람자료 + 엔진 실측","d":"2025 / 2026-07","u":"구역 08","l":"요건②는 호수 기준으로만 통과한다(면적 기준 16.1%로 20% 미달). 1등급 7호·2등급 4호","p":".navitem[title='빈집밀집구역 3요건 판정']"},{"k":"자 611-420 9524 28호","q":"611-420 구역 현황은","a":"9,524.9㎡ · 빈집 28호 · 12.3% · 노후율 97.8% · 건물 137동","s":"주민공람자료 + 엔진 실측","d":"2025 / 2026-07","u":"구역 09","l":"여기도 면적 기준(12.3%)이 아니라 호수 기준으로 통과한다","p":".navitem[title='빈집밀집구역 3요건 판정']"},{"k":"통합 합치 아자 16782 안되","q":"두 구역을 합치면 되나","a":"안 된다 — 합계 16,782.8㎡로 요건① 1만㎡ 미만 위반","s":"소규모주택정비법 시행령 §5④ + 엔진 판정","d":"2026-07","u":"구역 08+09","l":"각각 별도 지정이 유일한 경로다. 48,000㎡ 안에서 각각 1만㎡ 미만으로 구획해야 한다","p":".navitem[title='빈집밀집구역 3요건 판정']"},{"k":"요건 3요건 법정 지정 조건","q":"빈집밀집구역 지정 요건이 뭔가","a":"① 1만㎡ 미만 ② 빈집 10호 이상 또는 빈집면적 20% 이상 ③ 노후·불량 2/3 이상","s":"소규모주택정비법 시행령 제5조제4항","d":"현행","u":"구역","l":"요건①에는 농어촌·정비구역·재정비촉진지구 밖 조건도 있다. 대상지는 도시재생활성화지역(서구06) 내부라 중복지원 여부를 별도 확인해야 한다","p":".navitem[title='빈집밀집구역 3요건 판정']"},{"k":"대상지 48000 면적 미지정 65","q":"대상지 면적과 미지정 구역은","a":"48,000㎡ 중 밀집구역은 16,782.8㎡(35%) · 미지정 31,217.2㎡(65%)","s":"공모 개요 + 고시","d":"2025~2026","u":"대상지","l":"미지정 65%가 구조적 문제다. 2025년 부서열람 때 창조도시과가 밀집구역 확대 지정 검토를 요청한 바 있다","p":".navitem[title='구역 반경분석']"},{"k":"인구 몇명 101892 서구","q":"서구 인구가 몇 명인가","a":"101,892명","s":"KOSIS 주민등록","d":"2025","u":"서구 전역","l":"","p":".navitem[title='인구·인구학']"},{"k":"인구 감소 17.6 줄었 정점","q":"인구가 얼마나 줄었나","a":"-17.6% (2011년 정점 123,718명 대비)","s":"KOSIS 주민등록","d":"2011→2025","u":"서구 전역","l":"","p":".navitem[title='인구·인구학']"},{"k":"고령 65세 31.1 노령화","q":"고령화 정도는","a":"65세 이상 31.1% · 유소년 7.4% · 노령화지수 419","s":"KOSIS 주민등록","d":"2025","u":"서구 전역","l":"노령화지수 419는 유소년 100명당 노인 419명이라는 뜻이다","p":".navitem[title='인구·인구학']"},{"k":"사업비 100억 10000백만 국비","q":"사업비가 얼마인가","a":"총 10,000백만원 (국비 5,000 / 시비 2,500 / 구비 2,500)","s":"노후주거지 정비 지원사업 공모 개요","d":"2026","u":"사업 단위","l":"사업기간 2028~2031년 4년. 국토부 기준은 3만~5만㎡, 4년간 최대 50억이다","p":""},{"k":"일정 언제 공모 신청 2027","q":"공모 일정이 어떻게 되나","a":"신청 2027.4 → 현장평가 2027.5 → 최종선정 2027.6","s":"공모 개요","d":"2026","u":"사업 단위","l":"2026년 하반기 공모 준비 기간이다. 배점표는 2025 가이드라인 기준이고 2027년도판은 미확보다","p":""},{"k":"가점 배점 심사 점수","q":"가점 항목이 뭔가","a":"빈집밀집구역 1점 · 빈집 활용 주차장 2점 · 도시재생 지역특화재생 1점 · 인정사업 2점","s":"2025년도 공모 가이드라인(2025-08-22)","d":"2025","u":"사업 단위","l":"2027년도 가이드라인은 아직 안 나왔다. 배점이 바뀔 수 있다","p":""},{"k":"철거 지원 29백만 호당","q":"빈집 철거 지원이 얼마인가","a":"호당 최대 29백만원 (시:구 부담 7:3)","s":"서구 빈집정비계획 주민공람자료","d":"2025","u":"호","l":"2026년 20호 + 2027년 10호 = 30호 계획. 원자료에 연차별 합계 산술 오류가 있다(680+290=970 ≠ 합계 870)","p":""},{"k":"빈집 지번 주소 어디 개별","q":"빈집 지번을 알 수 있나","a":"알 수 없다 — 특례법상 비공개다","s":"빈집 및 소규모주택 정비 특례법 제15조제6항","d":"현행","u":"—","l":"정보공개청구가 유일한 경로다. 서구청 건축과 051-240-4612 선접촉 후 open.go.kr(기관코드 3260000) 청구. 구역 10개소 편입 필지·도면을 청구하는 쪽이 인용 가능성이 높다","p":""}];
+const ASKCHIPS=["건물 동수", "노후율", "평균 층수", "빈집 호수", "밀집구역", "메인 사업지", "인구", "사업비", "공모 일정", "빈집 지번"];
+(function(){
+  var q=document.getElementById('askq'), r=document.getElementById('askr'), c=document.getElementById('askc');
+  if(!q) return;
+  function norm(t){return (t||'').toLowerCase().replace(/[\s,\u00b7.()%]/g,'');}
+  function score(f,nq){
+    var sc=0, ks=f.k.split(' ');
+    for(var i=0;i<ks.length;i++){ var k=norm(ks[i]); if(k && nq.indexOf(k)>=0) sc+=k.length>=3?3:2; }
+    if(nq.indexOf(norm(f.q))>=0) sc+=6;
+    var a=norm(f.a); if(a.length>2 && nq.indexOf(a)>=0) sc+=2;
+    return sc;
+  }
+  function go(p){
+    if(!p) return;
+    var b=document.querySelector('button[data-p='+p+']');
+    if(b){ b.click(); b.scrollIntoView({block:'nearest'}); return; }
+    var el=null; try{ el=document.querySelector(p); }catch(e){}
+    if(!el) return;
+    /* 서구·기장 세대는 탭이 button 이 아니라 div 다. 눌러야 화면이 바뀐다 */
+    try{ el.click(); }catch(e){}
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function card(f){
+    var d=document.createElement('div'); d.className='acard';
+    d.innerHTML='<div class="q">'+f.q+'</div><div class="a">'+f.a+'</div>'+
+      '<div class="m"><b>출처</b> '+f.s+' &nbsp;\u00b7&nbsp; <b>기준</b> '+f.d+' &nbsp;\u00b7&nbsp; <b>공간단위</b> '+f.u+'</div>'+
+      (f.l?'<div class="l">\u26a0 '+f.l+'</div>':'')+
+      (f.p?'<span class="go">근거 화면으로 이동 \u2192</span>':'');
+    var g=d.querySelector('.go'); if(g) g.onclick=function(){go(f.p);};
+    return d;
+  }
+  function run(t){
+    r.innerHTML=''; var nq=norm(t); if(nq.length<2) return;
+    var hit=FACTS.map(function(f){return {f:f,s:score(f,nq)};})
+                 .filter(function(x){return x.s>0;})
+                 .sort(function(a,b){return b.s-a.s;}).slice(0,3);
+    if(!hit.length){
+      r.innerHTML='<div class="anone">그 자료는 이 지도에 없습니다. 아래 칩의 항목이거나, 왼쪽에서 직접 찾아야 합니다.<br>'+
+        '<span style="color:#8b949e">없는 것을 지어내지 않습니다 \u2014 현장에서 틀린 숫자를 말하는 것보다 낫습니다.</span></div>';
+      return;
+    }
+    hit.forEach(function(x){ r.appendChild(card(x.f)); });
+  }
+  ASKCHIPS.forEach(function(t){
+    var b=document.createElement('button'); b.textContent=t;
+    b.onclick=function(){ q.value=t; run(t); q.focus(); };
+    c.appendChild(b);
+  });
+  var tmr=null;
+  q.addEventListener('input',function(){ clearTimeout(tmr); tmr=setTimeout(function(){run(q.value);},120); });
+  q.addEventListener('keydown',function(e){ if(e.key==='Escape'){q.value='';r.innerHTML='';} });
+})();
+</script>
 </body></html>
