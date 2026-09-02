@@ -202,7 +202,14 @@ body.rsz,body.rsz *{cursor:ew-resize!important;user-select:none}
 <div id="shellwrap">
   <div id="shell"><div id="navlist"></div></div>
   <div id="detail">
-    <div id="vhead"></div>
+    <!--ASKUI-->
+  <div id="ask">
+    <div class="ah"><b>질문하면 바로 답합니다</b><span>현장에서 물어보는 것 위주</span></div>
+    <input id="askq" type="text" autocomplete="off" placeholder="예) 등록공장 몇 개 · 용도지역 구성 · 청년 인구">
+    <div id="askc"></div>
+    <div id="askr"></div>
+  </div>
+  <div id="vhead"></div>
     <div id="vkpi"></div>
     <div id="vmode"></div>
     <div id="vbody"></div>
@@ -1164,6 +1171,27 @@ body.pfold #detail{display:none!important}
 /* 폭 조절 손잡이의 ◁▷ 표식이 값 위에 겹친다 — 올려놨을 때만 보인다 */
 #pzr .ar{opacity:0;transition:.12s}
 #pzr:hover .ar,#pzr.on .ar{opacity:.9}
+
+/* 현장 질문 답변 */
+#ask{background:#0e131b;border:1px solid #232c39;border-radius:10px;padding:9px 10px 8px;margin:0 0 8px}
+#ask .ah{font-size:11px;color:#8b949e;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+#ask .ah b{color:#ffb84d;font-size:11.5px}
+#askq{width:100%;box-sizing:border-box;background:#070a0e;border:1px solid #2c3644;border-radius:7px;
+  color:#e6edf3;font-size:13.5px;padding:8px 10px;outline:none;font-family:inherit}
+#askq:focus{border-color:#ff7a5c}
+#askc{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+#askc button{background:#151c26;border:1px solid #2c3644;color:#a9b4c0;font-size:10.5px;
+  padding:3px 8px;border-radius:12px;cursor:pointer;font-family:inherit}
+#askc button:hover{background:#ff7a5c;color:#1a0f0a;border-color:#ff7a5c}
+#askr{margin-top:7px}
+.acard{background:#121a24;border-left:3px solid #ff7a5c;border-radius:0 8px 8px 0;padding:8px 10px;margin-bottom:6px}
+.acard .q{font-size:11px;color:#8b949e;margin-bottom:2px}
+.acard .a{font-size:18px;font-weight:800;color:#ffd8cf;line-height:1.25;word-break:keep-all}
+.acard .m{font-size:10.5px;color:#a9b4c0;line-height:1.55;margin-top:5px}
+.acard .m b{color:#cfd8e3}
+.acard .l{font-size:10.5px;color:#ffb84d;line-height:1.5;margin-top:4px}
+.acard .go{display:inline-block;margin-top:6px;font-size:10.5px;color:#7cc4ff;cursor:pointer;text-decoration:underline}
+.anone{font-size:11.5px;color:#ffb84d;line-height:1.6;padding:7px 2px}
 </style>
 <script id="pzr-js">
 /* 왼쪽 정보란 폭 조절 — 6개 지도 공통 규격
@@ -1253,6 +1281,63 @@ body.pfold #detail{display:none!important}
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
   else boot();
+})();
+</script>
+
+<script>
+/* 현장 질문 답변 — build/ask_inject.py 로 주입. 손으로 고치지 말고 카드 JSON 을 고친 뒤 다시 주입한다. */
+const FACTS=[{"k":"건축물 건물 14531 몇동","q":"건물이 몇 동인가","a":"14,531동","s":"VWorld 건물통합정보","d":"2026","u":"신평·장림·다대동 일원","l":"","p":""},{"k":"공장 등록공장 1161 제조","q":"등록공장이 몇 개인가","a":"1,161개","s":"부산광역시 제조업 공장등록현황","d":"2025-12-31","u":"대상지","l":"","p":""},{"k":"용도지역 133 구역","q":"용도지역이 몇 구역인가","a":"133구역","s":"VWorld 용도지역","d":"2026","u":"대상지","l":"13개 용도지역을 4계열+미지정으로 묶어 표시한다. 8색을 넘으면 범례 판독이 안 되기 때문이다. 개별 용도지역명은 건물 클릭으로 확인한다","p":""},{"k":"용도지역 계열 주거 공업 상업 분포","q":"용도지역 구성이 어떤가","a":"주거 7,047 · 공업 5,830 · 상업 521 · 녹지 440 · 미지정 693","s":"VWorld 용도지역 × 건물","d":"2026","u":"대상지","l":"","p":""},{"k":"청년 비중 15.9 감소 45.7","q":"청년 인구가 어떤가","a":"청년 비중 15.9% · 18년간 -45.7%","s":"행정안전부 주민등록(2008~2025)","d":"2025","u":"행정동","l":"","p":""},{"k":"노후 노후건축물 준공연도 왜 없","q":"노후건축물 비율은","a":"아직 없다 — 준공연도 미확보","s":"—","d":"—","u":"—","l":"원천인 건축HUB(국토부 건축물대장 오픈API)가 공공데이터포털 개편(2026-07-29~08-02)으로 응답하지 않는다. 준공연도·건축물용도·연면적이 함께 미확보다. API 복구 후 표시 예정","p":""},{"k":"사업 서부산 스마트밸리 산단","q":"어떤 사업인가","a":"서부산스마트밸리(구 신평·장림산단) 재생","s":"사업 개요","d":"2026","u":"대상지","l":"","p":""}];
+const ASKCHIPS=["건물 동수", "등록공장", "용도지역", "청년 인구", "노후건축물", "사업 개요"];
+(function(){
+  var q=document.getElementById('askq'), r=document.getElementById('askr'), c=document.getElementById('askc');
+  if(!q) return;
+  function norm(t){return (t||'').toLowerCase().replace(/[\s,\u00b7.()%]/g,'');}
+  function score(f,nq){
+    var sc=0, ks=f.k.split(' ');
+    for(var i=0;i<ks.length;i++){ var k=norm(ks[i]); if(k && nq.indexOf(k)>=0) sc+=k.length>=3?3:2; }
+    if(nq.indexOf(norm(f.q))>=0) sc+=6;
+    var a=norm(f.a); if(a.length>2 && nq.indexOf(a)>=0) sc+=2;
+    return sc;
+  }
+  function go(p){
+    if(!p) return;
+    var b=document.querySelector('button[data-p='+p+']');
+    if(b){ b.click(); b.scrollIntoView({block:'nearest'}); return; }
+    var el=null; try{ el=document.querySelector(p); }catch(e){}
+    if(!el) return;
+    /* 서구·기장 세대는 탭이 button 이 아니라 div 다. 눌러야 화면이 바뀐다 */
+    try{ el.click(); }catch(e){}
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function card(f){
+    var d=document.createElement('div'); d.className='acard';
+    d.innerHTML='<div class="q">'+f.q+'</div><div class="a">'+f.a+'</div>'+
+      '<div class="m"><b>출처</b> '+f.s+' &nbsp;\u00b7&nbsp; <b>기준</b> '+f.d+' &nbsp;\u00b7&nbsp; <b>공간단위</b> '+f.u+'</div>'+
+      (f.l?'<div class="l">\u26a0 '+f.l+'</div>':'')+
+      (f.p?'<span class="go">근거 화면으로 이동 \u2192</span>':'');
+    var g=d.querySelector('.go'); if(g) g.onclick=function(){go(f.p);};
+    return d;
+  }
+  function run(t){
+    r.innerHTML=''; var nq=norm(t); if(nq.length<2) return;
+    var hit=FACTS.map(function(f){return {f:f,s:score(f,nq)};})
+                 .filter(function(x){return x.s>0;})
+                 .sort(function(a,b){return b.s-a.s;}).slice(0,3);
+    if(!hit.length){
+      r.innerHTML='<div class="anone">그 자료는 이 지도에 없습니다. 아래 칩의 항목이거나, 왼쪽에서 직접 찾아야 합니다.<br>'+
+        '<span style="color:#8b949e">없는 것을 지어내지 않습니다 \u2014 현장에서 틀린 숫자를 말하는 것보다 낫습니다.</span></div>';
+      return;
+    }
+    hit.forEach(function(x){ r.appendChild(card(x.f)); });
+  }
+  ASKCHIPS.forEach(function(t){
+    var b=document.createElement('button'); b.textContent=t;
+    b.onclick=function(){ q.value=t; run(t); q.focus(); };
+    c.appendChild(b);
+  });
+  var tmr=null;
+  q.addEventListener('input',function(){ clearTimeout(tmr); tmr=setTimeout(function(){run(q.value);},120); });
+  q.addEventListener('keydown',function(e){ if(e.key==='Escape'){q.value='';r.innerHTML='';} });
 })();
 </script>
 </body></html>

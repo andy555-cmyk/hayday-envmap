@@ -25,6 +25,7 @@ MARK = '<!--ASKUI-->'          # 중복 주입 방지 표식
 CONTAINERS = [
     ('<div id="detail">\n  <div id="tabs">', '<div id="detail">\n  '),   # 김해·사하·포항
     ('<div id="panel">', '<div id="panel">'),                             # 서구·기장
+    ('<div id="detail">\n    <div id="vhead">', '<div id="detail">\n    '),  # 사하
 ]
 
 CSS = """
