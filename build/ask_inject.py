@@ -49,12 +49,22 @@ CSS = """
 .acard .l{font-size:10.5px;color:#ffb84d;line-height:1.5;margin-top:4px}
 .acard .go{display:inline-block;margin-top:6px;font-size:10.5px;color:#7cc4ff;cursor:pointer;text-decoration:underline}
 .anone{font-size:11.5px;color:#ffb84d;line-height:1.6;padding:7px 2px}
+#askai{margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#askai button{background:#1b2a3a;border:1px solid #2f4a63;color:#7cc4ff;font-size:11px;
+  padding:5px 10px;border-radius:7px;cursor:pointer;font-family:inherit}
+#askai button:hover{background:#7cc4ff;color:#08131c;border-color:#7cc4ff}
+#askai button:disabled{opacity:.5;cursor:default}
+#askai .cfg{font-size:10px;color:#8b949e;cursor:pointer;text-decoration:underline}
+.aiout{background:#101a26;border-left:3px solid #7cc4ff;border-radius:0 8px 8px 0;
+  padding:9px 11px;margin-top:6px;font-size:12.5px;color:#dbe7f3;line-height:1.65;word-break:keep-all;white-space:pre-wrap}
+.aiout .h{font-size:10px;color:#7cc4ff;margin-bottom:4px;letter-spacing:.03em}
 """
 
 HTML = """<div id="ask">
     <div class="ah"><b>질문하면 바로 답합니다</b><span>현장에서 물어보는 것 위주</span></div>
     <input id="askq" type="text" autocomplete="off" placeholder="%s">
     <div id="askc"></div>
+    <div id="askai"></div>
     <div id="askr"></div>
   </div>
   """
@@ -111,9 +121,63 @@ const ASKCHIPS=%(chips)s;
     b.onclick=function(){ q.value=t; run(t); q.focus(); };
     c.appendChild(b);
   });
+  /* ── AI 답변 (선택) ─────────────────────────────────────────
+     카드 검색은 AI 없이도 항상 된다. AI 는 그 위에 얹는 보조다.
+     엔드포인트·암호는 이 브라우저에만 저장하고 페이지에는 넣지 않는다. */
+  var ai=document.getElementById('askai'), REGION=%(region)s;
+  function cfg(k){ try{ return localStorage.getItem('askcfg_'+k)||''; }catch(e){ return ''; } }
+  function setCfg(k,v){ try{ localStorage.setItem('askcfg_'+k,v); }catch(e){} }
+  function pickCards(t){
+    var nq=norm(t);
+    return FACTS.map(function(f){return {f:f,s:score(f,nq)};})
+                .filter(function(x){return x.s>0;})
+                .sort(function(a,b){return b.s-a.s;}).slice(0,8).map(function(x){return x.f;});
+  }
+  function drawAI(){
+    ai.innerHTML='';
+    var ep=cfg('ep');
+    var b=document.createElement('button');
+    b.textContent = ep ? 'AI 답변 만들기' : 'AI 연결하기';
+    b.onclick=function(){ ep ? callAI() : setup(); };
+    ai.appendChild(b);
+    if(ep){
+      var c=document.createElement('span'); c.className='cfg'; c.textContent='연결 설정';
+      c.onclick=setup; ai.appendChild(c);
+    }
+  }
+  function setup(){
+    var ep=prompt('AI 서버 주소 (클라우드타입 프록시)\\n예) https://port-0-envmap-ask-xxxx.sel3.cloudtype.app', cfg('ep'));
+    if(ep===null) return;
+    var pw=prompt('접속 암호 (ASK_PASS)', cfg('pw'));
+    if(pw===null) return;
+    setCfg('ep',ep.trim().replace(/\/$/,'')); setCfg('pw',pw.trim());
+    drawAI();
+  }
+  function callAI(){
+    var t=q.value.trim(); if(t.length<2) return;
+    var b=ai.querySelector('button'); b.disabled=true; b.textContent='물어보는 중…';
+    var box=document.createElement('div'); box.className='aiout';
+    box.innerHTML='<div class="h">AI 답변</div>…';
+    r.insertBefore(box,r.firstChild);
+    fetch(cfg('ep')+'/ask',{method:'POST',
+      headers:{'Content-Type':'application/json','x-ask-pass':cfg('pw')},
+      body:JSON.stringify({q:t,region:REGION,cards:pickCards(t)})})
+      .then(function(x){return x.json().then(function(j){return {ok:x.ok,j:j};});})
+      .then(function(o){
+        box.innerHTML='<div class="h">AI 답변'+(o.j.used?' \u00b7 이번 달 '+o.j.used+'/'+o.j.cap+'회':'')+'</div>'+
+          (o.ok ? (o.j.answer||'(빈 응답)') : ('오류 \u2014 '+(o.j.error||'알 수 없음')));
+      })
+      .catch(function(e){ box.innerHTML='<div class="h">AI 답변</div>연결 실패 \u2014 '+e.message; })
+      .finally(function(){ b.disabled=false; b.textContent='AI 답변 만들기'; });
+  }
+  drawAI();
+
   var tmr=null;
   q.addEventListener('input',function(){ clearTimeout(tmr); tmr=setTimeout(function(){run(q.value);},120); });
-  q.addEventListener('keydown',function(e){ if(e.key==='Escape'){q.value='';r.innerHTML='';} });
+  q.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){q.value='';r.innerHTML='';}
+    if(e.key==='Enter'&&cfg('ep')) callAI();
+  });
 })();
 </script>
 """
@@ -129,19 +193,53 @@ def load(region):
         if miss:
             raise SystemExit('카드 %d(%s) 필수 항목 누락: %s' % (i, c.get('q', '?'), miss))
         c.setdefault('l', ''); c.setdefault('p', '')
-    return cards, chips, d.get('placeholder', '예) 공실률이 얼마인가')
+    return cards, chips, d.get('placeholder', '예) 공실률이 얼마인가'), d.get('region', region)
 
 
-def inject(region, check=False):
+
+def remove(s):
+    """이전에 주입한 CSS·HTML·JS 를 걷어낸다. --force 재주입에 쓴다."""
+    n = 0
+    # CSS — 시작 주석부터 마지막 규칙까지 (v1 은 .anone, v2 는 .aiout .h 로 끝난다)
+    i = s.find('\n/* 현장 질문 답변 */')
+    if i >= 0:
+        for tail in ('.aiout .h{', '.anone{'):
+            j = s.find(tail, i)
+            if j >= 0:
+                k = s.find('}\n', j)
+                if k >= 0:
+                    s = s[:i] + s[k + 2:]; n += 1; break
+    # HTML — 표식부터 #ask 블록 끝까지
+    i = s.find(MARK)
+    if i >= 0:
+        j = s.find('<div id="askr"></div>\n  </div>\n  ', i)
+        if j >= 0:
+            s = s[:i] + s[j + len('<div id="askr"></div>\n  </div>\n  '):]; n += 1
+    # JS — 주입 스크립트 전체
+    i = s.find('\n<script>\n/* 현장 질문 답변 \u2014 build/ask_inject.py')
+    if i >= 0:
+        j = s.find('</script>\n', i)
+        if j >= 0:
+            s = s[:i] + s[j + len('</script>\n'):]; n += 1
+    if n != 3:
+        raise SystemExit('제거 실패 — %d/3 조각만 찾았다. 손으로 확인하라' % n)
+    return s
+
+
+def inject(region, check=False, force=False):
     html = os.path.join(REPO, region + '.html')
     s = io.open(html, encoding='utf-8').read()
     if MARK in s:
-        print('%s: 이미 주입돼 있다. 갱신하려면 먼저 제거해야 한다' % region)
-        return 1 if check else 0
-    if check:
+        if check:
+            print('%s: 주입됨' % region); return 0
+        if not force:
+            print('%s: 이미 주입돼 있다. 갱신하려면 --force' % region); return 0
+        s = remove(s)
+        print('%s: 기존 주입분 제거' % region)
+    elif check:
         print('%s: 미주입' % region); return 1
 
-    cards, chips, ph = load(region)
+    cards, chips, ph, region_name = load(region)
 
     anchor = None
     for a, rep in CONTAINERS:
@@ -158,7 +256,8 @@ def inject(region, check=False):
     s = s.replace(anchor, replace_with + body + anchor[len(replace_with):], 1)
 
     js = JS_TMPL % {'cards': json.dumps(cards, ensure_ascii=False, separators=(',', ':')),
-                    'chips': json.dumps(chips, ensure_ascii=False)}
+                    'chips': json.dumps(chips, ensure_ascii=False),
+                    'region': json.dumps(region_name, ensure_ascii=False)}
     if s.count('</body>') != 1: raise SystemExit('%s: </body> 개수 이상' % region)
     s = s.replace('</body>', js + '</body>', 1)
 
@@ -169,4 +268,4 @@ def inject(region, check=False):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2: raise SystemExit(__doc__)
-    sys.exit(inject(sys.argv[1], '--check' in sys.argv))
+    sys.exit(inject(sys.argv[1], '--check' in sys.argv, '--force' in sys.argv))
