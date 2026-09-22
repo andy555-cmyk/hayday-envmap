@@ -333,7 +333,7 @@ html[data-theme="dark"] .maplibregl-ctrl-scale{background:rgba(21,26,32,.7);colo
         <button class="btn g bs" data-bs="sat">위성</button>
         <button class="btn g bs" data-bs="none">없음</button>
       </div>
-      <p class="hint" style="margin:8px 0 0">CARTO 무료 타일 · 키 없이 씁니다</p>
+      <p class="hint" style="margin:8px 0 0">OpenFreeMap(OSM) · 위성은 Esri · 키 없이 씁니다</p>
     </div>
   </div>
 
@@ -1219,9 +1219,21 @@ root.HaydayDiag = {diagnose, UQ, LEVELS:['치명','주의','참고']};
 <script>
 /* ═══════════════ 앱 ═══════════════ */
 const $ = s => document.querySelector(s);
+/* 배경지도 (2026-09-22 교체)
+   CARTO 무료 래스터 타일(basemaps.cartocdn.com)이 키를 요구하게 바뀌었다.
+   차단이 아니라 타일 그림 위에 「API KEY REQUIRED」 워터마크를 찍어 보낸다 —
+   HTTP 200 이라 콘솔에 오류가 안 뜨고 화면만 더러워진다.
+
+   대안 검토(2026-09-22 실측, 김해 원도심 z17 타일을 직접 받아 봄):
+   - Esri Canvas(Light/Dark Gray) → 한국은 "Map data not yet available" 회색판. 쓸 수 없다.
+   - Esri World_Street_Map        → 같은 이유로 쓸 수 없다.
+   - Esri World_Imagery(위성)     → 영상이라 제약 없음. 그대로 둔다.
+   - OpenFreeMap                  → OSM 기반 벡터, 키 없음·한도 없음, 한국 도로·상호 다 나온다.
+   positron 은 원래 쓰던 CARTO light_all 과 같은 디자인의 오픈소스판이다. */
+const OFM = 'https://tiles.openfreemap.org/styles/';
 const CARTO = {
-  light:'https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png',
-  dark :'https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png',
+  light: OFM + 'positron',
+  dark : OFM + 'dark',
   /* 위성 — 기장·서구·사하 지도와 같은 Esri 항공영상을 쓴다 (2026-08-19 추가) */
   sat  :'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 };
@@ -1230,15 +1242,16 @@ const PAL = ['#c8542a','#2f6f9e','#3f8a5a','#8a5aa8','#b0862a','#4a4f57','#a8425
 let map, layers = [], seq = 0, activeId = null;
 
 /* 지도 */
+/* 일반·야간은 OpenFreeMap 벡터 스타일 주소를 그대로 넘긴다.
+   setStyle 은 주소든 객체든 받는다. 위성·없음만 여기서 객체로 만든다. */
 function baseStyle(kind) {
+  if (kind === 'light' || kind === 'dark') return CARTO[kind];
   const s = {version:8, sources:{}, layers:[
     {id:'bgcolor', type:'background', paint:{'background-color': kind==='dark' ? '#12161a' : '#f2f3f1'}}
   ]};
-  if (kind !== 'none') {
-    const isSat = kind === 'sat';
-    s.sources.base = {type:'raster', tiles:[CARTO[kind].replace('{r}','')], tileSize:256,
-      maxzoom: isSat ? 19 : 20,
-      attribution: isSat ? 'Imagery © Esri' : '© OpenStreetMap © CARTO'};
+  if (kind === 'sat') {
+    s.sources.base = {type:'raster', tiles:[CARTO.sat], tileSize:256, maxzoom:19,
+      attribution: 'Imagery © Esri'};
     s.layers.push({id:'base', type:'raster', source:'base'});
   }
   return s;
@@ -1252,8 +1265,13 @@ if (THEME !== 'dark' && THEME !== 'light') {
 }
 document.documentElement.setAttribute('data-theme', THEME);
 
+/* localIdeographFontFamily — 한글 라벨이 안 뜨는 것을 막는다 (2026-09-22)
+   OpenFreeMap 글리프는 Noto Sans 라틴만 있다. 한글 범위를 서버에서 받아오려다 빈칸이 된다.
+   이 옵션을 주면 한글·한자는 브라우저 시스템 글꼴로 직접 그린다. */
+const CJK = "'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif";
 map = new maplibregl.Map({container:'map', style:baseStyle(THEME === 'dark' ? 'dark' : 'light'),
-  center:[127.9, 36.3], zoom:6.4, attributionControl:{compact:true}});
+  center:[127.9, 36.3], zoom:6.4, attributionControl:{compact:true},
+  localIdeographFontFamily: CJK});
 map.addControl(new maplibregl.NavigationControl({showCompass:false}), 'top-right');
 map.addControl(new maplibregl.ScaleControl({maxWidth:110, unit:'metric'}), 'bottom-left');
 
@@ -1266,16 +1284,30 @@ window.__satTune = function () {
   set('base_bld_c', 'circle-opacity', sat ? 0.62 : 0.75);
   set('base_zone_l','line-color',     sat ? '#ffffff' : '#1a1d21');
 };
+/* 배경을 바꾸면 스타일이 통째로 갈아엎어져 우리 레이어가 날아간다. 다시 얹어야 한다.
+   styledata 한 번으로는 이르다 — 벡터 스타일(일반·야간)과 래스터 객체(위성·없음)를
+   오갈 때 addSource 가 「Style is not done loading」 으로 튕긴다(2026-09-22 실측:
+   야간→위성에서 레이어가 0개가 됐다). 진짜 다 읽을 때까지 기다린 뒤 얹는다. */
 function setBase(kind) {
   document.querySelectorAll('.bs').forEach(x => x.classList.toggle('on', x.dataset.bs === kind));
+  const seqNow = ++setBase._seq;
   map.setStyle(baseStyle(kind));
-  map.once('styledata', () => {
-    layers.forEach(addToMap);
-    if (window.__reAddBase) window.__reAddBase();
-    if (window.anaPaint) try { window.anaPaint(); } catch(e){}
-    if (window.__satTune) try { window.__satTune(); } catch(e){}
-  });
+  /* isStyleLoaded() 로 기다리면 안 된다 — 타일까지 다 와야 true 가 되는데
+     탭이 뒤에 있으면 타일을 안 그려서 영영 false 다(2026-09-22 실측).
+     style.load 가 「스타일은 다 읽혔다」 시점이고 addSource 를 받는다. */
+  let done = false;
+  const put = () => {
+    if (done || seqNow !== setBase._seq) return;   // 그새 또 눌렀으면 이번 건은 버린다
+    done = true;
+    try { layers.forEach(addToMap); } catch(e){ console.warn('[배경] 레이어 복구', e); }
+    if (window.__reAddBase) try { window.__reAddBase(); } catch(e){ console.warn('[배경] 기본도형 복구', e); }
+    if (window.anaPaint)   try { window.anaPaint(); }   catch(e){}
+    if (window.__satTune)  try { window.__satTune(); }  catch(e){}
+  };
+  map.once('style.load', put);
+  setTimeout(put, 4000);                           // style.load 를 놓쳐도 비어 있지 않게
 }
+setBase._seq = 0;
 document.querySelectorAll('.bs').forEach(b => b.onclick = () => { window.__bsPicked = true; setBase(b.dataset.bs); });
 
 /* ═══════════════ 밝게 / 어둡게 ═══════════════ */
@@ -3050,7 +3082,7 @@ function declineHTML(hit, p20, areaM2) {
   function curKind(){ const b = document.querySelector('.bs.on'); return b ? b.dataset.bs : 'light'; }
   function ensureLupe(){
     if (lupe) return lupe;
-    lupe = new maplibregl.Map({container:'anaLupeMap', style:baseStyle(curKind()),
+    lupe = new maplibregl.Map({container:'anaLupeMap', style:baseStyle(curKind()), localIdeographFontFamily: CJK,
       center:map.getCenter(), zoom:map.getZoom()+2.6, interactive:false, attributionControl:false});
     lupe.on('style.load', () => { lupeReady = true; syncLupe(); });
     window.__lupeRef = lupe;
