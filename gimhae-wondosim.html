@@ -707,7 +707,7 @@ details.fold .note b.n{display:inline-block;min-width:15px;color:#ff9d6e}
       <tr><td>구역 진출입구 39곳</td><td>구역 경계 × 도로망 교차 계산</td><td>2026-08-17 산출</td></tr>
       <tr><td>지점 교통량 43지점</td><td>국토부·건설기술연구원 TMS 2025 (X,Y좌표 포함)</td><td>발표 2026-05-08</td></tr>
       <tr><td>배경 위성</td><td>Esri World Imagery</td><td>-</td></tr>
-      <tr><td>배경 흑백·백지도</td><td>CARTO · OpenStreetMap</td><td>-</td></tr>
+      <tr><td>배경 흑백·백지도</td><td>© OpenStreetMap contributors · 화면에서 명암 조정</td><td>실시간 제공</td></tr>
     </table>
     <h3>정밀도 · 한계 (그대로 고지)</h3>
     <div class="note">
@@ -900,18 +900,18 @@ const POIC=[['방범카메라','#ff5c8a'],['버스정류장','#4fc3f7'],['주차
             ['공원·체육','#66bb6a'],['문화·관광','#ffb74d'],['생활SOC','#9fa8da'],['철도역','#ff8a65']];
 
 let MODE='old', D3=true;
-const CARTO=s=>['a','b','c','d'].map(h=>`https://${h}.basemaps.cartocdn.com/${s}/{z}/{x}/{y}@2x.png`);
+// One shared source: standard browser caching, no prefetch or tile proxy.
+const OSM_TILES=['https://tile.openstreetmap.org/{z}/{x}/{y}.png'];
 const map=new maplibregl.Map({container:'map',center:[128.8827,35.2325],zoom:15.1,pitch:30,bearing:0,maxPitch:80,antialias:true,
- attributionControl:{compact:true},preserveDrawingBuffer:true,
+ attributionControl:{compact:false},preserveDrawingBuffer:true,
  style:{version:8,glyphs:'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
   sources:{sat:{type:'raster',maxzoom:19,tileSize:256,attribution:'위성 Esri',
       tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}']},
-    dark:{type:'raster',maxzoom:19,tileSize:256,attribution:'(c) OpenStreetMap (c) CARTO',tiles:CARTO('dark_all')},
-    light:{type:'raster',maxzoom:19,tileSize:256,attribution:'(c) OpenStreetMap (c) CARTO',tiles:CARTO('light_all')}},
+    osm:{type:'raster',maxzoom:19,tileSize:256,attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a>',tiles:OSM_TILES}},
   layers:[{id:'bg',type:'background',paint:{'background-color':'#0d1117'}},
     {id:'sat',type:'raster',source:'sat'},
-    {id:'dark',type:'raster',source:'dark',layout:{visibility:'none'}},
-    {id:'light',type:'raster',source:'light',layout:{visibility:'none'}}]}});
+    {id:'dark',type:'raster',source:'osm',layout:{visibility:'none'},paint:{'raster-saturation':-1,'raster-brightness-min':0.92,'raster-brightness-max':0.08}},
+    {id:'light',type:'raster',source:'osm',layout:{visibility:'none'},paint:{'raster-saturation':-1,'raster-brightness-min':0.22,'raster-brightness-max':1}}]}});
 map.addControl(new maplibregl.NavigationControl({visualizePitch:true}),'bottom-right');
 map.addControl(new maplibregl.ScaleControl({maxWidth:120,unit:'metric'}),'bottom-right');
 
@@ -1883,7 +1883,13 @@ function accCalc(){
 /* 판넬·보고서용 원본 이미지 내려받기 — 화면 그대로 PNG */
 function hdShot(name){
   map.once('render',()=>{
-    const c=map.getCanvas();
+    const canvas=map.getCanvas(),c=document.createElement('canvas');
+    c.width=canvas.width;c.height=canvas.height+40;
+    const ctx=c.getContext('2d');ctx.drawImage(canvas,0,0);
+    ctx.fillStyle='#0d1117';ctx.fillRect(0,canvas.height,c.width,40);
+    ctx.fillStyle='#e6edf3';ctx.font='14px sans-serif';
+    const credit=map.getLayoutProperty('sat','visibility')==='none'?'© OpenStreetMap contributors · openstreetmap.org/copyright':'Esri World Imagery';
+    ctx.fillText('배경지도: '+credit,16,canvas.height+26,c.width-32);
     c.toBlob(b=>{const a=document.createElement('a');
       a.href=URL.createObjectURL(b);a.download=(name||'김해_환경분석맵')+'.png';a.click();},'image/png');
   });
@@ -2208,5 +2214,5 @@ const ASKCHIPS=["공실률", "빈 점포", "노후건축물", "인구 감소", "
 </script>
 <link rel="stylesheet" href="data/gimhae-b171.css?v=readability-r3">
 <script src="data/gimhae-b-insights.js?v=contents-r2"></script>
-<script src="data/gimhae-b171.js?v=readability-r3"></script>
+<script src="data/gimhae-b171.js?v=readability-r3-basemap-r1"></script>
 </body></html>

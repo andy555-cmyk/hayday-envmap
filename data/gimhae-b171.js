@@ -212,7 +212,8 @@
       ctx.fillText(overlayLine,24,overlayY);
       ctx.font='13px sans-serif';ctx.fillText(`건물 조건: ${buildingCondition()} / 점포: ${$('b-industry').value||'전체 업종'}${$('b-store-query').value.trim()?' · 검색 '+$('b-store-query').value.trim():''}`,24,height+225,width-48);
       ctx.fillText(`자료: 기존 환경분석맵 / 상가정보 2026.06 / 구역계검토자료 ${data.sourcePage}쪽 · 2026년 기준`,24,height+247);
-      ctx.fillText('배경지도: Esri World Imagery / © OpenStreetMap contributors © CARTO (선택 배경에 따름)',24,height+270);
+      const backgroundCredit=map.getLayoutProperty('sat','visibility')==='none'?'© OpenStreetMap contributors · openstreetmap.org/copyright':'Esri World Imagery';
+      ctx.fillText('배경지도: '+backgroundCredit,24,height+270,width-48);
       c.toBlob(blob=>{if(blob)download(blob,'김해_B권역_검토지도.png','image/png');else $('b-export-status').textContent='그림 저장 실패. 다시 시도해 주세요.';},'image/png');
     }catch(e){$('b-export-status').textContent='그림 저장 실패: '+e.message;}});map.triggerRepaint();
   }
