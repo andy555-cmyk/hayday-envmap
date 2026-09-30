@@ -58,3 +58,10 @@ assert.ok(css.includes('font:15px/1.65'),'B default text is readable without dra
 assert.ok(source.includes("$('focusbx').append(focusButton)"),'B area is available in original focus controls');
 assert.ok(source.includes("focusButton.onclick=()=>{popup?.remove();showBoundary();frame(450,true);}"),'B focus keeps current analysis scope');
 console.log('B focus control, shared zoom and enlarged default typography: PASS');
+assert.ok(source.includes("setVisibility('bs-mask',true)"),'Detail keeps its B-only outside mask visible');
+assert.ok(source.includes("id:'bs-mask',type:'fill',source:'bs-mask',paint:{'fill-color':'#05070b','fill-opacity':.34}"),'Match original map dimming strength');
+assert.ok(source.includes('hole.slice().reverse()'),'Mask cutout uses accepted boundary, without modifying it');
+assert.ok(source.indexOf("id:'bs-context-3d'")<source.indexOf("id:'bs-mask'"),'Mask covers context buildings');
+assert.ok(source.indexOf("id:'bs-mask'")<source.indexOf("id:'bs-3d'"),'B buildings stay above dimming');
+assert.ok(source.includes("else {ownIds.forEach(id=>setVisibility(id,false));visibility.forEach"),'Returning to overview removes B mask and restores original visibility');
+console.log('B detail outside dimming and overview restoration: PASS');

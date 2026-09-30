@@ -68,7 +68,7 @@
   function renderLayers(){
     if(!active)return;
     ownIds.forEach(id=>setVisibility(id,true));
-    setVisibility('bs-mask',false);
+    setVisibility('bs-mask',true);
     setVisibility('bs-flat',!is3d);setVisibility('bs-3d',is3d);
     setVisibility('bs-context-flat',!is3d);setVisibility('bs-context-3d',is3d);
     setVisibility('bs-stores',$('b-stores').checked);setVisibility('bs-roads',$('b-roads').checked);
@@ -232,7 +232,8 @@
     addSource('bs-stores',fc(stores.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p.lon,p.lat]},properties:p}))));
     addSource('bs-compare',fc(ZP.features.filter(f=>f.properties.k==='blue')));
     const hole=data.boundary.geometry.coordinates[0];addSource('bs-mask',{type:'Feature',geometry:{type:'Polygon',coordinates:[[[128.7,35.1],[129.1,35.1],[129.1,35.4],[128.7,35.4],[128.7,35.1]],hole.slice().reverse()]},properties:{}});
-    addLayer({id:'bs-mask',type:'fill',source:'bs-mask',paint:{'fill-color':'#05070b','fill-opacity':.20}});
+    // Same outside dimming as the original map, with only the accepted B boundary cut out.
+    addLayer({id:'bs-mask',type:'fill',source:'bs-mask',paint:{'fill-color':'#05070b','fill-opacity':.34}});
     addLayer({id:'bs-flat',type:'fill',source:'bs-buildings',paint:{'fill-color':colors,'fill-opacity':.88,'fill-outline-color':'#222d3b'}});
     addLayer({id:'bs-3d',type:'fill-extrusion',source:'bs-buildings',paint:{'fill-extrusion-color':colors,'fill-extrusion-opacity':.95,'fill-extrusion-height':['*',['max',['coalesce',['get','fl'],1],1],3.3]}});
     addLayer({id:'bs-compare',type:'line',source:'bs-compare',paint:{'line-color':'#64afff','line-width':2,'line-dasharray':[3,2]}});
