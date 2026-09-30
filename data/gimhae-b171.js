@@ -69,6 +69,7 @@
       <div class="b-note">검토용 임시 경계입니다. 도면 이미지를 지도에 옮겼으며, 측량 경계가 아닙니다. 경계 주변 건물은 포함 여부를 다시 확인해야 합니다.</div>
       <div class="b-kpis"><div class="b-kpi"><strong>${num(s.buildings)}</strong><span>B권역 건물 · 동</span></div><div class="b-kpi"><strong>${num(s.stores)}</strong><span>등록점포 위치 · 개</span></div><div class="b-kpi"><strong>${s.oldPct}%</strong><span>연도 확인 건물 중 20년 이상</span></div><div class="b-kpi"><strong>${num(s.edgeInside)}</strong><span>포함 건물 중 경계 주변 · 동</span></div></div>
       <p>노후 비율: ${s.old20}동 ÷ 연도 확인 ${s.knownYear}동<br>연도 미확인 ${s.unknownYear}동은 비율 계산에서 제외 · 2026년 기준</p>
+      <details><summary>B권역 자료에 물어보기</summary><div class="b-controls" id="b-questions"><button>건물·점포</button><button>노후도</button><button>빈 점포</button><button>유동인구</button><button>인구·사업체</button><button>경계</button></div><p id="b-answer" role="status">항목을 누르면 B권역 자료만으로 답합니다. 기존 구역 수치와 섞지 않습니다.</p></details>
       <h3>지도에서 보기</h3><select id="b-mode" aria-label="건물 색상 구분"><option value="old">건축 연도별</option><option value="use">건물 용도별</option><option value="candidate">빈 점포 현장 확인 후보</option></select>
       <div id="b-legend" class="b-legend"></div><div class="b-controls"><button id="b-3d" aria-pressed="true">입체 건물</button><button id="b-fit">B권역 전체 보기</button></div>
       <label><input id="b-stores" type="checkbox">등록점포 ${s.stores}개 표시</label><label><input id="b-roads" type="checkbox">B권역 안 도로 표시</label><label><input id="b-review" type="checkbox">경계 주변 건물 ${data.edgeBuildingIndices.length}동 확인</label><label><input id="b-compare" type="checkbox">기존 파란 경계와 비교</label><label><input id="b-wifi" type="checkbox">주변 와이파이 측정지점 참고</label>
@@ -81,6 +82,15 @@
     $('b-mode').onchange=e=>{mode=e.target.value;renderLayers();};
     $('b-3d').onclick=()=>{is3d=!is3d;$('b-3d').setAttribute('aria-pressed',String(is3d));renderLayers();map.easeTo({pitch:is3d?38:0,duration:350});};
     $('b-fit').onclick=()=>frame(350);
+    const answers={
+      '건물·점포':`B권역에 포함된 건물 ${s.buildings}동, 등록점포 위치 ${s.stores}개입니다. 등록점포는 현재 영업 여부를 현장에서 확인한 수가 아닙니다.`,
+      '노후도':`2026년 기준 20년 이상 ${s.old20}동입니다. 연도가 확인된 ${s.knownYear}동 중 ${s.oldPct}%이며, 연도 미확인 ${s.unknownYear}동은 비율에서 제외했습니다.`,
+      '빈 점포':`실제 공실 수와 공실률은 아직 확인되지 않았습니다. 상업지역·등록점포 미연결·용도 조건으로 좁힌 현장 확인 후보는 ${classes.shop||0}동입니다.`,
+      '유동인구':`B권역 안의 와이파이 측정지점은 ${s.wifiInside}곳입니다. 유동인구가 0명이라는 뜻이 아닙니다. 주변 측정값으로 B권역 사람 수를 계산하지 않았습니다.`,
+      '인구·사업체':'B권역 경계와 정확히 일치하는 인구·사업체 변화 자료는 확보되지 않았습니다. 기존 사업구역의 행정동·상권 수치는 주변 참고용이며, 면적 비율로 나눠 B권역 수치로 바꾸지 않습니다.',
+      '경계':`4쪽 빨간 경계 표기는 ${num(data.printedArea)}㎡이고, 이미지에서 옮긴 선의 계산 면적은 ${num(data.computedArea)}㎡입니다. 공식 좌표 경계가 아니며 주변 ${data.edgeBuildingIndices.length}동은 포함 여부 재확인이 필요합니다.`
+    };
+    $('b-questions').onclick=e=>{const key=e.target.textContent;if(answers[key])$('b-answer').textContent=answers[key];};
     ['b-stores','b-roads','b-review','b-compare','b-wifi'].forEach(id=>$(id).onchange=renderLayers);
     ['b-query','b-only-candidate','b-only-edge'].forEach(id=>$(id).addEventListener('input',renderResults));
     $('b-csv').onclick=()=>exportBuildings(buildings,'B권역_건물');
