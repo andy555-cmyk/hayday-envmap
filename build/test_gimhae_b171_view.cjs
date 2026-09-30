@@ -47,3 +47,8 @@ assert.deepEqual(shown,emphasisIds,'All five emphasis layers persist in original
 for(const id of emphasisIds)assert.ok(source.includes("addLayer({id:'"+id+"'"),'Emphasis layer registered: '+id);
 assert.ok(source.includes("ownIds.forEach(id=>setVisibility(id,true));"),'Detail shows registered emphasis layers too');
 console.log('shared B emphasis in overview and detail: PASS');
+assert.ok(!/17\.1ha|4쪽|171,000/.test(source),'No stale page 4 copy in B UI or export');
+assert.ok(source.includes('data.sourcePage')&&source.includes('data.printedArea/10000'),'Source and area labels derive from data');
+assert.ok(source.includes('d.sourcePage!==5||d.printedArea!==156000'),'Fail closed for mixed old/new assets');
+assert.ok(fs.readFileSync(path.join(__dirname,'../gimhae-wondosim.html'),'utf8').includes('gimhae-b171.js?v=page5-r1'),'Reload uses revised script');
+console.log('page 5 provenance, area labels and cache version: PASS');
