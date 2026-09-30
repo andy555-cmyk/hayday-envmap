@@ -61,7 +61,7 @@
     if(on){isolate();renderLayers();document.title='김해 B권역 17.1ha · 환경분석맵';frame(0);}
     else {ownIds.forEach(id=>setVisibility(id,false));visibility.forEach((v,id)=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',v);});document.title=previousTitle;if(savedView)map.jumpTo(savedView);showBoundary();frame(0);}
   }
-  function showBoundary(){['bs-boundary-case','bs-boundary-line'].forEach(id=>setVisibility(id,true));}
+  function showBoundary(){['bs-boundary-fill','bs-boundary-glow','bs-boundary-case','bs-boundary-line','bs-boundary-highlight'].forEach(id=>setVisibility(id,true));}
   function renderLayers(){
     if(!active)return;
     ownIds.forEach(id=>setVisibility(id,true));
@@ -172,15 +172,20 @@
     addLayer({id:'bs-flat',type:'fill',source:'bs-buildings',paint:{'fill-color':colors,'fill-opacity':.88,'fill-outline-color':'#222d3b'}});
     addLayer({id:'bs-3d',type:'fill-extrusion',source:'bs-buildings',paint:{'fill-extrusion-color':colors,'fill-extrusion-opacity':.95,'fill-extrusion-height':['*',['max',['coalesce',['get','fl'],1],1],3.3]}});
     addLayer({id:'bs-compare',type:'line',source:'bs-compare',paint:{'line-color':'#64afff','line-width':2,'line-dasharray':[3,2]}});
-    addLayer({id:'bs-boundary-case',type:'line',source:'bs-boundary',paint:{'line-color':'#092c29','line-width':8,'line-opacity':.9}});
-    addLayer({id:'bs-boundary-line',type:'line',source:'bs-boundary',paint:{'line-color':'#68f0c7','line-width':4,'line-dasharray':[3,1.5]}});
+    // Shared emphasis in overview and detail: tint + halo + dark separation + mint edge.
+    // These are visual review boundaries, never survey lines or new building classifications.
+    addLayer({id:'bs-boundary-fill',type:'fill',source:'bs-boundary',paint:{'fill-color':'#52ffcb','fill-opacity':.16}});
+    addLayer({id:'bs-boundary-glow',type:'line',source:'bs-boundary',paint:{'line-color':'#50ffca','line-width':30,'line-blur':9,'line-opacity':.85}});
+    addLayer({id:'bs-boundary-case',type:'line',source:'bs-boundary',paint:{'line-color':'#032820','line-width':15,'line-opacity':1}});
+    addLayer({id:'bs-boundary-line',type:'line',source:'bs-boundary',paint:{'line-color':'#59ffd1','line-width':8,'line-opacity':1}});
+    addLayer({id:'bs-boundary-highlight',type:'line',source:'bs-boundary',paint:{'line-color':'#f1fff9','line-width':2.5,'line-dasharray':[3,2],'line-opacity':1}});
     addLayer({id:'bs-roads',type:'line',source:'bs-roads',paint:{'line-color':'#ffcd74','line-width':3}});
     addLayer({id:'bs-review',type:'line',source:'bs-review',paint:{'line-color':'#ffde47','line-width':2}});
     addLayer({id:'bs-stores',type:'circle',source:'bs-stores',paint:{'circle-color':'#7de5ca','circle-radius':4,'circle-stroke-width':1,'circle-stroke-color':'#082d2b'}});
     addLayer({id:'bs-wifi',type:'circle',source:'bs-wifi',paint:{'circle-color':'#bfcede','circle-radius':6,'circle-stroke-color':'#fff','circle-stroke-width':1}});
     ownIds.forEach(id=>setVisibility(id,false));
     ready=true;$('scope-b').disabled=false;$('scope-b').textContent='B권역 상세 분석';$('scope-b').onclick=()=>switchScope(true);$('scope-old').onclick=()=>{switchScope(false);frame(350);};
-    const label=document.createElement('div');label.className='b-location-label';label.innerHTML='<b>B권역 17.1ha</b><span>추가 검토 경계</span>';
+    const label=document.createElement('div');label.className='b-location-label';label.innerHTML='<b>B권역 <em>17.1ha</em></b><span>추가 검토 대상 · 임시 경계</span>';
     const ring=data.boundary.geometry.coordinates[0],anchor=ring.reduce((a,p)=>p[1]>a[1]?p:a,ring[0]);
     new maplibregl.Marker({element:label,anchor:'bottom',offset:[0,-10]}).setLngLat(anchor).addTo(map);
     // Newly added legacy layers are hidden and remembered, without changing their data.

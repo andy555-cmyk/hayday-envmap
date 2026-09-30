@@ -39,3 +39,11 @@ assert.deepEqual(JSON.parse(JSON.stringify(bounds)),[[2,2],[3,3]],'Explicit clos
 assert.ok(source.includes("get('scope')==='b171'"),'B detail is opt-in; original map is default');
 assert.ok(source.includes("contextIds.has(layer.id)"),'Keep original boundaries and landmarks in B detail');
 console.log('combined extent, explicit closeup, default original view: PASS');
+const emphasisIds=['bs-boundary-fill','bs-boundary-glow','bs-boundary-case','bs-boundary-line','bs-boundary-highlight'];
+const shown=[];
+const boundaryCode=source.slice(source.indexOf('  function showBoundary('),source.indexOf('  function renderLayers('));
+vm.runInNewContext(boundaryCode+'\nshowBoundary();',{setVisibility:(id,on)=>{if(on)shown.push(id);}});
+assert.deepEqual(shown,emphasisIds,'All five emphasis layers persist in original overview');
+for(const id of emphasisIds)assert.ok(source.includes("addLayer({id:'"+id+"'"),'Emphasis layer registered: '+id);
+assert.ok(source.includes("ownIds.forEach(id=>setVisibility(id,true));"),'Detail shows registered emphasis layers too');
+console.log('shared B emphasis in overview and detail: PASS');
