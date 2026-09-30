@@ -10,7 +10,7 @@ function check(name, width, viewport, panel, expectedLeft, expectedBottom) {
   let actual;
   vm.runInNewContext(frameCode + '\nframe(0);', {
     data: { boundary: { geometry: { coordinates: [[[128.88,35.23],[128.89,35.24],[128.88,35.23]]] } } },
-    innerWidth: width, is3d: true,
+    innerWidth: width, is3d: true, ZP:{features:[]},
     $: () => ({ getBoundingClientRect: () => panel }),
     map: { getContainer: () => ({ getBoundingClientRect: () => viewport }), fitBounds: (_, options) => { actual = options; } }
   });
@@ -29,3 +29,13 @@ check('print hidden panel',1280,{left:0,bottom:720,width:1280,height:676},{right
 assert.ok(source.includes('const colors=MODES.old.p;'), 'Use the existing age palette');
 assert.ok(source.includes('!included.has(i)'), 'Context buildings exclude the B membership');
 console.log('shared age palette and disjoint context: PASS');
+let bounds;
+const boundary={geometry:{coordinates:[[[2,2],[3,3],[2,2]]]}};
+const combinedContext={data:{boundary},ZP:{features:[{properties:{k:'blue'},geometry:{coordinates:[[[0,0],[4,4],[0,0]]]}},{properties:{k:'black'},geometry:{coordinates:[[[-1,-1],[5,5],[-1,-1]]]}}]},innerWidth:1280,is3d:true,$:()=>({getBoundingClientRect:()=>({right:320,top:56,width:320,height:664})}),map:{getContainer:()=>({getBoundingClientRect:()=>({left:320,top:56,bottom:720,width:960,height:664})}),fitBounds:(b)=>{bounds=b;}}};
+vm.runInNewContext(frameCode+'\nframe(0);',combinedContext);
+assert.deepEqual(JSON.parse(JSON.stringify(bounds)),[[-1,-1],[5,5]],'Together view includes original boundaries and B');
+vm.runInNewContext(frameCode+'\nframe(0,true);',combinedContext);
+assert.deepEqual(JSON.parse(JSON.stringify(bounds)),[[2,2],[3,3]],'Explicit closeup fits B only');
+assert.ok(source.includes("get('scope')==='b171'"),'B detail is opt-in; original map is default');
+assert.ok(source.includes("contextIds.has(layer.id)"),'Keep original boundaries and landmarks in B detail');
+console.log('combined extent, explicit closeup, default original view: PASS');

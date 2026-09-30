@@ -6,14 +6,16 @@
   const num = v => Number(v).toLocaleString('ko-KR');
   const fc = features => ({type:'FeatureCollection',features});
   const switcher = document.createElement('div'); switcher.id='scope-switch';
-  switcher.innerHTML='<div class="scope-label">분석 범위 선택</div><div class="scope-buttons"><button id="scope-b" disabled aria-pressed="false">B권역 불러오는 중</button><button id="scope-old" aria-pressed="true">기존 사업구역</button></div><div id="scope-status" role="status"></div>';
+  switcher.innerHTML='<div class="scope-label">기존 지도에 B권역 함께 보기</div><div class="scope-buttons"><button id="scope-old" aria-pressed="true">전체 · B 함께 보기</button><button id="scope-b" disabled aria-pressed="false">B권역 불러오는 중</button></div><div id="scope-status" role="status"></div>';
   $('detail').prepend(switcher);
   const panel=document.createElement('section');panel.id='b-panel';$('detail').append(panel);
+  const overview=document.createElement('section');overview.id='b-overview';switcher.after(overview);
   const caption=document.createElement('div');caption.id='b-map-caption';document.body.append(caption);
   let data, buildings, stores, active=false, ready=false, mode='old', is3d=true, savedView, popup;
   let visibility=new Map(), previousTitle=document.title;
   const baseIds=new Set(['bg','sat','dark','light']);
   const ownIds=[];
+  const contextIds=new Set(['zone-f','zone-glow','zone-cas','zone-l','zone-blue','zone-blue2','zone-lab','wall-3d','hub-c','hub-t','hub-3d']);
   // Same building source, height and age palette as the existing map.
   const colors=MODES.old.p;
   const ageLegend=[['#b32318','1975년 이전'],['#d9532b','1990년'],['#ef8f3c','2000년'],['#f3c37a','2010년'],['#efe7d9','2018년'],['#faf7f1','2024년 이후'],['#cfc9bf','연도 미확인']];
@@ -25,23 +27,25 @@
   function isolate(){
     if(!active)return;
     for(const layer of map.getStyle().layers){
-      if(baseIds.has(layer.id)||layer.id.startsWith('bs-'))continue;
+      if(baseIds.has(layer.id)||contextIds.has(layer.id)||layer.id.startsWith('bs-'))continue;
       if(!visibility.has(layer.id))visibility.set(layer.id,map.getLayoutProperty(layer.id,'visibility')||'visible');
       if(map.getLayoutProperty(layer.id,'visibility')!=='none')setVisibility(layer.id,false);
     }
   }
-  function frame(duration=0){
+  function frame(duration=0,closeup=false){
     if(!data)return;
-    const coords=data.boundary.geometry.coordinates[0];
+    const coords=[...data.boundary.geometry.coordinates[0]];
+    // Start with the existing district AND B, never a detached B-only crop.
+    if(!closeup)ZP.features.filter(f=>['black','blue'].includes(f.properties.k)).forEach(f=>coords.push(...f.geometry.coordinates[0]));
     const xs=coords.map(p=>p[0]),ys=coords.map(p=>p[1]);
     const viewport=map.getContainer().getBoundingClientRect(),rect=$('detail').getBoundingClientRect();
     const mobile=innerWidth<=820, panelVisible=rect.width>0&&rect.height>0;
     // Padding is relative to the MAP, not the browser. Desktop already excludes the sidebar.
     const coveredLeft=!mobile&&panelVisible?Math.max(0,rect.right-viewport.left):0;
     const coveredBottom=mobile&&panelVisible?Math.max(0,viewport.bottom-Math.max(rect.top,viewport.top)):0;
-    const side=Math.max(28,(viewport.width-coveredLeft)*.15);
+    const side=Math.max(28,(viewport.width-coveredLeft)*.12);
     const visibleHeight=Math.max(120,viewport.height-coveredBottom);
-    const vertical=Math.max(28,visibleHeight*.14);
+    const vertical=Math.max(28,visibleHeight*.12);
     map.fitBounds([[Math.min(...xs),Math.min(...ys)],[Math.max(...xs),Math.max(...ys)]],{
       padding:{left:coveredLeft+side,right:side,top:vertical,bottom:coveredBottom+vertical},
       pitch:is3d?30:0,bearing:0,duration,maxZoom:17.4
@@ -55,11 +59,13 @@
     active=on;document.body.classList.toggle('b-active',on);document.body.dataset.analysisScope=on?'b171':'legacy';
     $('scope-b').setAttribute('aria-pressed',String(on));$('scope-old').setAttribute('aria-pressed',String(!on));
     if(on){isolate();renderLayers();document.title='김해 B권역 17.1ha · 환경분석맵';frame(0);}
-    else {ownIds.forEach(id=>setVisibility(id,false));visibility.forEach((v,id)=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',v);});document.title=previousTitle;if(savedView)map.jumpTo(savedView);}
+    else {ownIds.forEach(id=>setVisibility(id,false));visibility.forEach((v,id)=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',v);});document.title=previousTitle;if(savedView)map.jumpTo(savedView);showBoundary();frame(0);}
   }
+  function showBoundary(){['bs-boundary-case','bs-boundary-line'].forEach(id=>setVisibility(id,true));}
   function renderLayers(){
     if(!active)return;
     ownIds.forEach(id=>setVisibility(id,true));
+    setVisibility('bs-mask',false);
     setVisibility('bs-flat',!is3d);setVisibility('bs-3d',is3d);
     setVisibility('bs-context-flat',!is3d);setVisibility('bs-context-3d',is3d);
     setVisibility('bs-stores',$('b-stores').checked);setVisibility('bs-roads',$('b-roads').checked);
@@ -69,18 +75,21 @@
     map.setPaintProperty('bs-flat','fill-color',color);map.setPaintProperty('bs-3d','fill-extrusion-color',color);
     const legend=mode==='old'?ageLegend:mode==='candidate'?[['#ef6161','현장 확인 후보'],['#ab8bed','주거'],['#64a1cd','비점포'],['#8a95a5','용도 미확인'],['#68ba93','등록점포 연결']]:[['#ab8bed','단독주택'],['#7487d8','공동주택'],['#e8ab6d','제1종 근생'],['#ee875e','제2종 근생'],['#68bbc8','숙박'],['#8295a8','기타']];
     $('b-legend').innerHTML=legend.map(([c,t])=>`<span><i class="b-dot" style="background:${c}"></i>${t}</span>`).join('');
-    caption.innerHTML=`<b>지금 보고 있는 것 — ${mode==='old'?'노후도 (기존 지도와 같은 색)':mode==='candidate'?'현장 확인 후보':'건물 용도'}</b><div class="b-map-legend">${$('b-legend').innerHTML}</div><span>B권역 17.1ha · 건물 ${num(data.stats.buildings)}동 · 등록점포 ${num(data.stats.stores)}개</span><div class="b-caption-note">빨간선: 임시 검토 경계 · 주변 건물: 위치 참고, 집계 제외</div>`;
+    caption.innerHTML=`<b>지금 보고 있는 것 — ${mode==='old'?'노후도 (기존 지도와 같은 색)':mode==='candidate'?'현장 확인 후보':'건물 용도'}</b><div class="b-map-legend">${$('b-legend').innerHTML}</div><span>B권역 17.1ha · 건물 ${num(data.stats.buildings)}동 · 등록점포 ${num(data.stats.stores)}개</span><div class="b-caption-note">민트 점선: B 검토 경계 · 파란선: 기존 사업구역<br>기존 구역과 주변 건물은 위치 참고 · B 집계와 별도</div>`;
   }
   const table=obj=>'<table>'+Object.entries(obj).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${num(v)}</td></tr>`).join('')+'</table>';
   function renderPanel(){
     const s=data.stats, classes={};buildings.forEach(f=>{const k=f.properties.cl;classes[k]=(classes[k]||0)+1;});
+    overview.innerHTML=`<div class="b-overview-heading"><b><i></i>B권역 추가 검토</b><span>17.1ha</span></div><p>기존 지도 위에 <b>민트 점선</b>으로 겹쳐 표시</p><div class="b-overview-stats"><span>건물 <b>${num(s.buildings)}동</b></span><span>등록점포 <b>${num(s.stores)}개</b></span><span>20년 이상 <b>${s.oldPct}%</b></span></div><p class="b-overview-note">검토용 임시 경계 · 아래 기존 구역 통계와 별도</p><div class="b-overview-actions"><button id="b-together">전체 위치 보기</button><button id="b-closeup">B권역 확대·분석</button></div>`;
+    $('b-together').onclick=()=>frame(350);
+    $('b-closeup').onclick=()=>{switchScope(true);frame(350,true);};
     panel.innerHTML=`<div class="b-eyebrow">김해 원도심 · 분석 범위 B권역</div><h2>김해 원도심 — B권역</h2><p>기존 지도와 같은 건물·노후도 표현 · 집계는 B권역만</p>
       <div class="b-note">검토용 임시 경계입니다. 도면 이미지를 지도에 옮겼으며, 측량 경계가 아닙니다. 경계 주변 건물은 포함 여부를 다시 확인해야 합니다.</div>
       <div class="b-kpis"><div class="b-kpi"><strong>${num(s.buildings)}</strong><span>B권역 건물 · 동</span></div><div class="b-kpi"><strong>${num(s.stores)}</strong><span>등록점포 위치 · 개</span></div><div class="b-kpi"><strong>${s.oldPct}%</strong><span>연도 확인 건물 중 20년 이상</span></div><div class="b-kpi"><strong>${num(s.edgeInside)}</strong><span>포함 건물 중 경계 주변 · 동</span></div></div>
       <p>노후 비율: ${s.old20}동 ÷ 연도 확인 ${s.knownYear}동<br>연도 미확인 ${s.unknownYear}동은 비율 계산에서 제외 · 2026년 기준</p>
       <details open><summary>B권역 자료에 물어보기</summary><div class="b-controls" id="b-questions"><button>건물·점포</button><button>노후도</button><button>빈 점포</button><button>유동인구</button><button>인구·사업체</button><button>경계</button></div><p id="b-answer" role="status">항목을 누르면 B권역 자료만으로 답합니다. 기존 구역 수치와 섞지 않습니다.</p></details>
       <h3>건물 색 · 지도 보기</h3><select id="b-mode" aria-label="건물 색상 구분"><option value="old">노후도 (기존 지도와 동일)</option><option value="use">건물 용도별</option><option value="candidate">빈 점포 현장 확인 후보</option></select>
-      <div id="b-legend" class="b-legend"></div><div class="b-controls"><button id="b-3d" aria-pressed="true">입체 건물</button><button id="b-fit">B권역 전체 보기</button></div>
+      <div id="b-legend" class="b-legend"></div><div class="b-controls"><button id="b-3d" aria-pressed="true">입체 건물</button><button id="b-fit">주변까지 넓게 보기</button><button id="b-focus">B권역만 확대</button></div>
       <label><input id="b-stores" type="checkbox">등록점포 ${s.stores}개 표시</label><label><input id="b-roads" type="checkbox">B권역 안 도로 표시</label><label><input id="b-review" type="checkbox">경계 주변 건물 ${data.edgeBuildingIndices.length}동 확인</label><label><input id="b-compare" type="checkbox">기존 파란 경계와 비교</label><label><input id="b-wifi" type="checkbox">주변 와이파이 측정지점 참고</label>
       <details><summary>건물 노후도 · 용도</summary>${table(s.bands)}<p>사용승인 연도 기준. 건물 상태·안전등급을 뜻하지 않습니다.</p>${table(s.uses)}</details>
       <details><summary>빈 점포 현장 확인 후보 ${num(classes.shop||0)}동</summary><div class="b-note">실제 공실로 확인한 수가 아닙니다. 기존 자료의 상업지역·연결 점포 0개 조건에 건물 용도 등을 대조한 현장 확인 후보입니다.</div>${table(Object.fromEntries(Object.entries(classes).map(([k,v])=>[labels[k],v])))}<p>상가 위치 ${s.stores}개와 건물별 연결 점포 수는 서로 다른 기준이므로 합계가 같지 않을 수 있습니다.</p></details>
@@ -91,6 +100,7 @@
     $('b-mode').onchange=e=>{mode=e.target.value;renderLayers();};
     $('b-3d').onclick=()=>{is3d=!is3d;$('b-3d').setAttribute('aria-pressed',String(is3d));renderLayers();frame(350);};
     $('b-fit').onclick=()=>frame(350);
+    $('b-focus').onclick=()=>frame(350,true);
     const answers={
       '건물·점포':`B권역에 포함된 건물 ${s.buildings}동, 등록점포 위치 ${s.stores}개입니다. 등록점포는 현재 영업 여부를 현장에서 확인한 수가 아닙니다.`,
       '노후도':`2026년 기준 20년 이상 ${s.old20}동입니다. 연도가 확인된 ${s.knownYear}동 중 ${s.oldPct}%이며, 연도 미확인 ${s.unknownYear}동은 비율에서 제외했습니다.`,
@@ -136,7 +146,7 @@
       ctx.font='15px sans-serif';let x=24,y=height+126;
       for(const item of $('b-legend').children){const label=item.textContent,w=ctx.measureText(label).width+38;if(x+w>width-24){x=24;y+=25;}ctx.fillStyle=item.querySelector('i').style.background;ctx.fillRect(x,y-12,12,12);ctx.fillStyle='#ecf2f9';ctx.fillText(label,x+18,y);x+=w;}
       ctx.fillStyle='#cad7e4';
-      const overlays=['빨간선: B권역'];if($('b-review').checked)overlays.push('노란 테두리: 경계 주변');if($('b-stores').checked)overlays.push('민트 점: 등록점포');if($('b-compare').checked)overlays.push('파란선: 기존 범위');if($('b-roads').checked)overlays.push('주황선: 도로');if($('b-wifi').checked)overlays.push('회색 점: 주변 와이파이');
+      const overlays=['민트 점선: B권역','파란선: 기존 사업구역'];if($('b-review').checked)overlays.push('노란 테두리: 경계 주변');if($('b-stores').checked)overlays.push('민트 점: 등록점포');if($('b-roads').checked)overlays.push('주황선: 도로');if($('b-wifi').checked)overlays.push('회색 점: 주변 와이파이');
       ctx.fillText(overlays.join(' · '),24,height+175);
       ctx.font='13px sans-serif';ctx.fillText('자료: 기존 환경분석맵 / 상가정보 2026.06 / 구역계검토자료 4쪽 · 2026년 기준',24,height+198);
       ctx.fillText('배경지도: Esri World Imagery / © OpenStreetMap contributors © CARTO (선택 배경에 따름)',24,height+219);
@@ -153,7 +163,7 @@
     const included=new Set(data.buildingIndices);
     addSource('bs-context',fc(D.bld.features.filter((_,i)=>!included.has(i))));
     addLayer({id:'bs-context-flat',type:'fill',source:'bs-context',paint:{'fill-color':colors,'fill-opacity':.55}});
-    addLayer({id:'bs-context-3d',type:'fill-extrusion',source:'bs-context',paint:{'fill-extrusion-color':colors,'fill-extrusion-opacity':.65,'fill-extrusion-height':['*',['max',['coalesce',['get','fl'],1],1],3.3]}});
+    addLayer({id:'bs-context-3d',type:'fill-extrusion',source:'bs-context',paint:{'fill-extrusion-color':colors,'fill-extrusion-opacity':1,'fill-extrusion-height':['*',['max',['coalesce',['get','fl'],1],1],3.3]}});
     addSource('bs-buildings',fc(buildings));addSource('bs-boundary',data.boundary);addSource('bs-review',fc(reviewBuildings()));addSource('bs-roads',data.roads);addSource('bs-wifi',WIFIPT);
     addSource('bs-stores',fc(stores.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p.lon,p.lat]},properties:p}))));
     addSource('bs-compare',fc(ZP.features.filter(f=>f.properties.k==='blue')));
@@ -162,19 +172,23 @@
     addLayer({id:'bs-flat',type:'fill',source:'bs-buildings',paint:{'fill-color':colors,'fill-opacity':.88,'fill-outline-color':'#222d3b'}});
     addLayer({id:'bs-3d',type:'fill-extrusion',source:'bs-buildings',paint:{'fill-extrusion-color':colors,'fill-extrusion-opacity':.95,'fill-extrusion-height':['*',['max',['coalesce',['get','fl'],1],1],3.3]}});
     addLayer({id:'bs-compare',type:'line',source:'bs-compare',paint:{'line-color':'#64afff','line-width':2,'line-dasharray':[3,2]}});
-    addLayer({id:'bs-boundary-case',type:'line',source:'bs-boundary',paint:{'line-color':'#fff2e8','line-width':6,'line-opacity':.8}});
-    addLayer({id:'bs-boundary-line',type:'line',source:'bs-boundary',paint:{'line-color':'#ff454d','line-width':3}});
+    addLayer({id:'bs-boundary-case',type:'line',source:'bs-boundary',paint:{'line-color':'#092c29','line-width':8,'line-opacity':.9}});
+    addLayer({id:'bs-boundary-line',type:'line',source:'bs-boundary',paint:{'line-color':'#68f0c7','line-width':4,'line-dasharray':[3,1.5]}});
     addLayer({id:'bs-roads',type:'line',source:'bs-roads',paint:{'line-color':'#ffcd74','line-width':3}});
     addLayer({id:'bs-review',type:'line',source:'bs-review',paint:{'line-color':'#ffde47','line-width':2}});
     addLayer({id:'bs-stores',type:'circle',source:'bs-stores',paint:{'circle-color':'#7de5ca','circle-radius':4,'circle-stroke-width':1,'circle-stroke-color':'#082d2b'}});
     addLayer({id:'bs-wifi',type:'circle',source:'bs-wifi',paint:{'circle-color':'#bfcede','circle-radius':6,'circle-stroke-color':'#fff','circle-stroke-width':1}});
     ownIds.forEach(id=>setVisibility(id,false));
-    ready=true;$('scope-b').disabled=false;$('scope-b').textContent='B권역 17.1ha';$('scope-b').onclick=()=>switchScope(true);$('scope-old').onclick=()=>switchScope(false);
+    ready=true;$('scope-b').disabled=false;$('scope-b').textContent='B권역 상세 분석';$('scope-b').onclick=()=>switchScope(true);$('scope-old').onclick=()=>{switchScope(false);frame(350);};
+    const label=document.createElement('div');label.className='b-location-label';label.innerHTML='<b>B권역 17.1ha</b><span>추가 검토 경계</span>';
+    const ring=data.boundary.geometry.coordinates[0],anchor=ring.reduce((a,p)=>p[1]>a[1]?p:a,ring[0]);
+    new maplibregl.Marker({element:label,anchor:'bottom',offset:[0,-10]}).setLngLat(anchor).addTo(map);
     // Newly added legacy layers are hidden and remembered, without changing their data.
     let queued=false;map.on('styledata',()=>{if(active&&!queued){queued=true;queueMicrotask(()=>{queued=false;isolate();});}});
     map.on('click',e=>{if(!active)return;const f=map.queryRenderedFeatures(e.point,{layers:['bs-stores','bs-review','bs-3d','bs-flat','bs-wifi']})[0];if(!f)return;const p=f.properties;if(f.layer.id==='bs-stores'||f.layer.id==='bs-wifi'){popup?.remove();popup=new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="b-popup"><strong>${esc(p.nm||p.n)}</strong><p>${esc(p.L||'주변 참고 지점 · B권역 집계 제외')}</p><p>${esc(p.rd||p.ad||'')}</p></div>`).addTo(map);}else showBuilding(e.lngLat,p);});
     document.body.dataset.bBuildings=String(buildings.length);document.body.dataset.bStores=String(stores.length);document.body.dataset.bReady='true';
-    switchScope(new URLSearchParams(location.search).get('scope')!=='legacy');
+    const detailRequested=new URLSearchParams(location.search).get('scope')==='b171';
+    if(detailRequested)switchScope(true);else{document.body.dataset.analysisScope='legacy';showBoundary();frame(0);}
   }
   window.GimhaeB={get active(){return active;},frame,shot};
   fetch('data/gimhae-b171.json').then(r=>{if(!r.ok)throw Error('경계 자료를 불러오지 못했습니다');return r.json();}).then(async d=>{
