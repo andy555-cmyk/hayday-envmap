@@ -917,6 +917,7 @@ map.addControl(new maplibregl.ScaleControl({maxWidth:120,unit:'metric'}),'bottom
 
 const VIEW={pitch:30,bearing:0};
 function frame(dur){
+  if(window.GimhaeB?.active)return window.GimhaeB.frame(dur);
   const f=ZP.features.find(x=>x.properties.k==='black')||ZP.features.find(x=>x.properties.k==='blue');
   if(!f){map.easeTo({center:[128.8827,35.2325],zoom:15.1,...VIEW,duration:dur||0});return;}
   const cs=f.geometry.coordinates[0],xs=cs.map(c=>c[0]),ys=cs.map(c=>c[1]);
@@ -1556,6 +1557,7 @@ function ui(){
  frame(0);
  window.addEventListener('resize',()=>{clearTimeout(window.__rz);window.__rz=setTimeout(()=>frame(0),350);});
  map.on('click',e=>{
+   if(window.GimhaeB?.active)return;
    if(DRAW.on){DRAW.pts.push([+e.lngLat.lng.toFixed(6),+e.lngLat.lat.toFixed(6)]);drawRender();return;}
    const _p6=document.getElementById('p6'); if(_p6&&_p6.classList.contains('on')){window.__LC=e.lngLat;radAt(e.lngLat);radChip(true);}
    const f=map.queryRenderedFeatures(e.point,{layers:['gate-c','tms-c','sd-c','bus-c','safe-c','poi-c','pt-c','hier-l','terr-f','bld-3d','bld-f'].filter(l=>map.getLayer(l))})[0];
@@ -1889,6 +1891,7 @@ function hdShot(name){
 }
 window.hdShot=hdShot;
 function saveShot(){
+  if(window.GimhaeB?.active)return window.GimhaeB.shot();
   const t=document.querySelector('#tabs button.on');
   const nm='김해_환경분석맵_'+((t&&t.textContent.trim())||'화면');
   const c=map.getCanvas();
@@ -2203,4 +2206,6 @@ const ASKCHIPS=["공실률", "빈 점포", "노후건축물", "인구 감소", "
   });
 })();
 </script>
+<link rel="stylesheet" href="data/gimhae-b171.css">
+<script src="data/gimhae-b171.js"></script>
 </body></html>
