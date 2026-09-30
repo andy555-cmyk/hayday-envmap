@@ -250,6 +250,13 @@
     addLayer({id:'bs-stores',type:'circle',source:'bs-stores',paint:{'circle-color':'#7de5ca','circle-radius':4,'circle-stroke-width':1,'circle-stroke-color':'#082d2b'}});
     addLayer({id:'bs-wifi',type:'circle',source:'bs-wifi',paint:{'circle-color':'#bfcede','circle-radius':6,'circle-stroke-color':'#fff','circle-stroke-width':1}});
     ownIds.forEach(id=>setVisibility(id,false));
+    // A focus action on the original map must not switch analysis scopes.
+    const focusButton=document.createElement('button');focusButton.id='focus-b-area';focusButton.className='zf';
+    focusButton.textContent=`B권역 ${areaLabel()}`;
+    focusButton.onclick=()=>{popup?.remove();showBoundary();frame(450,true);};
+    $('focusbx').append(focusButton);
+    // The scope switch stays unscaled; offset the zoomed sticky navigation by its real height.
+    new ResizeObserver(()=>panel.style.setProperty('--b-scope-height',switcher.getBoundingClientRect().height+'px')).observe(switcher);
     ready=true;$('scope-b').disabled=false;$('scope-b').textContent='B권역 상세 분석';$('scope-b').onclick=()=>switchScope(true);$('scope-old').onclick=()=>{switchScope(false);frame(350);};
     const label=document.createElement('div');label.className='b-location-label';label.innerHTML=`<b>B권역 <em>${areaLabel()}</em></b><span>도면 ${data.sourcePage}쪽 · 검토 경계</span>`;
     const ring=data.boundary.geometry.coordinates[0],anchor=ring.reduce((a,p)=>p[1]>a[1]?p:a,ring[0]);
