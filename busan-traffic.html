@@ -795,15 +795,42 @@ function toggleFlow() {
 }
 
 /* ── 실시간 모드 ────────────────────────────────────────────────
-   부산광역시 교통정보서비스센터 오픈API 3종을 브라우저에서 직접 부른다.
-   ✅ 엔드포인트가 HTTPS(apis.data.go.kr) 라 mixed content 문제가 없고 CORS 도 열려 있다(2026-08-04 실측).
+   부산광역시 교통정보서비스센터 오픈API 3종을 **프록시(envmap-ask /traffic)를 거쳐** 부른다.
+   🔴 2026-10-05 — 인증키를 이 파일에 직접 넣었다가 공개 저장소·공개 페이지로 노출됐다.
+      키는 프록시 서버 환경변수(DATA_GO_KR_KEY)에만 둔다. **이 파일에 키를 다시 넣지 않는다.**
+      프록시가 없거나 키가 비어 있으면 실시간만 꺼지고, 지도는 저장 자료로 그대로 동작한다.
    🔴 개발계정 일일 트래픽 500건이다. 그래서
       · 실시간은 **수동으로 켜야** 시작한다 (기본 꺼짐)
       · 갱신은 5분 주기, **1시간(12회) 뒤 자동 정지**
       · 1세션 최대 3×13 = 39건
    🔴 지도에 색을 칠하는 건 **링크ID(lkId)가 정확히 맞는 구간뿐이다.**
       구간명만 주는 DSRC·AVI 는 좌표를 추정하지 않고 아래 목록으로만 보여준다. */
-const LIVE_KEY = '89fb930352a3723bb856c1626d4cb883a874f93d6f374355385693872185ac49';
+const LIVE_PROXY = 'https://port-0-envmap-ask-mrksc1tcf2e7efab.sel3.cloudtype.app';
+let liveErr = '', liveSeq = 0;
+async function liveGet(path, pageNo, rows) {
+  const r = await fetch(`${LIVE_PROXY}/traffic?path=${encodeURIComponent(path)}&pageNo=${pageNo}&numOfRows=${rows}`);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { liveErr = j.error || ('HTTP ' + r.status); throw new Error(liveErr); }
+  return j;
+}
+/* 켜기 전에 프록시 상태만 본다(원 API 호출 0건). 문제가 있으면 사유를 돌려준다 */
+async function liveCheck() {
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 20000);
+  try {
+    const r = await fetch(`${LIVE_PROXY}/traffic/health`, { signal: ac.signal });
+    if (!r.ok) return '실시간 서버가 아직 준비되지 않았습니다';
+    const j = await r.json();
+    return j.configured ? '' : '실시간 서버에 교통 API 키가 설정되지 않았습니다';
+  } catch (e) { return '실시간 서버에 연결할 수 없습니다'; }
+  finally { clearTimeout(t); }
+}
+function liveFail(msg) {
+  liveOn = false; clearInterval(liveTimer); liveTimer = null; liveData = null;
+  const b = document.getElementById('liveb'); if (b) { b.classList.remove('on'); b.textContent = '실시간'; }
+  paint(); paintAviVol(); updateHead(); renderLegend(); renderRank(); renderMetric();
+  const el = document.getElementById('livebox');
+  if (el) el.innerHTML = `<div class="sec"><div class="note">실시간 연결 안 됨 — ${String(msg).replace(/[<>&]/g, '')}. 저장된 자료로 표시 중입니다.</div></div>`;
+}
 const LIVE_API = [
   ['EXL',  'BusanITSEXL/EXLTraffic',        'lkId'],
   ['DSRC', 'BusanITSDSRC/DSRCSectSpd',      'rseSxnNm'],
@@ -813,8 +840,7 @@ const LIVE_API = [
 const AVI_VOL_PATH = 'BusanITSAVI/AVIList';
 async function liveFetchAviVol() {
   try {
-    const r = await fetch(`https://apis.data.go.kr/6260000/${AVI_VOL_PATH}?serviceKey=${LIVE_KEY}&pageNo=1&numOfRows=200&resultType=json`);
-    const j = await r.json();
+    const j = await liveGet(AVI_VOL_PATH, 1, 100);   /* 200 은 원 API 가 거부한다(10/5 실측). 지점 75개라 100이면 충분 */
     return ((j.content && j.content.items) || [])
       .filter(x => x.lot && x.lat)
       .map(x => ({ nm: x.aviSpotNm, x: +x.lot, y: +x.lat, vol: +x.vol || 0, at: x.statsDt }));
@@ -828,8 +854,7 @@ async function liveFetchSect() {
   const rows = [];
   for (let p = 1; p <= SECT_PAGES; p++) {
     try {
-      const r = await fetch(`https://apis.data.go.kr/6260000/${SECT_PATH}?serviceKey=${LIVE_KEY}&pageNo=${p}&numOfRows=100&resultType=json`);
-      const j = await r.json();
+      const j = await liveGet(SECT_PATH, p, 100);
       const it = (j.content && j.content.items) || [];
       if (!it.length) break;
       for (const x of it) rows.push({ nm: x.sxnNm, a: x.bgngSxnNm, b: x.endSxnNm, spd: +x.spd, vol: +x.vol || 0 });
@@ -842,8 +867,7 @@ async function liveFetch() {
   const out = { byIdx: {}, rows: [], at: null, src: {} };
   for (const [nm, path] of LIVE_API) {
     try {
-      const r = await fetch(`https://apis.data.go.kr/6260000/${path}?serviceKey=${LIVE_KEY}&pageNo=1&numOfRows=100&resultType=json`);
-      const j = await r.json();
+      const j = await liveGet(path, 1, 100);
       const it = (j.content && j.content.items) || [];
       out.src[nm] = it.length;
       for (const x of it) {
@@ -862,11 +886,14 @@ async function liveFetch() {
 }
 async function liveRefresh(manual) {
   if (liveBusy) return;
-  liveBusy = true;
+  liveBusy = true; liveErr = '';
   const b = document.getElementById('liveb'); if (b) b.textContent = '실시간 ⋯';
   try {
-    liveData = await liveFetch();
-    liveData.avol = await liveFetchAviVol();
+    const d = await liveFetch();
+    d.avol = await liveFetchAviVol();
+    /* 둘 다 비었고 프록시가 사유를 줬으면(한도 소진·키 오류) 실시간을 접는다 */
+    if (!d.rows.length && !d.avol.length && liveErr) { liveFail(liveErr); return; }
+    liveData = d;
     paintAviVol();
     if (manual) {
       liveData.sect = await liveFetchSect();
@@ -884,11 +911,16 @@ function toggleLive() {
   const b = document.getElementById('liveb'); if (b) b.classList.toggle('on', liveOn);
   if (liveOn) {
     liveTick = 0;
-    liveRefresh(true);
-    liveTimer = setInterval(() => {
-      if (liveTick >= LIVE_MAX_TICK) { clearInterval(liveTimer); liveTimer = null; renderLive(); return; }
-      liveRefresh(false);
-    }, LIVE_PERIOD);
+    const seq = ++liveSeq;
+    liveCheck().then(msg => {
+      if (!liveOn || seq !== liveSeq) return;
+      if (msg) return liveFail(msg);
+      liveRefresh(true);
+      liveTimer = setInterval(() => {
+        if (liveTick >= LIVE_MAX_TICK) { clearInterval(liveTimer); liveTimer = null; renderLive(); return; }
+        liveRefresh(false);
+      }, LIVE_PERIOD);
+    });
   } else {
     paint(); renderLive(); updateHead();
   }
