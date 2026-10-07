@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>종합분석맵</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23101413'/%3E%3Ccircle cx='16' cy='16' r='10' fill='none' stroke='%23E6E7E8' stroke-width='1.4' stroke-dasharray='2 2'/%3E%3Ccircle cx='16' cy='16' r='4.5' fill='%23F8ED30'/%3E%3Cpath d='M5 25 Q16 6 27 9' fill='none' stroke='%23EE2F2B' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="vendor/maplibre-gl-4.7.1/maplibre-gl.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Do+Hyeon&display=swap">
+<style>
+  :root{color-scheme:dark;--bg:#050605;--ink:#e9ecea;--dim:#9aa3a0;--line:rgba(255,255,255,.12);--yellow:#F8ED30;--red:#EE2F2B}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+  .gate{min-height:100%;display:grid;place-items:center;padding:24px 16px;box-sizing:border-box;
+    background:radial-gradient(circle at 50% 42%,rgba(248,237,48,.07),transparent 38%),repeating-radial-gradient(circle at 50% 42%,transparent 0 46px,rgba(230,231,232,.06) 46px 47px),var(--bg)}
+  form{width:min(340px,100%);background:#0e1211;border:1px solid var(--line);border-radius:14px;padding:26px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  h1{font-family:"Black Han Sans","Do Hyeon",sans-serif;font-weight:400;font-size:30px;margin:0 0 2px;color:var(--yellow);letter-spacing:-.01em}
+  p{margin:0 0 18px;color:var(--dim);font-size:13px;line-height:1.55}
+  label{display:block;font-size:12px;color:var(--dim);margin-bottom:6px}
+  input[type=password]{width:100%;box-sizing:border-box;padding:12px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:#070908;color:#fff;font-size:16px}
+  input[type=password]:focus{outline:2px solid rgba(248,237,48,.6);outline-offset:1px}
+  .row{display:flex;align-items:center;gap:8px;margin:12px 0 14px;font-size:13px;color:var(--dim)}
+  .row input{width:18px;height:18px;accent-color:var(--yellow)}
+  button{width:100%;min-height:46px;border:0;border-radius:9px;background:var(--yellow);color:#111;font-weight:700;font-size:15px;cursor:pointer}
+  button:disabled{opacity:.6;cursor:wait}
+  .err{min-height:18px;margin-top:10px;font-size:12.5px;color:#ff8a80}
+  .foot{margin-top:14px;font-size:11px;color:#6f7875;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <form id="f" autocomplete="on">
+    <h1>종합분석맵</h1>
+    <p>김해 원도심 · 경전철 3개 역 × 가야 유적<br>내부 검토용 — 받은 비밀번호를 넣어 주세요.</p>
+    <label for="pw">비밀번호</label>
+    <input id="pw" name="password" type="password" autocomplete="current-password" required autofocus>
+    <div class="row"><input id="keep" type="checkbox" checked><label for="keep" style="margin:0">이 기기에서 30일 동안 기억</label></div>
+    <button id="go" type="submit">열기</button>
+    <div class="err" id="err" role="alert"></div>
+    <div class="foot">자료와 화면은 암호화돼 있어 비밀번호 없이는 열리지 않습니다. 만든 날 2026-10-08 02:09</div>
+  </form>
+</div>
+<script src="vendor/maplibre-gl-4.7.1/maplibre-gl.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const toB64 = u => btoa(String.fromCharCode(...new Uint8Array(u)));
+  const KEEP = 'synmap-key';
+  let pack = null;
+  async function getPack() { if (!pack) { const r = await fetch('app.bin', { cache: 'no-cache' }); if (!r.ok) throw new Error('자료 파일을 받지 못했습니다(' + r.status + ')'); pack = await r.json(); } return pack; }
+  async function keyFrom(pw, p) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(p.salt), iterations: p.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+  }
+  async function open(key, p) {
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(p.iv) }, key, b64(p.ct));
+    return JSON.parse(new TextDecoder().decode(plain));
+  }
+  function boot(app) {
+    const BASE = location.pathname.replace(/[^/]*$/, '');
+    const files = app.files, real = window.fetch.bind(window);
+    window.fetch = async (input, init) => {
+      try {
+        const u = new URL(typeof input === 'string' ? input : input.url, location.href);
+        if (u.origin === location.origin && u.pathname.startsWith(BASE)) {
+          const rel = decodeURIComponent(u.pathname.slice(BASE.length));
+          const head = (init?.method || 'GET').toUpperCase() === 'HEAD';
+          if (Object.prototype.hasOwnProperty.call(files, rel)) return new Response(head ? null : files[rel], { status: 200, headers: { 'content-type': rel.endsWith('.json') ? 'application/json' : 'text/plain' } });
+          if (rel === 'api/cases') return new Response(JSON.stringify(app.cases), { status: 200, headers: { 'content-type': 'application/json' } });
+          if (rel.startsWith('api/')) return new Response('{}', { status: 404 });
+        }
+      } catch (e) { /* 원래 fetch 로 */ }
+      return real(input, init);
+    };
+    const st = document.createElement('style'); st.textContent = app.css; document.head.appendChild(st);
+    document.body.innerHTML = app.body;
+    const sc = document.createElement('script'); sc.textContent = app.js; document.body.appendChild(sc);
+  }
+  async function tryKeep() {
+    try {
+      const k = JSON.parse(localStorage.getItem(KEEP) || 'null');
+      if (!k || Date.now() > k.exp) return false;
+      const p = await getPack();
+      if (k.salt !== p.salt) return false;
+      const key = await crypto.subtle.importKey('raw', b64(k.k), { name: 'AES-GCM' }, false, ['decrypt']);
+      boot(await open(key, p)); return true;
+    } catch (e) { try { localStorage.removeItem(KEEP); } catch (_) {} return false; }
+  }
+  $('f').addEventListener('submit', async e => {
+    e.preventDefault();
+    $('go').disabled = true; $('err').textContent = '';
+    try {
+      const p = await getPack();
+      const key = await keyFrom($('pw').value, p);
+      let app;
+      try { app = await open(key, p); } catch (_) { throw new Error('비밀번호가 다릅니다'); }
+      if ($('keep').checked) { try { localStorage.setItem(KEEP, JSON.stringify({ k: toB64(await crypto.subtle.exportKey('raw', key)), salt: p.salt, exp: Date.now() + 30 * 864e5 })); } catch (_) {} }
+      boot(app);
+    } catch (err) { $('err').textContent = err.message || String(err); $('go').disabled = false; }
+  });
+  tryKeep();
+})();
+</script>
+</body>
+</html>
