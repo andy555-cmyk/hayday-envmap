@@ -42,10 +42,10 @@
   <form id="f" autocomplete="on">
     <label for="pw">비밀번호</label>
     <input id="pw" name="password" type="password" autocomplete="current-password" required autofocus>
-    <div class="row"><input id="keep" type="checkbox" checked><label for="keep">이 기기에서 30일 동안 기억</label></div>
+    <div class="row"><input id="keep" type="checkbox"><label for="keep">이 기기에서 30일 동안 기억(개인 기기에서만)</label></div>
     <button id="go" type="submit">열기</button>
     <div class="err" id="err" role="alert"></div>
-    <div class="foot">내용·그림·문서는 모두 암호화돼 있어 비밀번호 없이는 열리지 않습니다. 갱신 2026-10-10 13:23</div>
+    <div class="foot">내용·그림·문서는 모두 암호화돼 있어 비밀번호 없이는 열리지 않습니다. 갱신 2026-10-10 13:40</div>
   </form>
   <div class="spacer"></div>
 </div>
@@ -62,7 +62,9 @@
     return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(p.salt), iterations: p.iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
   }
   async function open(key, p) { const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(p.iv) }, key, b64(p.ct)); return JSON.parse(new TextDecoder().decode(plain)); }
+  let booted = false;
   function boot(app, key) {
+    if (booted) return; booted = true;
     const BASE = location.pathname.replace(/[^/]*$/, '');
     const files = app.files, real = window.fetch.bind(window);
     window.__BUILT = app.built;
@@ -87,6 +89,7 @@
         const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.subarray(0, 12) }, key, buf.subarray(12));
         return URL.createObjectURL(new Blob([plain], { type: a.type }));
       })());
+      cache.get(rel).catch(() => cache.delete(rel));   // 한 번 실패해도 다음에 다시 시도
       return cache.get(rel);
     };
     document.getElementById('gate-style')?.remove();
@@ -96,17 +99,18 @@
   }
   function rememberTab(raw, salt) { try { sessionStorage.setItem(KEEP_TAB, JSON.stringify({ k: raw, salt })); } catch (_) {} }
   async function tryKeep() {
+    let p;
+    try { p = await getPack(); } catch (_) { return false; }          // 망 오류면 기억은 그대로 두고 잠금 화면만
     for (const [store, name] of [[sessionStorage, KEEP_TAB], [localStorage, KEEP]]) {
+      let k = null;
+      try { k = JSON.parse(store.getItem(name) || 'null'); } catch (_) {}
+      if (!k) continue;
+      if ((k.exp && Date.now() > k.exp) || k.salt !== p.salt) { try { store.removeItem(name); } catch (_) {} continue; } // 기한 지난·다른 판 열쇠는 지움
       try {
-        const k = JSON.parse(store.getItem(name) || 'null');
-        if (!k || (k.exp && Date.now() > k.exp)) continue;
-        const p = await getPack();
-        if (k.salt !== p.salt) continue;
         const key = await crypto.subtle.importKey('raw', b64(k.k), { name: 'AES-GCM' }, false, ['decrypt']);
         const app = await open(key, p);
-        rememberTab(k.k, p.salt);
-        boot(app, key); return true;
-      } catch (e) { try { store.removeItem(name); } catch (_) {} }
+        rememberTab(k.k, p.salt); boot(app, key); return true;
+      } catch (_) { try { store.removeItem(name); } catch (_) {} }        // 비밀번호가 바뀌어 안 풀리는 열쇠만 지움
     }
     return false;
   }
@@ -124,7 +128,8 @@
       boot(app, key);
     } catch (err) { $('err').textContent = err.message || String(err); $('go').disabled = false; $('go').textContent = '열기'; }
   });
-  tryKeep();
+  $('go').disabled = true;
+  tryKeep().finally(() => { if (!booted) $('go').disabled = false; });
 })();
 </script>
 </body>
