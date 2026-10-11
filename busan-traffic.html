@@ -795,17 +795,20 @@ function toggleFlow() {
 }
 
 /* ── 실시간 모드 ────────────────────────────────────────────────
-   부산광역시 교통정보서비스센터 오픈API 3종을 **프록시(envmap-ask /traffic)를 거쳐** 부른다.
+   부산광역시 교통정보서비스센터 오픈API 3종을 **프록시(/traffic)를 거쳐** 부른다.
    🔴 2026-10-05 — 인증키를 이 파일에 직접 넣었다가 공개 저장소·공개 페이지로 노출됐다.
       키는 프록시 서버 환경변수(DATA_GO_KR_KEY)에만 둔다. **이 파일에 키를 다시 넣지 않는다.**
       프록시가 없거나 키가 비어 있으면 실시간만 꺼지고, 지도는 저장 자료로 그대로 동작한다.
+   🔴 2026-10-11 — 프록시를 envmap-ask(Cloudtype 무료 칸, 매일 1회 중지)에서
+      늘 켜져 있는 환경분석맵 서버 envmap-engine 으로 옮겼다(engine/api/api_traffic.py, 규칙 동일).
+      그 서버의 허용 출처(ENVMAP_TRAFFIC_ORIGINS)에 이 페이지 주소가 있어야 한다 — 주소를 바꾸면 거기도 같이.
    🔴 개발계정 일일 트래픽 500건이다. 그래서
       · 실시간은 **수동으로 켜야** 시작한다 (기본 꺼짐)
       · 갱신은 5분 주기, **1시간(12회) 뒤 자동 정지**
       · 1세션 최대 3×13 = 39건
    🔴 지도에 색을 칠하는 건 **링크ID(lkId)가 정확히 맞는 구간뿐이다.**
       구간명만 주는 DSRC·AVI 는 좌표를 추정하지 않고 아래 목록으로만 보여준다. */
-const LIVE_PROXY = 'https://port-0-envmap-ask-mrksc1tcf2e7efab.sel3.cloudtype.app';
+const LIVE_PROXY = 'https://port-0-envmap-engine-mrksc1tcf2e7efab.sel3.cloudtype.app';
 let liveErr = '', liveSeq = 0;
 async function liveGet(path, pageNo, rows) {
   const r = await fetch(`${LIVE_PROXY}/traffic?path=${encodeURIComponent(path)}&pageNo=${pageNo}&numOfRows=${rows}`);
