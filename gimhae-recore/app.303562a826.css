@@ -1,8 +1,8 @@
 /* 김해 원도심 RE:CORE 통합 안내 — 흰 바탕 · 큰 글자 · 가야 색(쪽빛·토기·고분 초록) */
-@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.45db563453.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.5dd19bdc0a.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.4a09596219.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.c4cee93b68.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.c011ed7e13.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.895564784e.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.bb52825948.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.4708c74b52.woff2) format("woff2")}
 
 :root{
   color-scheme:light;
@@ -546,7 +546,9 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .gnb>a:hover::after,.gnb>a.on::after{transform:scaleX(1)}
 .mega{position:absolute;left:0;right:0;top:100%;background:#fff;border-top:1px solid var(--line);box-shadow:0 0 0 100vmax #fff,0 18px 30px rgba(24,33,44,.12);clip-path:inset(0 -100vmax -60px -100vmax);display:none;z-index:60;animation:megaIn .2s var(--ease)}
 @keyframes megaIn{from{opacity:0;transform:translateY(-6px)}}
-.gnb:hover .mega,.gnb:focus-within .mega{display:block}
+.gnb:hover .mega{display:block}
+.gnb:has(:focus-visible) .mega{display:block}   /* 키보드(Tab)로 들어올 때만 — 마우스로 누른 뒤 남는 초점으로는 안 열려 있음 */
+.gnb.shut .mega{display:none!important}
 .mega-in{display:grid;grid-template-columns:repeat(6,112px);padding:16px 0 22px}
 .mega ul{list-style:none;margin:0;padding:0 3px;border-left:1px solid var(--line)}
 .mega ul:first-child{border-left:0}
