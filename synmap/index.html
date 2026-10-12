@@ -39,7 +39,7 @@
     <div class="row"><input id="keep" type="checkbox" checked><label for="keep" style="margin:0">이 기기에서 30일 동안 기억</label></div>
     <button id="go" type="submit">열기</button>
     <div class="err" id="err" role="alert"></div>
-    <div class="foot">자료와 화면은 암호화돼 있어 비밀번호 없이는 열리지 않습니다. 만든 날 2026-10-11 20:04</div>
+    <div class="foot">자료와 화면은 암호화돼 있어 비밀번호 없이는 열리지 않습니다. 만든 날 2026-10-12 09:48</div>
   </form>
 </div>
 <script src="vendor/maplibre-gl-4.7.1/maplibre-gl.js"></script>
@@ -110,7 +110,13 @@
       boot(app);
     } catch (err) { $('err').textContent = err.message || String(err); $('go').disabled = false; }
   });
-  tryKeep();
+  if (true) { // 공개판: 비밀번호 없이 바로 연다
+    $('f').hidden = true;
+    const msg = document.createElement('p'); msg.textContent = '불러오는 중…'; msg.style.cssText = 'color:#9aa3a0;font-size:14px';
+    $('gate').appendChild(msg);
+    fetch('app.json', { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error('자료 파일을 받지 못했습니다(' + r.status + ')'); return r.json(); })
+      .then(boot).catch(err => { msg.textContent = err.message || String(err); });
+  } else tryKeep();
 })();
 </script>
 </body>
