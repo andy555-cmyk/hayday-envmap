@@ -26,8 +26,11 @@ q = st.quantiles(data, n=4)
 Z['energy'] = {'queried': len(rows), 'withData': len(data), 'noData': len(rows) - len(data), 'period': f"{months[0][:4]}-{months[0][4:]}~{months[-1][:4]}-{months[-1][4:]}", 'months': len(months),
                'medianMonthlyKwh': round(st.median(data)), 'q1': round(q[0]), 'q3': round(q[2]),
                'le100': sum(1 for a in data if a <= 100), 'le300': sum(1 for a in data if a <= 300),
+               'fullMonths': sum(1 for r in rows.values() if r['months'] == len(months)), 'partialMonths': sum(1 for r in rows.values() if 0 < r['months'] < len(months)),
+               'partialRange': [min(r['months'] for r in rows.values() if 0 < r['months'] < len(months)), max(r['months'] for r in rows.values() if 0 < r['months'] < len(months))],
+               'quartileMethod': '사분위 = 파이썬 statistics.quantiles 기본(배타) 방식',
                'source': '국토교통부 건축HUB 건물에너지정보(전기) — 확정 구역계 안 비주거 지번(대장상 API 대상) 199곳, 2026-10-13 조회',
-               'caveat': '지번 합계(층·호 단위 아님) · 가이드라인은 「기준 이하」만 정하고 숫자는 없음 — 공고문 기준 확인 필요 · 자료 없는 지번은 계량 연결이 없거나 대장 대상이 아닌 곳 · 2026년 5월분은 아직 공개 전'}
+               'caveat': '월 100·300kWh는 공실 판정값이 아님(가이드라인은 「기준 이하」만 정하고 숫자가 없음 — 공고문 기준 확인 필요) · 지번 합계(층·호 단위 아님) · 자료 없는 44곳은 API가 돌려준 자료가 없는 곳(이유 확인 필요) · 2026년 5월분은 아직 공개 전'}
 assert Z['energy']['withData'] == 155 and Z['energy']['queried'] == 199
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')))
 

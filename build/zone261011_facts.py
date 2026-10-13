@@ -59,12 +59,17 @@ if Z.get('energy'):
     en = Z['energy']
     card('energy', '공실', '구역 비주거 건물의 전기 사용량은?',
          f"조회 {en['queried']}지번 중 자료 {en['withData']}곳 · 월평균 중간값 {n(en['medianMonthlyKwh'])}kWh(가운데 절반 {n(en['q1'])}~{n(en['q3'])}) · 월 100kWh 이하 {en['le100']}곳, 300 이하 {en['le300']}곳",
-         f"{en['period']} {en['months']}개월. 가이드라인 공실 증빙 ①「수도·전기 사용량이 기준 이하」에 쓰는 자료다.", ZONE + ' · 비주거 지번 합계', en['source'], en['period'],
+         f"월 100·300kWh는 공실 판정값이 아니다. 조회 기간 {en['period']}({en['months']}개월) — {en['fullMonths']}곳은 모두, {en['partialMonths']}곳은 {en['partialRange'][0]}~{en['partialRange'][1]}개월 자료로 평균. 가이드라인 공실 증빙 ①「수도·전기 사용량이 기준 이하」에 쓰는 자료다. {en['quartileMethod']}.", ZONE + ' · 비주거 지번 합계', en['source'], en['period'],
          en['caveat'] + '. 지번별 값은 공개하지 않는다.')
 card('license', '공실', '인허가로 본 개업·폐업 흐름은?',
      f"{first_flip}년부터 폐업이 개업보다 많다(2024 개업 {op(2024)}·폐업 {cl(2024)} / 2025 {op(2025)}·{cl(2025)} / 2026.10.13까지 {op(2026)}·{cl(2026)}) · 2022년 이후 폐업했고 같은 주소에 지금 영업 신고가 없는 곳 {len(ld['signals'])}곳",
      f"구역 안 인허가 기록 {n(bt['records'])}건({bt['years'][0]}~2026) = 지금 영업 {n(bt['openNow'])} · 폐업 {n(bt['closedAll'])} · 취소·말소 등 {bt['otherStatus']}. {bt['definition']}. 2010년 뒤 개업이 가장 많았던 해 {bt['peakOpenSince2010']['year']}년({bt['peakOpenSince2010']['n']}건).",
      ZONE + ' · 좌표 있는 인허가 기록', bt['source'], '2026-10-13 받음', bt['caveat'] + '. 원도심 4개 동 시계열(2025년 첫 역전)과 공간범위가 다르다.')
+if Z.get('licenseAll'):
+    LA = Z['licenseAll']; ix = LA['years'].index; pk = LA['years'][LA['store']['active'].index(max(LA['store']['active']))]
+    card('licenseAll', '공실', '인허가 전 업종으로 보면 가게형 인허가 건수는 어떻게 변했나?',
+         f"그해 유효한 가게형 인허가 {LA['store']['active'][ix(2016)]}건(2016) → {max(LA['store']['active'])}건({pk}, 정점) → {LA['store']['active'][ix(2026)]}건(2026-10-13 현재) · 봉황대길 40m 띠는 {LA['storeBand']['active'][ix(2016)]}건 → {LA['storeBand']['active'][ix(2025)]}건(2025)",
+         f"구역 안 인허가 기록 {n(LA['insideRecords'])}건(지금 영업 {n(LA['insideOpen'])}) 중 가게형 {n(LA['storeRecords'])}건. " + LA['rule'] + '.', ZONE + ' · 좌표 있는 인허가 기록', LA['source'], '2026-10-13 받음', LA['caveat'] + '.')
 card('lifespan', '공실', '구역 안 가게는 얼마나 버티나?',
      f"폐업한 {n(bt['lifespan']['closed'])}건 중 {bt['lifespan']['within3yPct']}%가 3년 안에 닫았다 · 영업 기간 평균 {bt['lifespan']['meanYears']}년(중간값 {bt['lifespan']['medianYears']}년)",
      f"원도심 4개 동은 같은 계산으로 37.9%·평균 7.6년. 2010~2022년에 연 가게 {bt['within3y']['2010-2022']['opened']}곳 중 3년 안에 닫은 곳은 {bt['within3y']['2010-2022']['pct']}%.",
@@ -77,6 +82,11 @@ card('listings', '공실', '지금 공개된 매물은?',
      f"2026-10-13 확인: 구역 안 {sum(1 for l in V['listings']['items'] if l['zone'] == '구역 안')}건 · 9/19 온라인 매물 조사 {V['survey0919']['total']}건 중 주소 확인된 구역 안 {V['survey0919']['byZone']['구역 안']}건(지금 살아 있는 광고 {V['survey0919']['liveInside']}건)",
      f"상세 주소 비공개 {V['survey0919']['byZone']['주소 미확정']}건은 구역 판정을 못 했다. {V['listings']['limit']}.", ZONE, V['survey0919']['source'], '2026-10-13',
      '광고는 수시로 바뀐다. 가격은 싣지 않는다.')
+if Z.get('kakaoPlace'):
+    kp = Z['kakaoPlace']
+    card('kakaoPlace', '점포', '카카오맵에 올라 있는 구역 안 장소는?',
+         f"{kp['total']}곳 — " + ' · '.join(f"{k} {v}" for k, v in kp['byCategory'].items()),
+         f"상가정보(2026-06) 294곳과 이름·20m로 짝이 맞는 곳 {kp['match']['both']}곳 · 카카오에만 {kp['match']['kakaoOnly']} · 상가정보에만 {kp['match']['sbizOnly']}.", ZONE, kp['source'], '2026-10-13', kp['caveat'] + '.')
 card('emptyHouse', '공실', '빈집(주거) 목록은 있나?', '주소별 공개 목록이 없다', V['emptyHouse']['note'] + '.', '김해시', '빈집애·공공데이터포털', '2026-10-13', '구역 안 빈집 수는 현장 조사로만 확인할 수 있다.')
 card('rone', '공실', '확정 구역계의 공실률은?',
      f"구역만의 공식 공실률은 없다. 부동산원 「{ro['market']}」 소규모상가 공실률 {ro['latest']['smallVacancyPct']}%({ro['latest']['quarter']})는 이 상권과 구역이 {ro['overlapPct']}%만 겹쳐 참고값이다",
@@ -87,6 +97,18 @@ if Z.get('sbizZone', {}).get('items'):
     card('sbizZone', '공실', '소상공인시장진흥공단 주요 상권과 구역은 겹치나?',
          f"「{sz['name']}」 상권 영역과 구역의 {sz['zonePct']}%(약 {sz['overlapM2'] / 10000:.1f}ha)가 겹친다 — 그 상권 영역의 {sz['marketPct']}%가 구역 안",
          Z['sbizZone']['note'] + '.', ZONE, Z['sbizZone']['source'], '2026-10-13', '상권 영역 경계는 소진공이 점포 밀집도로 그은 것이며 행정 구역이 아니다.')
+if Z.get('heritage'):
+    hg = Z['heritage']
+    card('heritage', '대상지', '확정 구역계는 국가유산(문화재) 규제를 받나?',
+         f"모든 개발 금지가 아니다 — 구역의 {hg['unionPct']}%가 「{hg['name']}」({hg['designation']}, {hg['designatedDate'][:4]} 지정)의 세 공개 도형(지정구역·보호구역·현상변경 허용기준 구역) 중 하나와 겹치고, 그중 대부분은 기준 안에서 건축이 되는 허용기준 구역이다",
+         ' · '.join(f"{l['name']} {l['overlapPct']}%" for l in hg['layers']) + ' — 허용기준 구역별 ' + ' · '.join(f"{z_['name']} {z_['zonePct']}%" for z_ in hg['subZones']) + '.',
+         ZONE, hg['source'], '2026-10-13', hg['note'] + '. 구역별 높이·형태 기준 수치는 고시 원문으로 확인한다.')
+if Z.get('timeline'):
+    tl = Z['timeline']; key = [tl['events'][i] for i in tl['key']]
+    card('timeline', '연계', '봉리단길·원도심은 어떻게 변해 왔나?',
+         ' → '.join(f"{str(e['date'])[:7]} {e['title']}" for e in key[:8]),
+         f"연표 {len(tl['events'])}건(기사·사업·고시). 검색 관심(네이버 데이터랩 「{tl['trend']['keyword']}」, 2018년 5월=100): " + ' · '.join(f"{a['year']} {round(a['value'])}" for a in tl['trend']['annual'] if a['value'] is not None) + '.',
+         '김해 원도심(동상·회현·부원동)·봉황대길', tl['source'], '2026-10-13', '기사·보도 기준이며 명명자·최초 사용일은 확인 못함. 검색 관심은 상대값(사람 수 아님).')
 card('sites13', '대상지', '시 우선순위 13곳의 토지 규제는?',
      f"13곳 모두 역사문화환경보존지역·중점경관관리구역 · 도시계획도로 저촉 {', '.join(str(x) + '번' for x in lu['roadConflict'])} · 방화지구 {', '.join(str(x) + '번' for x in lu['fireDistrict'])}",
      '용도지역: ' + ' · '.join(f"{k} {v}곳" for k, v in lu['zoning'].items()) + f". 공시지가(2026.1) {n(min(t['officialPrice']['wonPerM2'] for t in Z['sites']))}~{n(max(t['officialPrice']['wonPerM2'] for t in Z['sites']))}원/㎡.",
@@ -116,7 +138,7 @@ card('dontMix', '주의', '다른 범위 수치와 섞으면 안 되는 것은?'
      '이전 사업구역(초광역 원도심 51.8ha) 수치 — 건물 1,009동·노후 91.4%·빈 점포 후보 354동(상업·준주거만)·부동산원 공실률 13.7%(상권 98.8% 겹침) — 는 확정 구역계 값이 아니다',
      '행정동·법정동 통계(인구·사업체·쇠퇴진단 노후율 64~74%)도 구역보다 넓은 범위다.', '전체', '환경분석맵 김해 화면', '2026-10-13', '수치를 인용할 때 범위(확정 구역계 / 51.8ha / 동)를 반드시 같이 적는다.')
 
-banned = re.compile(r'남실장|대표 제공|대표님|보증금|권리금|월세 ?\d|만 ?원|억|010-|의향|체납|연체|실거래가|직접 측정|수요가 빠졌|존재하지 않는다')
+banned = re.compile(r'남실장|대표 제공|대표님|보증금|권리금|월세 ?\d|만 ?원|억|010-|의향|체납|연체|실거래가|직접 측정|수요가 빠졌|존재하지 않는다|클로드|코덱스|Claude|Codex')
 blob = json.dumps(F, ensure_ascii=False)
 hit = banned.search(blob); assert not hit, hit.group(0)
 OUT_JSON.write_text(json.dumps({'zone': ZONE, 'made': '2026-10-13', 'from': 'data/gimhae-zone-261011.json (환경분석맵 김해 · build/zone261011_*.py)', 'facts': F}, ensure_ascii=False, indent=1))

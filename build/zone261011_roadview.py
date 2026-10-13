@@ -36,7 +36,7 @@ a_open = sorted(j for j, v in by.items() if v['cls'] == 'A' and v['panels'][0]['
 partial = sorted(j for j in empty22 if by[j].get('note'))
 low25 = sorted(j for j in empty25 if by[j]['panels'][0]['conf'] == '낮음')
 Z['roadview'] = {'byJibun': by, 'partial': partial, 'lowConf2025': low25, 'targets': len(J), 'jibun': len(by), 'latest': dict(latest), 'empty2025': empty25, 'empty2022and2025': empty22, 'aOpen2025': a_open,
-                 'source': '카카오 로드뷰 공개 파노라마(최신 대부분 2025-03, 과거 2022-03·2019-11 등) — 대상 지번 방향으로 같은 화각을 잘라 시점별 1층 가게 앞을 판정(코덱스 3갈래 + 클로드 재검토, 2026-10-13)',
+                 'source': '카카오 로드뷰 공개 파노라마(최신 대부분 2025-03, 과거 2022-03·2019-11 등) — 대상 지번 방향으로 같은 화각을 잘라 시점별 1층 가게 앞을 판정(판정자 2단계 교차 확인, 2026-10-13)',
                  'caveat': '길에서 본 1층 앞모습만 — 층·호 단위 판정 아님 · 촬영점이 달라 가리면 판단 불가 · 공실 확정이 아니라 「그 시점에 비어 보였다」는 보조 증거'}
 assert not banned.search(json.dumps(Z['roadview'], ensure_ascii=False))
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')))

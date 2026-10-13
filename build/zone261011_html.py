@@ -124,12 +124,22 @@ new = [
       f"사라짐 = 폐업·이전 후보이며 확정이 아니다. 업소번호만 바뀐 {sb['idReissued']}쌍은 뺐다. 다음 공개 {sb['next']}"),
     C('확정 구역계 과거 로드뷰 언제부터 비었나 2025 2022 장기 공실 증빙 대상지', '과거 로드뷰에서 1층 앞이 비어 보인 곳은',
       f"2025년 3월 사진에서 1층 앞이 비어 보인 지번 {len(rv['empty2025'])}곳({' · '.join(j + ('(확신 낮음)' if j in rv.get('lowConf2025', []) else '') for j in rv['empty2025'])}) · 그중 2022년 3월에도 비어 보인 곳 {len(rv['empty2022and2025'])}곳({' · '.join(rv['empty2022and2025'])}{' — ' + '·'.join(rv['partial']) + '은 2022년엔 가운데 칸만 닫히고 옆 칸은 영업' if rv.get('partial') else ''})",
-      '카카오 로드뷰 공개 파노라마 시점 비교(코덱스 판정 + 클로드 재검토)', '최신 대부분 2025-03 · 과거 2022-03·2019-11', f"시 13곳 + 전수조사 1차 A·B {rv['jibun']}개 지번",
+      '카카오 로드뷰 공개 파노라마 시점 비교(판정자 2단계 교차 확인)', '최신 대부분 2025-03 · 과거 2022-03·2019-11', f"시 13곳 + 전수조사 1차 A·B {rv['jibun']}개 지번",
       f"길에서 본 1층 앞모습 판정이라 층·호 단위가 아니다. 공실 확정이 아니라 그 시점에 비어 보였다는 보조 증거. 1차 판정 A 중 {len(rv['aOpen2025'])}곳({' · '.join(rv['aOpen2025'])})은 2025년 3월 영업 중이었다"),
     *([C('확정 구역계 전기 사용량 전력 공실 증빙 저사용 kWh 대상지', '확정 구역계 비주거 건물 전기 사용량은',
       f"조회 {Z['energy']['queried']}지번 중 자료 {Z['energy']['withData']}곳 · 월평균 중간값 {n(Z['energy']['medianMonthlyKwh'])}kWh · 월 100kWh 이하 {Z['energy']['le100']}곳(300 이하 {Z['energy']['le300']}곳)",
       Z['energy']['source'], Z['energy']['period'], '확정 구역계 비주거 지번 · 지번 합계',
       Z['energy']['caveat'] + '. 지번별 값은 공개하지 않는다')] if Z.get('energy') else []),
+    *([C('확정 구역계 국가유산 문화재 사적 봉황동 유적 현상변경 허용기준 보호구역 규제 대상지', '확정 구역계는 국가유산(문화재) 규제를 받나',
+      f"구역의 {Z['heritage']['unionPct']}%가 「{Z['heritage']['name']}」({Z['heritage']['designation']}) 지정구역·보호구역·현상변경 허용기준 구역 안",
+      Z['heritage']['source'], '2026-10-13', '확정 구역계',
+      ' · '.join(f"{l['name']} {l['overlapPct']}%" for l in Z['heritage']['layers']) + '. ' + Z['heritage']['note'])] if Z.get('heritage') else []),
+    *([C('확정 구역계 인허가 전 업종 가게 흐름 연도별 영업 중 봉황대길 봉리단길 대상지', '인허가 전 업종으로 보면 구역 가게는 어떻게 변했나',
+      f"그해 영업 중인 가게형 인허가 {Z['licenseAll']['store']['active'][Z['licenseAll']['years'].index(2016)]}건(2016) → {max(Z['licenseAll']['store']['active'])}건(정점) → {Z['licenseAll']['store']['active'][-1]}건(2026.10) · 봉황대길 40m 띠 {Z['licenseAll']['storeBand']['active'][Z['licenseAll']['years'].index(2016)]} → {Z['licenseAll']['storeBand']['active'][Z['licenseAll']['years'].index(2025)]}건(2025)",
+      Z['licenseAll']['source'], '2026-10-13', '확정 구역계 · 인허가 기록', Z['licenseAll']['caveat'])] if Z.get('licenseAll') else []),
+    *([C('확정 구역계 소상공인 소진공 주요 상권 영역 겹침 김해부원동우체국 대상지', '소진공 주요 상권과 확정 구역계는 겹치나',
+      f"「{Z['sbizZone']['items'][0]['name']}」 상권과 구역의 {Z['sbizZone']['items'][0]['zonePct']}%가 겹침",
+      Z['sbizZone']['source'], '2026-10-13', '확정 구역계', Z['sbizZone']['note'])] if Z.get('sbizZone', {}).get('items') else []),
     C('확정 구역계 대장 노후 건축물대장 87.3 사용승인 583 대상지', '건축물대장으로 본 확정 구역계 노후도는',
       f"대장 {n(lg['buildings'])}동 중 20년 이상 {lg['old20Pct']}% · 30년 이상 {lg['old30Pct']}%",
       lg['source'], '2026-10-13', f"확정 구역계 · 지번 {n(lg['parcels'])}곳",
@@ -146,7 +156,7 @@ new = [
 F = F[:3] + new + F[3:]
 h = h[:m.start(1)] + json.dumps(F, ensure_ascii=False) + h[m.end(1):]
 assert not re.search(r'남실장|대표 제공|보증금|월세 ?\d|010-', json.dumps(new, ensure_ascii=False))
-for bad in ['직접 측정치', '대상지 고유 문제', '수요가 빠졌다', '민간 자율 회복', '실거래는 대한민국에 존재하지', '제도적으로 존재하지 않는다', '상권코드 A1705']:
+for bad in ['직접 측정치', '대상지 고유 문제', '수요가 빠졌다', '민간 자율 회복', '실거래는 대한민국에 존재하지', '제도적으로 존재하지 않는다', '상권코드 A1705', '코덱스', '클로드']:
     assert bad not in h, bad
 HP.write_text(h, encoding='utf-8')
 # 질문 카드 원본(build/ask_inject.py 가 읽는 파일)도 같은 카드로 맞춘다 — ask_inject 를 다시 돌려도 옛 문장이 돌아오지 않게
