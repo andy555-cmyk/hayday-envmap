@@ -30,6 +30,14 @@ if S.exists():
     Z['requirements'] = {'items': [{'id': r['id'], 'title': r['title'], 'status': r['status'], 'label': lab.get(r['status'], r['status']), 'now': r['now']} for r in site['requirements']],
                          'culture': [{'name': c['name'], 'why': c['why']} for c in site['plan']['culture']['picks']],
                          'url': 'https://andy555-cmyk.github.io/hayday-envmap/gimhae-recore/', 'source': '김해 원도심 RE:CORE 사업 안내 누리집 「요건 점검」(국토부 가이드라인 설명회본 2026.9.11 기준, 2026-10-13 판)'}
+    # 누리집 자료는 읽기만 한다. 서로 다른 공간 범위의 통계를 합쳐 충족을 확정하지 않는다.
+    for requirement in Z['requirements']['items']:
+        if requirement['id'] == 'r2':
+            requirement.update(status='chk', label='확인 필요', now=(
+                '원도심 3개 행정동 사업체 수는 2021년 5,410개 → 2024년 5,120개(−5.4%, 3년 연속 감소), '
+                '확정 구역계 안 건축물대장 583동 자료의 20년 이상 비율은 87.3%입니다. '
+                '두 통계의 공간 범위·집계 대상이 달라 이것만으로 새 구역의 2개 요건 충족을 확정하지 않습니다. '
+                '공모에서 인정하는 산정 범위와 기준에 맞춘 공식 자료 대조가 필요합니다.'))
     assert len(Z['requirements']['items']) == 17
 H = G / 'H_vacancy0919/result.json'
 if H.exists():
@@ -57,6 +65,7 @@ if EV.exists():
                     # sitedia(대표 크롬)로 잰 값 — ~/dev/gimhae-site261011/qa/entry.md 4행
                     'parcels': 763, 'parcelMedianM2': 159, 'parkHa': 0.42, 'bcrPct': 37.4,
                     'source': 'ENVMAP 엔진 확정 구역계 도판 통계(사내 건물·용도지역 DB, 지형 Copernicus GLO-30 DSM 30m) · 필지·공원·건폐율 = sitedia 확정 구역계 상세(2026-10-11)',
-                    'caveat': '지형은 건물·수목이 섞인 30m 표면 모델이라 미세 고저는 정확하지 않음 · 용도지역은 사내 DB(공인 도면 대조 전)'}
+                    'sunlightMethod': '2026-12-22 지면 일조 모의계산 · 평지 가정 · 수목·담장·화면 밖 건물 그림자 제외 · 법정 일조권 검토 아님',
+                    'caveat': '지형은 건물·수목이 섞인 30m 표면 모델이라 미세 고저는 정확하지 않음 · 용도지역은 사내 DB(공인 도면 대조 전) · 일조는 평지 가정의 지면 모의계산이며 수목·담장·화면 밖 건물 그림자 제외, 법정 일조권 검토 아님'}
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')))
 print(json.dumps({'terrain': 'terrain' in Z, 'req': len(Z.get('requirements',{}).get('items',[])), 'themes': [(t['theme'], t['flows']) for t in themes], 'obs': len(obs), 'survey0919': len(Z['vacancy'].get('survey0919', {}).get('items', []))}, ensure_ascii=False))

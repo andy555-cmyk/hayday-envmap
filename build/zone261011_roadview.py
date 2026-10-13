@@ -26,6 +26,20 @@ for r in J:
         if rec.get('note'): old['note'] = rec['note']
         continue
     by[jb] = {**rec, 'ids': [r['id']], 'cls': r['cls'], 'lnglat': r['lnglat']}
+def observation_hint(panels):
+    """촬영 시점의 모습만 요약한다. 사진 사이 기간의 상태는 추정하지 않는다."""
+    if panels and all(p['state'] == '영업 중' for p in panels):
+        return f"촬영 {len(panels)}회 모두 영업 모습"
+    empty = [p for p in panels if p['state'] == '비어 보임']
+    if empty:
+        dates = '·'.join(sorted({p['date'][:7] for p in empty}))
+        return dates + ' 사진에서 비어 보임' + ('(확신 낮음 포함)' if any(p['conf'] == '낮음' for p in empty) else '')
+    return '연속 상태 판단 불가'
+
+# 지번 중복 결과를 합친 뒤 다시 산출한다. 합치기 전 원본 hint를 재사용하지 않는다.
+for rec in by.values():
+    rec['hint'] = observation_hint(rec['panels'])
+
 assert len(by) == 81, len(by)   # 89건 − 같은 지번 8쌍
 assert all(poly.buffer(0.0003).covers(Point(*v['lnglat'])) for v in by.values())
 banned = re.compile(r'evidence|전화|010-|상호')

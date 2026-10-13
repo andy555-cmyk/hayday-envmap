@@ -12,6 +12,8 @@ from pathlib import Path
 from collections import Counter
 import openpyxl
 from shapely.geometry import shape, LineString, mapping
+from shapely.ops import transform
+from pyproj import Transformer
 
 ROOT = Path(__file__).resolve().parents[1]
 case_dir, photo_dir, ledger_xlsx = (Path(a).expanduser() for a in sys.argv[1:4])
@@ -19,14 +21,14 @@ ZP = ROOT / 'data/gimhae-zone-261011.json'
 Z = json.loads(ZP.read_text()); poly = shape(Z['boundary']['geometry'])
 C = json.loads((case_dir / 'case.json').read_text())
 assert C['id'].startswith('gimhae_261011') or 'gimhae' in C['id']
-kx = 111320 * math.cos(math.radians(35.232))
+to_metric = Transformer.from_crs(4326, 5187, always_xy=True).transform
 ind = {i['id']: i for i in C['indicators']}
 names = {p['id']: p['name'] for p in C['places']}
 
 # 1. 종합분석맵 분석값 — 경로·등시선은 구역 경계로 다시 판정
 routes = []
 for r in C['routes']:
-    L = LineString(r['coords']); inside = round(L.intersection(poly).length * kx)
+    L = LineString(r['coords']); inside = round(transform(to_metric, L.intersection(poly)).length)
     routes.append({'from': names.get(r['from'], r['from']), 'to': names.get(r['to'], r['to'].replace('site_', '거점 부지 ')), 'kind': r['kind'],
                    'lengthM': r['length_m'], 'minutes': r['minutes'], 'activeShare': r.get('active_share'), 'insideM': inside})
 tour = [r for r in routes if r['kind'] == 'to_place']

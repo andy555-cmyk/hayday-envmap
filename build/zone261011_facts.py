@@ -48,9 +48,9 @@ card('emptyShop', '공실', '건물 기준 빈 점포 후보는 몇 동인가?',
      f"등록 가게 0인 건물 {n(es['any']['shop'] + es['any']['res'] + es['any']['non'] + es['any']['unk'])}동을 대장 주용도·건물 이름으로 나눔: 빈 점포 후보 {es['any']['shop']} · 주거용 {es['any']['res']} · 가게 대상 아님 {es['any']['non']} · 대장 없음 {es['any']['unk']}. 후보 중 20년 넘은 건물 {es['shopOld20']}동. 법정동: {' · '.join(d['dong'] + ' ' + str(d['shop']) for d in es['byDong'])}.",
      ZONE + ' · 건물 단위', es['source'], '건물 2026-08 · 상가 2026-06', es['caveat'] + '. 이전 사업구역(51.8ha) 기준 354동과 섞지 않는다.')
 card('survey', '공실', '전수조사 1차 판정 결과는?',
-     f"구역 안 지번 {sum(sv['counts'].values())}곳: A 장기공실 유력 {sv['counts']['A']} · B 확인 필요 {sv['counts']['B']} · C 최근 공실(2026년) {sv['counts']['C']} · D 영업 중 {sv['counts']['D']} · E 주거만 {sv['counts']['E']}",
+     f"구역 안 지번 {sum(sv['counts'].values())}곳: A 장기공실 검토 후보 {sv['counts']['A']} · B 확인 필요 {sv['counts']['B']} · C 2026년 폐업 신호 {sv['counts']['C']} · D 등록점포 등 사용 근거 {sv['counts']['D']} · E 대장상 주거 {sv['counts']['E']}",
      '건축물대장·인허가 폐업·상가정보·공개 매물·시 13곳을 겹쳐 지번별로 나눈 책상 분류.', ZONE + ' · 지번 단위', sv['source'], '2026-10-13',
-     '공실 확정이 아니다. 장기 공실 인정은 ' + sv['rule'] + '. 현장·전기·수도 사용량으로 확인해야 한다.')
+     '2026-10-13 책상 분류이며 현재 영업·공실·연속 공실 기간을 확정하지 않는다. 장기 공실 인정은 ' + sv['rule'] + '. 현장·전기·수도 사용량으로 확인해야 한다.')
 card('roadview', '공실', '과거 로드뷰에서 1층 앞이 비어 보인 곳은?',
      f"2025년 3월 사진에서 1층 앞이 비어 보인 지번 {len(rv['empty2025'])}곳({' · '.join(j + ('(확신 낮음)' if j in rv.get('lowConf2025', []) else '') for j in rv['empty2025'])}) · 그중 2022년 3월에도 비어 보인 곳 {len(rv['empty2022and2025'])}곳({' · '.join(rv['empty2022and2025'])})",
      f"시 13곳 + 전수조사 1차 A·B, 지번 {rv['jibun']}곳. 최신 사진 기준 영업 중 {rv['latest'].get('영업 중', 0)} · 비어 보임 {rv['latest'].get('비어 보임', 0)} · 주거·창고 {rv['latest'].get('주거·창고', 0)} · 판단 불가 {rv['latest'].get('판단 불가', 0)}. 1차 판정 A 중 {len(rv['aOpen2025'])}곳({' · '.join(rv['aOpen2025'])})은 2025년 3월 영업 중이었다." + (f" {'·'.join(rv['partial'])}은 2019·2022년엔 가운데 칸만 닫히고 옆 칸은 영업했다." if rv.get('partial') else ''),
@@ -89,14 +89,13 @@ if Z.get('kakaoPlace'):
          f"상가정보(2026-06) 294곳과 이름·20m로 짝이 맞는 곳 {kp['match']['both']}곳 · 카카오에만 {kp['match']['kakaoOnly']} · 상가정보에만 {kp['match']['sbizOnly']}.", ZONE, kp['source'], '2026-10-13', kp['caveat'] + '.')
 if Z.get('vacRate'):
     VR = Z['vacRate']
-    card('vacRate', '공실', '확정 구역계 공실 조사 참고 계산은 무엇인가?',
-         f"현장 조사 아님. 실제 공실률의 범위가 아닌 가정별 참고 계산: 1층 {VR['ground']['lowPct']}~{VR['ground']['highPct']}% · 소규모상가 {VR['small']['lowPct']}~{VR['small']['highPct']}% · 중대형 {VR['large']['lowPct']}~{VR['large']['highPct']}%(위층 근거가 적어 범위가 넓음)",
-         f"대상 = {VR['definition']} — 구역 안 {VR['population']['buildings']}동(소규모 {VR['population']['small']} · 중대형 {VR['population']['large']}), 상가 층 면적 {n(VR['population']['commercialFloorM2'])}㎡. 방법: {VR['method']}. {VR['interpretation']}."
-         + (f" 민감도: {VR['sensitivity']['rule']} — 1층에만 배정하면 1층 {VR['sensitivity']['groundOnly']['ground'][0]}~{VR['sensitivity']['groundOnly']['ground'][1]}% · 소규모 {VR['sensitivity']['groundOnly']['small'][0]}~{VR['sensitivity']['groundOnly']['small'][1]}%." if VR.get('sensitivity') else ''),
+    card('vacRate', '공실', '확정 구역계 공실률과 건물·층별 자료 연결 현황은?',
+         f"구역 공실률은 확인되지 않았다. 현장 조사 아님. 등록 점포 {VR['stores']['total']}곳 중 대상 상가 건물·층까지 연결 {VR['stores']['byStatus'].get('floor_linked',0)}곳({VR['stores']['linkedFloors']}개 층), 건물까지만 연결 {VR['stores']['byStatus'].get('building_only',0)}곳. 이전 가정별 공실 비율은 사용하지 않는다",
+         f"대상 {VR['population']['buildings']}동 · 비주거 층 {VR['population']['floorGroups']}개 · 대장 면적 {n(VR['population']['commercialFloorM2'])}㎡(임대 가능 면적 아님). 건물 여럿으로 연결 보류 {VR['stores']['byStatus'].get('shared_address',0)}곳 · 주소 대조 미해결 {VR['stores']['byStatus'].get('ledger_unmatched',0)}곳 · 대상 밖 건물 {VR['stores']['byStatus'].get('outside_population',0)}곳. {VR['definition']}. {VR['method']}. {VR['interpretation']}.",
          ZONE + ' · 상가 계열 일반건축물', VR['source'], '2026-10-13', VR['caveat'] + '. ' + VR['compare'] + '.')
-card('emptyHouse', '공실', '빈집(주거) 목록은 있나?', '주소별 공개 목록이 없다', V['emptyHouse']['note'] + '.', '김해시', '빈집애·공공데이터포털', '2026-10-13', '구역 안 빈집 수는 현장 조사로만 확인할 수 있다.')
+card('emptyHouse', '공실', '빈집(주거) 목록은 있나?', '주소별 공개 목록이 없다', V['emptyHouse']['note'] + '.', '김해시', '빈집애·공공데이터포털', '2026-10-13', '현재 확보한 공개자료로는 구역 안 빈집 수를 확인할 수 없다.')
 card('rone', '공실', '확정 구역계의 공실률은?',
-     f"구역만의 공식 공실률은 없다. 부동산원 「{ro['market']}」 소규모상가 공실률 {ro['latest']['smallVacancyPct']}%({ro['latest']['quarter']})는 이 상권과 구역이 {ro['overlapPct']}%만 겹쳐 참고값이다" + (f". 구역 상가 건물 {Z['vacRate']['population']['buildings']}동의 가정별 참고 계산(현장 조사 아님·실제 공실률 범위 아님)은 1층 {Z['vacRate']['ground']['lowPct']}~{Z['vacRate']['ground']['highPct']}%, 소규모상가 {Z['vacRate']['small']['lowPct']}~{Z['vacRate']['small']['highPct']}%" if Z.get('vacRate') else ''),
+     f"구역만의 공식 공실률은 없다. 부동산원 「{ro['market']}」 소규모상가 공실률 {ro['latest']['smallVacancyPct']}%({ro['latest']['quarter']})는 이 상권과 구역이 {ro['overlapPct']}%만 겹쳐 참고값이다" + (". 주소·층 중복 연결을 고쳤으며, 실제 빈 칸과 임대 가능한 면적을 확인하지 않아 구역 공실률은 산출하지 않는다" if Z.get('vacRate') else ''),
      f"이전 사업구역 51.8ha는 상권 도형과 {ro['oldOverlapPct']}% 겹쳐 그 상권 값을 지표로 썼다(그때도 상권 표본 건물 값). 확정 구역계 중 상권 안: 면적 약 {ro['overlapM2'] / 10000:.1f}ha · 등록점포 {ro['storesIn']}/{s['stores']}곳 · 건물 {ro['bldIn']}/{s['buildings']}동 · 시 13곳 중 {'·'.join(str(x) + '번' for x in ro['sitesIn'])}. 같은 상권 소규모상가 임대료 {n(ro['latest']['smallRentWonPerM2'])}원/㎡. 김해의 다른 표본 상권({' · '.join(o['name'] for o in ro['others'])})은 집합상가만 조사한다.",
      '부동산원 표본 상권 vs ' + ZONE, ro['source'], ro['latest']['quarter'], '공실률은 표본 건물 조사값이라 빈 점포 후보·전수조사 판정과 모집단이 달라 합하거나 환산하지 않는다. 상권 코드는 공식 통계표 기준 ' + ro['code'] + '.')
 if Z.get('sbizZone', {}).get('items'):
@@ -166,7 +165,7 @@ card('population', '생활', '구역 인구는?',
      f"구역 건물은 대부분 봉황동({n(s['dongs']['봉황동'])}동)이다.", '법정동 전체(구역보다 넓음)', '행정안전부 주민등록 인구', '2026-06-30', '경계 안 인구가 아니다.')
 card('terrain', '땅', '땅 모양과 짜임은?',
      f"해발 {tr['elevMin']}~{tr['elevMax']}m · 경사 5° 이하 {tr['flatPct']}% · 필지 {n(tr['parcels'])}개(중간값 {tr['parcelMedianM2']}㎡) · 3층 이하 건물 {tr['lowPct']}%",
-     f"평균 {tr['floorsMean']}층(최고 {tr['floorsMax']}층) · 건폐율 {tr['bcrPct']}% · 공원·녹지 {tr['parkHa']}ha · 동지 일조 평균 {tr['winterSunMean']}시간.", ZONE, tr['source'], '2026-10-11', tr['caveat'] + '.')
+     f"평균 {tr['floorsMean']}층(최고 {tr['floorsMax']}층) · 건폐율 {tr['bcrPct']}% · 공원·녹지 {tr['parkHa']}ha · 2026-12-22 지면 일조 모의계산 평균 {tr['winterSunMean']}시간.", ZONE, tr['source'], '2026-10-11', tr['caveat'] + '.')
 card('voice', '현장', '구역 안 상인·주민 목소리는?', '8월 현장 인터뷰 대부분이 구역 밖에서 이뤄져 구역 안 목소리는 거의 없다',
      Z['fieldVoice']['note'] + '.', ZONE, '2026-08-27 실사 · 08-29 인터뷰', '2026-08', '구역 안 상인 인터뷰를 새로 해야 한다.')
 card('dontMix', '주의', '다른 범위 수치와 섞으면 안 되는 것은?',

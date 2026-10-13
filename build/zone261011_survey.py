@@ -50,7 +50,7 @@ assert not re.search(r'소유|의향|보증금|만 ?원|억|kWh|남실장', blob
 Z['survey'] = {'source': '전수조사 1차 판정표(2026-10-13) — 구역 안 지번 537곳을 건축물대장·인허가 폐업·상가정보·공개 매물·시 13곳으로 나눈 책상 분류',
                'rule': '장기 공실 = 2026.1.1 이전부터 공실, 객관 증빙 3종(수도·전기 저사용 / 영업자료 미발생 / 1년 단위 반복 미사용) 중 2종 이상 — 층·호 단위(국토부 RE:CORE 가이드라인 설명회본 2026.9.11)',
                'counts': {k: counts.get(k, 0) for k in 'ABCDE'}, 'missing': missing,
-               'labels': {'A': '장기공실 유력', 'B': '확인 필요', 'C': '최근 공실(2026년)', 'D': '영업 중', 'E': '주거만'},
+               'labels': {'A': '장기공실 검토 후보', 'B': '확인 필요', 'C': '2026년 폐업 신호', 'D': '등록점포 등 사용 근거', 'E': '대장상 주거'},
                'points': {'type': 'FeatureCollection', 'features': pts}}
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')))
 print(json.dumps({'points': len(pts), 'missing': missing, 'counts': Z['survey']['counts']}, ensure_ascii=False))
