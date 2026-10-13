@@ -177,7 +177,7 @@ if r2:
                                  'min': min(price), 'max': max(price), 'band30': round(st_.median(band)) if band else None, 'bandN': len(band), 'off30': round(st_.median(off)) if off else None,
                                  'byDong': {d: {'n': len(v), 'median': round(st_.median(v))} for d, v in byDong.items()}, 'ym': '2026/01'},
                        'source': '국토교통부 토지이음 토지이용계획 열람(eum.go.kr, 공개 화면, 2026-10-13) — 확정 구역계 안 지번 전수',
-                       'caveat': '지번 단위 열람 결과 집계(규제 비율 분모 = 상세를 받은 지번, 공시지가 = 값을 받은 지번) · 7지번은 열람 실패 · 공시지가는 공적 기준 가격이며 매매 가격이 아님 · 「봉황대길 30m」는 구역 안 봉황대길 세 구간에서 지번 대표점까지 직선 · 규제 해석은 담당 부서 확인 필요'}
+                       'caveat': '지번 단위 열람 결과 집계(규제 비율 분모 = 상세를 받은 지번, 공시지가 = 값을 받은 지번) · 7지번은 토지이음에서 「검색되지 않는 지번」(현재 지적에 없는 번지 — 합병·분할 등 확인 필요) · 공시지가는 공적 기준 가격이며 매매 가격이 아님 · 「봉황대길 30m」는 구역 안 봉황대길 세 구간에서 지번 대표점까지 직선 · 규제 해석은 담당 부서 확인 필요'}
 
 # 4. 카카오맵 장소(L4) — 분류별 수와 상가정보 대조만(이름·주소는 싣지 않음)
 r4 = load('L4_kakao_place/result.json') if CX and CX.exists() else None
@@ -188,6 +188,9 @@ if r4:
                        'source': '카카오맵 웹 장소 검색(공개, 열쇠 없음, 2026-10-13) — 확정 구역계 안',
                        'caveat': '대표 업종 검색어로 모은 것이라 빠진 장소가 있을 수 있음 · 가게 이름 표기가 다르면 같은 가게도 짝이 안 됨 · 폐업·개업 확정 자료가 아님'}
     assert Z['kakaoPlace']['total'] == 183, Z['kakaoPlace']['total']
+# 7. 공개판 정리 — 폐업 신호·사라진 점포의 상호는 공개 JSON 에서 뺀다(내부 원자료는 codex_recollect_261013 에 있음)
+for s_ in Z['vacancy']['localdata']['signals']: s_.pop('names', None)
+for v_ in Z['vacancy']['sbiz']['vanished']: v_.pop('name', None)
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')))
 print(json.dumps({'sbizZone': [(h['name'], h['zonePct'], h['marketPct']) for h in hit], 'apiMore': Z.get('apiMore'),
                   'licenseAll': {k: v for k, v in Z.get('licenseAll', {}).items() if k in ('industriesFetched', 'insideRecords', 'insideOpen', 'storeRecords', 'storeOpenNow', 'excludedTop')},

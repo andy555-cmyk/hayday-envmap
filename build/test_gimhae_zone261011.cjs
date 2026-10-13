@@ -33,7 +33,7 @@ assert.equal(Math.min(...Z.sites.map(s=>s.edgeM)),10.1,'nearest site to edge (12
 function pip(q,r){let b=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const A=r[i],C=r[j];if(((A[1]>q[1])!==(C[1]>q[1]))&&(q[0]<(C[0]-A[0])*(q[1]-A[1])/(C[1]-A[1])+A[0]))b=!b;}return b;}
 const ring=Z.boundary.geometry.coordinates[0],V=Z.vacancy;
 assert.equal(V.localdata.signals.length,32);assert.equal(V.sbiz.vanished.length,22);assert.equal(V.sbiz.vanishedDupRemoved,1);
-assert.equal(new Set(V.sbiz.vanished.map(x=>x.name+'|'+x.address)).size,V.sbiz.vanished.length,'no duplicate vanished store');assert.equal(V.sbiz.latest,'2026-06');assert.equal(V.sbiz.inside,294);
+assert.equal(new Set(V.sbiz.vanished.map(x=>x.kind+'|'+x.address+'|'+x.floor+'|'+x.lnglat)).size,V.sbiz.vanished.length,'no duplicate vanished store');assert.ok(V.sbiz.vanished.every(x=>!('name' in x))&&V.localdata.signals.every(x=>!('names' in x)),'공개 JSON 상호 없음');assert.equal(V.sbiz.latest,'2026-06');assert.equal(V.sbiz.inside,294);
 assert.ok(V.localdata.signals.every(x=>pip(x.lnglat,ring))&&V.sbiz.vanished.every(x=>pip(x.lnglat,ring)),'signals inside the confirmed zone');
 assert.ok(!/보증금|권리금|만 ?원|억/.test(JSON.stringify(V)),'no advertised prices on the public page');
 assert.ok(Z.sites.every(t=>t.officialPrice&&t.officialPrice.ym==='2026/01'&&t.officialPrice.wonPerM2>0),'13 official land prices');
