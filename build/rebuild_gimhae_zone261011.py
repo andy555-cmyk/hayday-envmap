@@ -3,7 +3,7 @@
 Usage: python3 build/rebuild_gimhae_zone261011.py ZONES.geojson CASE.json
   ZONES = ~/dev/synmap/data/gimhae_261011/raw/zones_261011.geojson  (zoneK = 정본, 다른 방과 공유)
   CASE  = ~/dev/synmap/web/cases/gimhae_261011/case.json            (시 우선순위 13곳)
-Writes data/gimhae-zone-261011.json. 다음 순서로 이어서 돌린다: build/zone261011_context.py → build/update_gimhae_meeting_261011.py. The boundary is never edited here — only read and counted.
+Writes data/gimhae-zone-261011.json. 다음 순서로 이어서 돌린다: build/zone261011_context.py → zone261011_vacancy.py → zone261011_linkage.py → zone261011_extras.py → update_gimhae_meeting_261011.py. The boundary is never edited here — only read and counted.
 Membership rules are the same as the 9/30 B area (data/gimhae-b171.json, kept for comparison):
 building = representative point inside, store = registered point inside, edge band = 20 m both sides.
 """

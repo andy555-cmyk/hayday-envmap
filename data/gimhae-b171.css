@@ -100,3 +100,15 @@ body.pmode #b-map-caption{left:15px}
 #b-panel .b-yr b{font-variant-numeric:tabular-nums;color:#e6fff4;font-weight:600;text-align:right}
 #b-panel .b-yr-head em{font-style:normal;color:#89b5ab;grid-column:span 2}
 #b-panel .b-jump{grid-template-columns:repeat(3,1fr)}
+#b-panel .b-site-photo{grid-column:2;width:100%;max-height:150px;object-fit:cover;border-radius:6px;margin-top:6px;border:1px solid #2c3a48}
+.b-popup .b-popup-photo{width:100%;border-radius:6px;margin:6px 0}
+.b-popup details{font-size:12px;margin:4px 0}.b-popup summary{cursor:pointer;color:#cfe}
+#b-panel .b-survey-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0}
+#b-panel .b-survey-grid button{display:flex;align-items:center;gap:6px;text-align:left;font-size:13px}
+#b-panel .b-survey-grid button i{width:10px;height:10px;border-radius:50%;flex:none}
+#b-panel .b-survey-grid button b{margin-left:auto;font-size:16px}
+#b-panel .b-req-list{display:grid;gap:5px;margin:8px 0}
+#b-panel .b-req{display:grid;grid-template-columns:62px 1fr;column-gap:8px;padding:7px 9px;border-radius:7px;background:#141d27;border-left:3px solid #5b6573;font-size:13px}
+#b-panel .b-req span{font-size:11.5px;color:#aab7c8}#b-panel .b-req b{color:#e8f0f6;font-weight:600}#b-panel .b-req small{grid-column:2;color:#9fd9c8;font-size:12px}
+#b-panel .b-req-ok{border-left-color:#5fd3a4}#b-panel .b-req-chk{border-left-color:#ffb020}#b-panel .b-req-ing{border-left-color:#4fb3ff}#b-panel .b-req-no{border-left-color:#ff5a6b}
+#b-panel .b-req a{color:#8af2d1}

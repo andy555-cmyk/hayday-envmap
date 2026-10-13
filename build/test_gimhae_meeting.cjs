@@ -14,7 +14,7 @@ assert.equal(data.places.filter(p=>p.source==='city').length,13);
 assert.equal(data.places.filter(p=>p.source==='official').length,6);
 assert.equal(data.places.filter(p=>p.source==='research').length,6);
 assert.deepEqual(data.places.filter(p=>/지금 광고 중/.test(p.status)).map(p=>p.id),['자5','자6'],'10/13 live listings');
-assert.ok(['자1','자2','자3','자4'].every(id=>data.places.find(p=>p.id===id).status.startsWith('광고 내려감')),'10/1 ads re-checked');
+assert.ok(['자1','자3'].every(id=>data.places.find(p=>p.id===id).status.startsWith('광고 숨김'))&&['자2','자4'].every(id=>data.places.find(p=>p.id===id).status.startsWith('상세 페이지 없음')),'10/1 ads re-checked, not over-claimed');
 assert.equal(data.places.filter(p=>p.coordinates).length,23);
 assert.deepEqual(data.places.filter(p=>!p.coordinates).map(p=>p.id),['자2','자4']);
 const ring=Z.boundary.geometry.coordinates[0];

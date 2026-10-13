@@ -36,5 +36,18 @@ assert.ok(!/보증금|권리금|만 ?원|억/.test(JSON.stringify(V)),'no advert
 assert.ok(Z.sites.every(t=>t.officialPrice&&t.officialPrice.ym==='2026/01'&&t.officialPrice.wonPerM2>0),'13 official land prices');
 assert.equal(Z.sites.find(t=>t.rank===12).officialPrice.wonPerM2,1352000,'spot-checked on 토지이음 (봉황동 7-12)');
 assert.ok(Z.context.roads.totalM>0&&Z.context.gates.total>0&&Z.context.rail.length>0,'context recomputed');
+// Earlier rooms' material brought onto the confirmed zone (2026-10-13 2차).
+assert.equal(Z.ledger.buildings,583);assert.equal(Z.ledger.old20Pct,87.3);assert.ok(Z.ledger.old20Pct>=50,'ledger-based ageing requirement');
+assert.equal(Z.linkage.tourRoutes,20);assert.equal(Z.linkage.tourRoutesThroughZone,0);assert.equal(Z.linkage.zoneIn10min,56.5);
+assert.ok(Z.sites.every(t=>t.photo&&fs.existsSync(path.join(root,t.photo))),'13 site photos shipped');
+assert.ok(Z.sites.filter(t=>t.ledger).length===10&&Z.sites.filter(t=>!t.ledger).map(t=>t.rank).join()==='9,10,11','ledger for 10 sites, none for bare land 9·10·11');
+assert.ok(Z.fieldVoice&&Z.fieldVoice.themes.length>=1,'field voice');
+assert.ok(Z.sites.every(t=>(t.floorsDetail||[]).every(f=>f.floor||f.use||f.areaM2)),'no empty floor rows');assert.ok(Z.sites.filter(t=>!t.ledger).every(t=>!(t.floorsDetail||[]).length),'bare land has no floor rows');
+assert.deepEqual(JSON.parse(JSON.stringify(Z.survey.counts)),{A:8,B:68,C:7,D:150,E:304},'전수조사 1차 판정 537지번');assert.equal(Z.survey.points.features.length,537);
+assert.equal(Z.requirements.items.length,17);assert.ok(Z.terrain&&Z.terrain.parcels===763&&Z.terrain.flatPct===94);
+assert.equal(Z.vacancy.survey0919.total,35);assert.equal(Z.vacancy.survey0919.liveInside,0);
+assert.ok(!/소유|의향|보증금|만 ?원|억|kWh|남실장|010-/.test(JSON.stringify({s:Z.survey,v:Z.vacancy.survey0919})),'public-safe survey layers');
+assert.ok(!/대장 미확보/.test(JSON.stringify(Z.sites.filter(t=>t.ledger))),'stale ledger note removed');
+assert.ok(!/소유|의향|보증금|만 ?원|억|남실장|010-/.test(JSON.stringify({l:Z.ledger,f:Z.fieldVoice,s:Z.sites.map(t=>[t.ledger,t.floorsDetail,t.prevHub])})),'public-safe additions');
 console.log(JSON.stringify({total:a.total,known:a.known,old20:a.old20,oldPct:a.oldPct,counts:a.counts,foodRetail:a.foodRetail,foodRetailPct:a.foodRetailPct,residential:a.residential,neighborhood:a.neighborhood,candidateEdge:a.candidateEdge,industries:a.industries}));
 console.log('PASS: confirmed zone 923동 · 840 known · 770 old · 91.7% · 294 stores · 13 sites inside · source hash');
