@@ -285,7 +285,7 @@
     <div class="hist-act rv d2" id="zoneDownloads" style="justify-content:flex-start;margin-top:18px">
       ${(a.zone_downloads||[]).map(i=>`<button type="button" class="btn line" data-zone-dl="${n(i.file)}" data-name="${n(i.name)}">${m("down")}${n(i.label)}</button>`).join("")}
     </div>
-    <p class="cap rv d2">\uAD6C\uC5ED\uACC4 \uC120\uB9CC \uB2F4\uC558\uC2B5\uB2C8\uB2E4. \uADF8\uB9BC\uC740 \uBC30\uACBD\uC774 \uD22C\uBA85\uD569\uB2C8\uB2E4. 10\uC6D4 11\uC77C \uD655\uC815\uD55C \uC791\uC5C5 \uACBD\uACC4\uC774\uBA70 \uC9C0\uC801 \uACBD\uACC4\uB294 \uC544\uB2D9\uB2C8\uB2E4.</p>
+    <p class="cap rv d2">\uBC14\uD0D5 \uC9C0\uB3C4\xB7\uB3C4\uB85C\uBA85\xB7\uD655\uC815 \uAD6C\uC5ED\uACC4\xB7\uB300\uC0C1\uC9C0 13\uACF3 \uBC88\uD638\uC640 \uC124\uBA85\uC744 \uD568\uAED8 \uB2F4\uC558\uC2B5\uB2C8\uB2E4. 10\uC6D4 11\uC77C \uD655\uC815\uD55C \uC791\uC5C5 \uACBD\uACC4\uC774\uBA70 \uC9C0\uC801 \uACBD\uACC4\uB294 \uC544\uB2D9\uB2C8\uB2E4.</p>
   </div></section>
 
   <section id="s-map" class="mapwrap" aria-label="\uB300\uC0C1\uC9C0 \uC9C0\uB3C4">
