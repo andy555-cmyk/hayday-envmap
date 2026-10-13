@@ -121,12 +121,22 @@ if Z.get('rtms'):
     if sr:
         h = sr['headline']
         head.append(f"단독·다가구 전월세 신고 {n(sr['n'])}건 중 월세 비중 {h['wolseFrom'][0]}년 {h['wolseFrom'][1]}% → {h['wolseTo'][0]}년 {h['wolseTo'][1]}%")
-        head.append(f"봉황동 전월세는 가장 많던 {h['bonghwangPeak'][0]}년 {h['bonghwangPeak'][1]}건 → 가장 적던 {h['bonghwangLow'][0]}년 {h['bonghwangLow'][1]}건")
+        head.append(f"봉황동 전월세는 가장 많던 {h['bonghwangPeak'][0]}년 {h['bonghwangPeak'][1]}건 → 2011~2025년 중 가장 적던 {h['bonghwangLow'][0]}년 {h['bonghwangLow'][1]}건")
     for k in ('nrg', 'land', 'shtrade'):
-        if k in K: head.append(f"{K[k]['name']} {n(K[k]['n'])}건(가장 많던 {K[k]['headline']['peak'][0]}년 {K[k]['headline']['peak'][1]}건 → {K[k]['headline']['last'][0]}년 {K[k]['headline']['last'][1]}건)")
+        if k in K:
+            H = K[k]['headline']
+            head.append(f"{K[k]['name']} 가장 많던 {H['peak'][0]}년 {H['peak'][1]}건 → {H['last'][0]}년 {H['last'][1]}건({H['dropPct']}% 감소, 봉황동 {H['bhPeak'][0]}년 {H['bhPeak'][1]}건 → {H['bhLast'][0]}년 {H['bhLast'][1]}건)")
     card('rtms', '시장', '구역 법정동의 부동산 거래 신고는 어떻게 변했나?', ' · '.join(head),
          ' / '.join(f"{v['name']} 연도별: " + ' · '.join(f"{y['year']} {y['n']}" for y in v['years']) for v in K.values()) + '.',
          '법정동 전체(' + '·'.join(T['dongs']) + ' — 구역 밖 같은 동 포함)', T['source'], '2026-10-13', T['caveat'] + '. 거래 금액은 공개 사실 묶음에 싣지 않는다.')
+if Z.get('archPms'):
+    AP = Z['archPms']
+    card('archPms', '건물', '구역 안 건축 인허가(신축·용도변경)는 어떻게 변했나?',
+         f"구역 지번 {AP['lotsQueried']}곳 전수: 허가 {n(AP['permits'])}건(지번 {AP['lotsWithPermit']}곳) — 용도변경 {AP['types'].get('용도변경', 0)}건 중 {AP['change1722']}건({round(100 * AP['change1722'] / AP['types'].get('용도변경', 1))}%)이 2017~2022년 · 2023년 이후 허가는 {AP['since2023']}건",
+         '종류: ' + ' · '.join(f"{k} {v}" for k, v in AP['types'].items()) + '. 용도변경 허가 건물의 주용도: ' + ' · '.join(f"{k} {v}" for k, v in AP['changeUse'].items()) +
+         '. 연도별(2005~): ' + ' · '.join(f"{y['year']} {y['n']}" for y in AP['years'] if y['year'] >= 2005) +
+         f". 가장 많던 해 {'·'.join(map(str, AP['peak']['years']))}년 {AP['peak']['n']}건. 철거·멸실 신고 {AP['demolition']['n']}건(" + ' · '.join(f"{y} {v}" for y, v in AP['demolition']['byYear'].items()) + f"), 가설건축물 {AP['temporary']}건, 사용승인일 없는 허가 {AP['notApproved']}건.",
+         ZONE + f" · 지번 {AP['lotsQueried']}곳", AP['source'], '2026-10-13', AP['caveat'] + '. 구역 안 영업 변화(인허가 업종 통계)와는 다른 자료다.')
 card('sites13', '대상지', '시 우선순위 13곳의 토지 규제는?',
      f"13곳 모두 역사문화환경보존지역·중점경관관리구역 · 도시계획도로 저촉 {', '.join(str(x) + '번' for x in lu['roadConflict'])} · 방화지구 {', '.join(str(x) + '번' for x in lu['fireDistrict'])}",
      '용도지역: ' + ' · '.join(f"{k} {v}곳" for k, v in lu['zoning'].items()) + f". 공시지가(2026.1) {n(min(t['officialPrice']['wonPerM2'] for t in Z['sites']))}~{n(max(t['officialPrice']['wonPerM2'] for t in Z['sites']))}원/㎡.",

@@ -142,9 +142,12 @@ new = [
       Z['sbizZone']['source'], '2026-10-13', '확정 구역계', Z['sbizZone']['note'])] if Z.get('sbizZone', {}).get('items') else []),
     *([C('확정 구역계 실거래 거래 신고 전월세 월세 전세 매매 상가 토지 법정동 봉황동 부원동 서상동 대상지', '구역 법정동의 부동산 거래 신고는 어떻게 변했나',
       ' · '.join(([f"단독·다가구 전월세 신고 {n(Z['rtms']['kinds']['shrent']['n'])}건 중 월세 비중 {Z['rtms']['kinds']['shrent']['headline']['wolseFrom'][0]}년 {Z['rtms']['kinds']['shrent']['headline']['wolseFrom'][1]}% → {Z['rtms']['kinds']['shrent']['headline']['wolseTo'][0]}년 {Z['rtms']['kinds']['shrent']['headline']['wolseTo'][1]}%"] if 'shrent' in Z['rtms']['kinds'] else []) +
-                 [f"{v['name']} {n(v['n'])}건" for k_, v in Z['rtms']['kinds'].items() if k_ != 'shrent']),
+                 [f"{v['name']} 가장 많던 {v['headline']['peak'][0]}년 {v['headline']['peak'][1]}건 → {v['headline']['last'][0]}년 {v['headline']['last'][1]}건" for k_, v in Z['rtms']['kinds'].items() if k_ != 'shrent']),
       Z['rtms']['source'], '2026-10-13', '법정동 전체(' + '·'.join(Z['rtms']['dongs']) + ')',
       Z['rtms']['caveat'] + '. 거래 금액은 싣지 않는다')] if Z.get('rtms') else []),
+    *([C('확정 구역계 건축 인허가 신축 증축 용도변경 대수선 철거 허가 연도 세움터 대상지', '구역 안 건축 인허가(신축·용도변경)는 어떻게 변했나',
+      f"지번 {Z['archPms']['lotsQueried']}곳 전수: 허가 {n(Z['archPms']['permits'])}건(지번 {Z['archPms']['lotsWithPermit']}곳) · 용도변경 {Z['archPms']['types'].get('용도변경', 0)}건 중 {Z['archPms']['change1722']}건({round(100 * Z['archPms']['change1722'] / Z['archPms']['types'].get('용도변경', 1))}%)이 2017~2022년 · 2023년 이후 {Z['archPms']['since2023']}건",
+      Z['archPms']['source'], '2026-10-13', '확정 구역계 · 지번 단위', Z['archPms']['caveat'])] if Z.get('archPms') else []),
     C('확정 구역계 대장 노후 건축물대장 87.3 사용승인 583 대상지', '건축물대장으로 본 확정 구역계 노후도는',
       f"대장 {n(lg['buildings'])}동 중 20년 이상 {lg['old20Pct']}% · 30년 이상 {lg['old30Pct']}%",
       lg['source'], '2026-10-13', f"확정 구역계 · 지번 {n(lg['parcels'])}곳",

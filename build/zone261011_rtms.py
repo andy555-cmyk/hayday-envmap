@@ -27,7 +27,11 @@ for k in ('shrent', 'shtrade', 'nrg', 'land'):
                                        'bonghwangPeak': [peak['year'], bh[peak['year']]], 'bonghwangLow': min(((y['year'], bh[y['year']]) for y in full), key=lambda t: t[1])}
     else:
         full = [y for y in yrs if y['year'] <= 2025]
-        out['kinds'][k]['headline'] = {'peak': max(((y['year'], y['n']) for y in full), key=lambda t: t[1]), 'last': [full[-1]['year'], full[-1]['n']]}
+        bh = lambda y: y['byDong'].get('봉황동', 0)
+        pk = max(full, key=lambda y: y['n']); bpk = max(full, key=bh)
+        out['kinds'][k]['headline'] = {'peak': [pk['year'], pk['n']], 'last': [full[-1]['year'], full[-1]['n']],
+                                       'bhPeak': [bpk['year'], bh(bpk)], 'bhLast': [full[-1]['year'], bh(full[-1])],
+                                       'dropPct': round(100 * (1 - full[-1]['n'] / pk['n']))}
 Z['rtms'] = out
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')))
 print(json.dumps({k: (v['n'], v.get('headline')) for k, v in out['kinds'].items()}, ensure_ascii=False))
