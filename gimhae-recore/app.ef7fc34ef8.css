@@ -1,8 +1,8 @@
 /* 김해 원도심 RE:CORE 통합 안내 — 흰 바탕 · 큰 글자 · 가야 색(쪽빛·토기·고분 초록) */
-@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.aed577f2b3.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.5d74cb536a.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.431984b955.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.dea9bdaafa.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.a674d12644.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.f3e465f05e.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.9821de32d1.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.9c4108dda3.woff2) format("woff2")}
 @font-face{font-family:"PretendardAll";font-weight:100 900;font-display:swap;src:url(vendor/pretendard-1.3.9/woff2/Pretendard-Regular.woff2) format("woff2");unicode-range:U+1100-11FF,U+3130-318F,U+AC00-D7A3}
 
 :root{
