@@ -84,7 +84,7 @@ main{min-height:70vh}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:.06em;color:var(--clay);text-transform:uppercase}
 .eyebrow::before{content:"";width:18px;height:2px;background:currentColor;border-radius:2px}
 .sec-h h2{font-size:32px;margin-top:10px}
-.sec-h p{margin-top:12px;color:var(--muted);font-size:17px}
+.sec-h p{margin-top:12px;color:var(--muted);font-size:17px;text-wrap:balance}
 .page-hero{position:relative;padding:48px 0 28px;text-align:center;overflow:hidden;background:linear-gradient(180deg,var(--paper),#fff)}
 .page-hero h1{font-size:44px}
 .page-hero p.lead{max-width:720px;margin:14px auto 0;color:var(--muted);font-size:18px}
@@ -559,6 +559,10 @@ table.tbl{width:100%;border-collapse:collapse;font-size:15px}
 .allmenu{display:inline-flex}
 @media (max-width:1200px){.gnb{display:none}.hd-act{margin-left:auto}}
 @media (min-width:641px) and (max-width:1200px){.ibtn .lbl{display:inline}}
+@media (max-width:380px){.hd-act{gap:4px}.hd-act .ibtn{padding:0 9px}header .brand b{font-size:16px}}   /* 360폭(작은 안드로이드)에서 전체메뉴 단추가 화면 밖으로 밀리지 않게 */
+.bar-row.ev b,#cuList b{display:block;text-wrap:balance}
+@media (max-width:350px){header .brand{gap:7px}header .brand svg{width:34px;height:34px}header .brand b{font-size:15px}.hd-act{gap:3px}.hd-act .ibtn{padding:0 8px}}   /* 320폭 옛 기종 */
+@media (max-width:480px){#cuList>.card{flex-direction:column;gap:8px;padding:14px 14px 16px!important}#cuList>.card>span{width:28px!important;height:28px!important;border-radius:8px!important;font-size:13px!important}}   /* 휴대전화 2열 카드: 번호를 위로, 제목은 카드 폭 전체 */
 @media (min-width:1201px) and (max-width:1400px){#openSearch .lbl,#openSearch kbd,#openMenu .lbl{display:none}#openSearch,#openMenu{padding:0 11px}}   /* 위 메뉴가 보이는 좁은 노트북 폭: 찾기·전체메뉴는 아이콘만, 「AI 질문」 글자는 한 줄 유지 */
 @media (max-width:900px){.util-l{display:none}.util .wrap{justify-content:flex-end}}
 @media (max-width:640px){:root{--head:64px}.util{display:none}.brand svg{width:40px;height:40px}.brand b{font-size:17px}}
@@ -815,12 +819,12 @@ body:has(.tour-chip) .totop{bottom:160px}
 .ask-send{display:grid;place-items:center;width:46px;height:46px;border:0;border-radius:14px;background:var(--navy);color:#fff;cursor:pointer;flex:none}
 .ask-send svg{width:22px;height:22px}
 .ask-send:disabled{opacity:.45;cursor:default}
-.ask-note{margin:0;padding:6px 16px 12px;background:#fff;font-size:12.5px;color:var(--muted)}
+.ask-note{margin:0;padding:6px 16px 12px;background:#fff;font-size:13px;color:var(--muted)}
 .askrow{display:flex;align-items:center;gap:10px;width:100%;padding:12px 18px;border:0;border-bottom:1px solid var(--line);background:var(--navy-l);font:inherit;font-size:15.5px;color:var(--navy);text-align:left;cursor:pointer}
 .askrow svg{width:20px;height:20px;flex:none}
 .askrow:hover{background:#dbe5f1}
 @media (max-width:640px){
-  .askfab{right:12px;bottom:14px;height:48px;padding:0 16px 0 13px;font-size:15px}
+  .askfab{right:12px;bottom:14px;height:46px;gap:5px;padding:0 15px 0 12px;font-size:15px}.askfab-w{display:none}   /* 휴대전화: 「✦ AI」로 줄여 본문을 덜 가림 */
   .has-ask .totop{bottom:72px}
   .ask-box{inset:0;width:auto;border-radius:0;animation:none}
   .ask-log{padding:14px 14px 6px}
