@@ -87,9 +87,16 @@ if Z.get('kakaoPlace'):
     card('kakaoPlace', '점포', '카카오맵에 올라 있는 구역 안 장소는?',
          f"{kp['total']}곳 — " + ' · '.join(f"{k} {v}" for k, v in kp['byCategory'].items()),
          f"상가정보(2026-06) 294곳과 이름·20m로 짝이 맞는 곳 {kp['match']['both']}곳 · 카카오에만 {kp['match']['kakaoOnly']} · 상가정보에만 {kp['match']['sbizOnly']}.", ZONE, kp['source'], '2026-10-13', kp['caveat'] + '.')
+if Z.get('vacRate'):
+    VR = Z['vacRate']
+    card('vacRate', '공실', '부동산원 정의를 적용하면 확정 구역계 공실률은 얼마로 추정되나?',
+         f"추정(현장 조사 아님): 1층 {VR['ground']['lowPct']}~{VR['ground']['highPct']}% · 소규모상가 {VR['small']['lowPct']}~{VR['small']['highPct']}% · 중대형 {VR['large']['lowPct']}~{VR['large']['highPct']}%(위층 근거가 적어 범위가 넓음)",
+         f"대상 = {VR['definition']} — 구역 안 {VR['population']['buildings']}동(소규모 {VR['population']['small']} · 중대형 {VR['population']['large']}), 상가 층 면적 {n(VR['population']['commercialFloorM2'])}㎡. 방법: {VR['method']}. 하한 = 공실 근거만, 상한 = 공실 근거 + 근거 없음."
+         + (f" 민감도: {VR['sensitivity']['rule']} — 1층에만 배정하면 1층 {VR['sensitivity']['groundOnly']['ground'][0]}~{VR['sensitivity']['groundOnly']['ground'][1]}% · 소규모 {VR['sensitivity']['groundOnly']['small'][0]}~{VR['sensitivity']['groundOnly']['small'][1]}%." if VR.get('sensitivity') else ''),
+         ZONE + ' · 상가 계열 일반건축물', VR['source'], '2026-10-13', VR['caveat'] + '. ' + VR['compare'] + '.')
 card('emptyHouse', '공실', '빈집(주거) 목록은 있나?', '주소별 공개 목록이 없다', V['emptyHouse']['note'] + '.', '김해시', '빈집애·공공데이터포털', '2026-10-13', '구역 안 빈집 수는 현장 조사로만 확인할 수 있다.')
 card('rone', '공실', '확정 구역계의 공실률은?',
-     f"구역만의 공식 공실률은 없다. 부동산원 「{ro['market']}」 소규모상가 공실률 {ro['latest']['smallVacancyPct']}%({ro['latest']['quarter']})는 이 상권과 구역이 {ro['overlapPct']}%만 겹쳐 참고값이다",
+     f"구역만의 공식 공실률은 없다. 부동산원 「{ro['market']}」 소규모상가 공실률 {ro['latest']['smallVacancyPct']}%({ro['latest']['quarter']})는 이 상권과 구역이 {ro['overlapPct']}%만 겹쳐 참고값이다" + (f". 부동산원 정의를 구역 상가 건물 {Z['vacRate']['population']['buildings']}동에 적용한 추정(현장 조사 아님)은 1층 {Z['vacRate']['ground']['lowPct']}~{Z['vacRate']['ground']['highPct']}%, 소규모상가 {Z['vacRate']['small']['lowPct']}~{Z['vacRate']['small']['highPct']}%" if Z.get('vacRate') else ''),
      f"이전 사업구역 51.8ha는 상권 도형과 {ro['oldOverlapPct']}% 겹쳐 그 상권 값을 지표로 썼다(그때도 상권 표본 건물 값). 확정 구역계 중 상권 안: 면적 약 {ro['overlapM2'] / 10000:.1f}ha · 등록점포 {ro['storesIn']}/{s['stores']}곳 · 건물 {ro['bldIn']}/{s['buildings']}동 · 시 13곳 중 {'·'.join(str(x) + '번' for x in ro['sitesIn'])}. 같은 상권 소규모상가 임대료 {n(ro['latest']['smallRentWonPerM2'])}원/㎡. 김해의 다른 표본 상권({' · '.join(o['name'] for o in ro['others'])})은 집합상가만 조사한다.",
      '부동산원 표본 상권 vs ' + ZONE, ro['source'], ro['latest']['quarter'], '공실률은 표본 건물 조사값이라 빈 점포 후보·전수조사 판정과 모집단이 달라 합하거나 환산하지 않는다. 상권 코드는 공식 통계표 기준 ' + ro['code'] + '.')
 if Z.get('sbizZone', {}).get('items'):
