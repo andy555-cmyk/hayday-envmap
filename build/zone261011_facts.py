@@ -115,6 +115,18 @@ if Z.get('landUse537'):
          f"지번 {L5['done']}곳 열람: 역사문화환경보존지역 {L5['heritagePct']}% · 중점경관관리구역 {L5['landscapePct']}% · 자연재해위험개선지구 {L5['hazard']['count']}곳({L5['hazard']['pct']}%) · 공시지가 ㎡당 중간값 {n(P5['median'])}원",
          f"도시계획도로 저촉 {L5['road'].get('저촉', 0)} · 접합만 {L5['road'].get('접합만', 0)} · 없음 {L5['road'].get('없음', 0)}. 공시지가({P5['ym']}) 가운데 절반 {n(P5['q1'])}~{n(P5['q3'])}원, 봉황대길 30m 안 {n(P5['band30'])}원 / 밖 {n(P5['off30'])}원. 자연재해위험개선지구는 배수·침수 이력 확인 근거.",
          ZONE + f" · 지번 {L5['target']}곳 중 {L5['done']}곳 열람" + (' (일부 — 수집 중)' if L5['partial'] else ''), L5['source'], '2026-10-13', L5['caveat'] + '.')
+if Z.get('rtms'):
+    T = Z['rtms']; K = T['kinds']; sr = K.get('shrent')
+    head = []
+    if sr:
+        h = sr['headline']
+        head.append(f"단독·다가구 전월세 신고 {n(sr['n'])}건 중 월세 비중 {h['wolseFrom'][0]}년 {h['wolseFrom'][1]}% → {h['wolseTo'][0]}년 {h['wolseTo'][1]}%")
+        head.append(f"봉황동 전월세는 가장 많던 {h['bonghwangPeak'][0]}년 {h['bonghwangPeak'][1]}건 → 가장 적던 {h['bonghwangLow'][0]}년 {h['bonghwangLow'][1]}건")
+    for k in ('nrg', 'land', 'shtrade'):
+        if k in K: head.append(f"{K[k]['name']} {n(K[k]['n'])}건(가장 많던 {K[k]['headline']['peak'][0]}년 {K[k]['headline']['peak'][1]}건 → {K[k]['headline']['last'][0]}년 {K[k]['headline']['last'][1]}건)")
+    card('rtms', '시장', '구역 법정동의 부동산 거래 신고는 어떻게 변했나?', ' · '.join(head),
+         ' / '.join(f"{v['name']} 연도별: " + ' · '.join(f"{y['year']} {y['n']}" for y in v['years']) for v in K.values()) + '.',
+         '법정동 전체(' + '·'.join(T['dongs']) + ' — 구역 밖 같은 동 포함)', T['source'], '2026-10-13', T['caveat'] + '. 거래 금액은 공개 사실 묶음에 싣지 않는다.')
 card('sites13', '대상지', '시 우선순위 13곳의 토지 규제는?',
      f"13곳 모두 역사문화환경보존지역·중점경관관리구역 · 도시계획도로 저촉 {', '.join(str(x) + '번' for x in lu['roadConflict'])} · 방화지구 {', '.join(str(x) + '번' for x in lu['fireDistrict'])}",
      '용도지역: ' + ' · '.join(f"{k} {v}곳" for k, v in lu['zoning'].items()) + f". 공시지가(2026.1) {n(min(t['officialPrice']['wonPerM2'] for t in Z['sites']))}~{n(max(t['officialPrice']['wonPerM2'] for t in Z['sites']))}원/㎡.",
