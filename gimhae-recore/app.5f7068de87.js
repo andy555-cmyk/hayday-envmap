@@ -1,0 +1,882 @@
+(()=>{var bs=Object.defineProperty;var N=(t,s)=>{for(var a in s)bs(t,a,{get:s[a],enumerable:!0})};var p=(t,s=document)=>s.querySelector(t),L=(t,s=document)=>[...s.querySelectorAll(t)],n=t=>String(t??"").replace(/[&<>"']/g,s=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[s]),_e=()=>document.documentElement.classList.contains("nomo"),$s={arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.7 1.8 1.8.7-1.8.7L19 21l-.7-1.8-1.8-.7 1.8-.7z"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',print:'<path d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="7" y="14" width="10" height="7" rx="1"/>',copy:'<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',check:'<path d="m5 12 5 5L20 7"/>',chev:'<path d="m6 9 6 6 6-6"/>',file:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',ext:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',warn:'<path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18v.5"/>',map:'<path d="m9 4-6 3v13l6-3 6 3 6-3V4l-6 3z"/><path d="M9 4v13M15 7v13"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',down:'<path d="M12 4v12M6 11l6 6 6-6M5 20h14"/>',close:'<path d="M6 6l12 12M18 6 6 18"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',home:'<path d="m3 11 9-7 9 7"/><path d="M5 10v10h14V10"/>',book:'<path d="M4 4h6a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H4zM20 4h-6a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h6z"/>',list:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="m4 6 .5.5L6 5M4 12l.5.5L6 11M4 18l.5.5L6 17"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',chat:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',layers:'<path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/>',link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',up:'<path d="M12 20V6M6 11l6-6 6 6"/>'},m=(t,s="")=>`<svg class="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${$s[t]||""}</svg>`,Bt=new Map;async function et(t){return t?window.__ASSET?(Bt.has(t)||Bt.set(t,Promise.resolve(window.__ASSET(t)).catch(s=>{throw Bt.delete(t),s})),Bt.get(t)):t:""}var mt=null;function Lt(t=document){let s=L("img[data-src]",t);if(s.length){mt||(mt=new IntersectionObserver(a=>{for(let e of a){if(!e.isIntersecting)continue;let l=e.target;mt.unobserve(l);let o=l.dataset.src;l.removeAttribute("data-src"),et(o).then(i=>{l.src=i}).catch(()=>{l.alt="\uADF8\uB9BC\uC744 \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4"})}},{rootMargin:"600px 0px"}));for(let a of s)mt.observe(a)}}function Re(t){t&&(L("img[data-src]",t).forEach(s=>mt?.unobserve(s)),L(".rv, [data-count], [data-w], .steps, .art",t).forEach(s=>ht?.unobserve(s)))}var qe={},Ie=t=>{qe=t||{}},ys=/^img\/(hero|sec_[a-z]+)\.webp$/,xs="auto, (max-width: 640px) 100vw, (max-width: 1100px) 50vw, 560px",z=(t,s="",a="",e="")=>{let l=/zoomable/.test(a),o=l?`tabindex="0" role="button" aria-label="${n(s||"\uADF8\uB9BC")} \uD06C\uAC8C \uBCF4\uAE30"`:"";if(window.__ASSET)return`<img data-src="${n(t)}" alt="${n(s)}" class="${a}" ${o} ${e} loading="lazy" decoding="async">`;let i=qe[t],c=ys.test(t),r=i?.v||[],v=r.length?(r.find(g=>g[0]>=800)||r.at(-1))[1]:t,h=c?/hero/.test(t)?"100vw":"(max-width: 720px) 100vw, 680px":xs,x=r.length?`srcset="${r.map(([g,T])=>`${n(T)} ${g}w`).join(", ")}" sizes="${h}"`:"",w=i?`width="${i.w}" height="${i.h}"`:"",E=l?`data-full="${n(r.length?r.at(-1)[1]:t)}"`:"";return`<img src="${n(v)}" ${x} ${w} ${E} alt="${n(s)}" class="${a}" ${o} ${e} ${c?'loading="eager" fetchpriority="high"':'loading="lazy"'} decoding="async">`},ht=null;function oe(t=document){let s=L(".rv:not(.in), [data-count]:not(.counted), [data-w]:not(.filled), .steps:not(.filled), .art:not(.in)",t);if(_e()){for(let a of s)ie(a);return}ht||(ht=new IntersectionObserver(a=>{for(let e of a)e.isIntersecting&&(ie(e.target),ht.unobserve(e.target))},{rootMargin:"0px 0px 12% 0px",threshold:0}));for(let a of s)ht.observe(a)}function ie(t){if(t.classList.add("in"),t.dataset.count!==void 0&&!t.classList.contains("counted")&&ws(t),t.dataset.w!==void 0&&!t.classList.contains("filled")&&(t.classList.add("filled"),requestAnimationFrame(()=>{t.style.width=t.dataset.w})),t.classList.contains("steps")&&!t.classList.contains("filled")){t.classList.add("filled");let s=t.querySelector(".bar");s&&requestAnimationFrame(()=>{s.style.width=s.dataset.to})}}var ne=!1;function le(t=document){ne=!0;try{L(".rv:not(.in), [data-count]:not(.counted), [data-w]:not(.filled), .steps:not(.filled), .art:not(.in)",t).forEach(s=>{ht?.unobserve(s),ie(s)}),L("[data-count]",t).forEach(s=>{let a=parseFloat(s.dataset.count),e=+(s.dataset.dec||0);isFinite(a)&&(s.textContent=a.toLocaleString("ko-KR",{minimumFractionDigits:e,maximumFractionDigits:e}))}),L("[data-w].filled",t).forEach(s=>{s.style.width=s.dataset.w}),L(".steps.filled .bar",t).forEach(s=>{s.style.width=s.dataset.to})}finally{ne=!1}}async function He(t=document){le(t);let s=L("img[data-src]",t),a=L('img[loading="lazy"]',t);a.forEach(e=>{e.loading="eager"}),await Promise.race([Promise.all([...s.map(async e=>{mt?.unobserve(e);let l=e.dataset.src;e.removeAttribute("data-src"),e.loading="eager";try{e.src=await et(l),await e.decode()}catch{}}),...a.map(e=>e.decode().catch(()=>{}))]),new Promise(e=>setTimeout(e,5e3))])}function ws(t){t.classList.add("counted");let s=parseFloat(t.dataset.count),a=+(t.dataset.dec||0),e=c=>c.toLocaleString("ko-KR",{minimumFractionDigits:a,maximumFractionDigits:a});if(_e()||ne||!isFinite(s)){t.textContent=e(s);return}let l=performance.now(),o=1200,i=c=>{let r=Math.min(1,(c-l)/o),v=1-Math.pow(1-r,3);t.textContent=e(s*v),r<1?requestAnimationFrame(i):t.textContent=e(s)};requestAnimationFrame(i)}function H(t){let s=document.createElement("div");s.className="toast",s.setAttribute("role","status"),s.textContent=t,document.body.appendChild(s),setTimeout(()=>s.remove(),2200)}async function ft(t,s,a){var e;try{await navigator.clipboard.writeText(t)}catch{let l=document.createElement("textarea");l.value=t,l.style.position="fixed",l.style.opacity="0",document.body.appendChild(l),l.select();try{document.execCommand("copy")}catch{}l.remove()}s&&((e=s.dataset).orig??(e.orig=s.innerHTML),s.classList.add("done"),s.innerHTML=`${m("check")}\uBCF5\uC0AC\uB428`,clearTimeout(s._t),s._t=setTimeout(()=>{s.classList.remove("done"),s.innerHTML=s.dataset.orig},1600)),H(a||"\uBCF5\uC0AC\uD588\uC2B5\uB2C8\uB2E4. \uBCF4\uACE0\uC11C\xB7\uBA54\uC2E0\uC800\uC5D0 \uBD99\uC5EC \uB123\uC73C\uC138\uC694")}var gt=(t,s="\uBCF5\uC0AC")=>`<button class="copy" data-copy="${n(t)}">${m("copy")}${s}</button>`,ks={ok:"\uCDA9\uC871",ing:"\uC9C4\uD589 \uC911",no:"\uBBF8\uCDA9\uC871",na:"\uD574\uB2F9 \uC5C6\uC74C",chk:"\uD655\uC778 \uD544\uC694"},Ls=t=>({ok:"ok",ing:"ing",no:"no",na:"na",chk:"ing"})[t]||"na",Q=(t,s)=>`<span class="st ${Ls(t)}"><i></i>${n(s||ks[t]||t)}</span>`,U=()=>new Date(Date.now()+324e5).toISOString().slice(0,10);function rt(t){let s=new Date(U()+"T00:00:00Z"),a=new Date(t+"T00:00:00Z");return Math.round((a-s)/864e5)}var ce=t=>t===0?"D-DAY":t>0?`D-${t}`:`D+${-t}`,Y=(t,s=U())=>t.month_only?t.date.slice(0,7)>=s.slice(0,7):t.date>=s,dt=t=>/^#[0-9a-f]{3,8}$/i.test(String(t))?String(t):"#22406A",st=t=>/^[a-z0-9/_-]*$/i.test(String(t))?String(t):"",W=t=>/^(https?:\/\/|#\/)/i.test(String(t))?String(t):"#/",Nt=t=>t.month_only?{big:`${+t.date.slice(5,7)}\uC6D4`,small:"\uC911 \xB7 \uC7A0\uC815"}:{big:ce(rt(t.date)),small:K(t.date,!1)};function K(t,s=!0){if(!t)return"";let a=/^(\d{4})-(\d{2})-(\d{2})/.exec(t);if(!a)return t;let l="\uC77C\uC6D4\uD654\uC218\uBAA9\uAE08\uD1A0"[new Date(`${a[1]}-${a[2]}-${a[3]}T00:00:00Z`).getUTCDay()];return`${+a[2]}\uC6D4 ${+a[3]}\uC77C${s?`(${l})`:""}`}function bt(t,s=[],a=4){let e=n(t),l=[],o=[...s].filter(i=>i.term&&i.term.length>=2).sort((i,c)=>c.term.length-i.term.length);for(let i of o){if(l.length>=a)break;let c=n(i.term),r=e.indexOf(c);r<0||(l.push(`<span class="term" tabindex="0" data-term="${n(i.term)}">${c}</span>`),e=e.slice(0,r)+`\0${l.length-1}\0`+e.slice(r+c.length))}return e.replace(/\u0000(\d+)\u0000/g,(i,c)=>l[+c])}var pt=(t,s,a)=>Array.isArray(s)?s.map(e=>pt(t,e)).join(" "):`<button class="copy" data-doc="${n(t)}" data-page="${s||""}">${m("file")}${n(a||(s?`\uC6D0\uBB38 ${s}\uCABD`:"\uC6D0\uBB38 \uBCF4\uAE30"))}</button>`,Et=t=>Array.isArray(t)?t.join("\xB7"):t;var re={};N(re,{render:()=>Ss});function Ut(){let t=[{c:"navy",who:"\uAD6D\uD1A0\uAD50\uD1B5\uBD80",what:"\uC6D0\uB3C4\uC2EC \uBCF5\uD569\uC7AC\uC0DD \xB7 \uACF5\uAC04",money:"\uAD6D\uBE44 \uCD5C\uB300 210\uC5B5 \xB7 \uCD1D 300\uC5B5(70:30)"},{c:"clay",who:"\uBB38\uD654\uCCB4\uC721\uAD00\uAD11\uBD80",what:"\uC6D0\uB3C4\uC2EC \uBB38\uD654\uCF58\uD150\uCE20 \xB7 \uCF58\uD150\uCE20",money:"\uAD6D\uBE44 \uCD5C\uB300 32.4\uC5B5 \xB7 \uCD1D 64.8\uC5B5(50:50)"},{c:"sage",who:"\uC911\uC18C\uBCA4\uCC98\uAE30\uC5C5\uBD80",what:"\uCC3D\uC5C5\xB7\uC9C0\uC5ED\uC0C1\uAD8C \xB7 \uC5F0\uACC4",money:"\uC5F0\uACC4 \uC0AC\uC5C5(\uBCC4\uB3C4 \uC608\uC0B0)"}],s=[{c:"navy",t:"\uACF5\uAC04",d:"\uD575\uC2EC \uAC70\uC810 1\uACF3 + \uBC29\uBB38\uAC1D \uACF5\uAC04 10\uACF3 \uC815\uBE44, \uBD09\uB9AC\uB2E8\uAE38 \uBCF4\uD589\xB7\uC870\uBA85\xB7\uC8FC\uCC28"},{c:"clay",t:"\uCF58\uD150\uCE20",d:"\uD31D\uC5C5\uC2A4\uD1A0\uC5B4\xB7\uB300\uD45C\uCF58\uD150\uCE20\xB7\uC5F0\uACC4 \uD504\uB85C\uADF8\uB7A8, \uC9C0\uC5ED \uC608\uC220\uC778\uACFC \uACF5\uAC04 \uC5F0\uACB0"},{c:"sage",t:"\uC0AC\uB78C",d:"\uCCAD\uB144 \uCC3D\uC5C5\xB7\uCC3D\uC791\uC790 \uC785\uC8FC(\uC6D4 30\uB9CC\uC6D0 \uD65C\uB3D9\uBE44), \uD310\uB9E4\uB294 \uC785\uC8FC\uC790 \uBAAB"}];return`<div class="org rv">
+    <div class="org-row">${t.map(a=>`<div class="org-card c-${a.c}"><b>${n(a.who)}</b><span>${n(a.what)}</span><small>${n(a.money)}</small></div>`).join("")}</div>
+    <div class="org-arrow" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="org-mid">
+      <div class="org-side"><span>${m("chat")} HUG \uC0AC\uC804\uCEE8\uC124\uD305 3\uD68C</span><span>${m("chat")} \uBB38\uCCB4\uBD80 \uC0AC\uC804\uCEE8\uC124\uD305 1\uD68C</span></div>
+      <div class="org-center"><small>\uACC4\uD68D \uC218\uB9BD\xB7\uC2E0\uCCAD \uC8FC\uCCB4</small><b>\uAE40\uD574\uC2DC</b><span>\uD589\uC815\uD611\uC758\uD68C \xB7 \uACF5\uC2E4 \uAD8C\uC6D0 \uD655\uBCF4 \xB7 \uC9C0\uBC29\uBE44</span></div>
+      <div class="org-side"><span>${m("check")} \uACBD\uB0A8\uB3C4 \uD3C9\uAC00\xB7\uC2E0\uCCAD</span><span>${m("list")} \uAD6D\uD1A0\uBD80 \uD3C9\uAC00\xB7\uC120\uC815</span></div>
+    </div>
+    <div class="org-arrow" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="org-row">${s.map(a=>`<div class="org-card out c-${a.c}"><b>${n(a.t)}</b><span>${n(a.d)}</span></div>`).join("")}</div>
+    <div class="org-goal">${m("home")}<b>\uBD09\uB9AC\uB2E8\uAE38 \uC911\uC2EC \uC6D0\uB3C4\uC2EC \uD65C\uC131\uD654</b><span>4\uB144 \uC9C0\uC6D0 \xB7 \uC870\uC131 \uD6C4 10\uB144 \uC774\uC0C1 \uC6B4\uC601</span></div>
+  </div>`}function Dt(t=0){return`<ol class="flow rv">${[{t:"\uC0AC\uC804\uCEE8\uC124\uD305",d:"2026.9~12",n:"HUG 3\uD68C \xB7 \uBB38\uCCB4\uBD80 1\uD68C"},{t:"\uC2DC\uBC94\uC0AC\uC5C5 \uACF5\uACE0",d:"2026.12(\uC7A0\uC815)",n:"\uC608\uC0B0 \uD655\uC815 \uD6C4 \uC7AC\uACF5\uC9C0"},{t:"\uC2E0\uCCAD\uC11C \uC811\uC218",d:"2027.1(\uC7A0\uC815)",n:"\uAE40\uD574\uC2DC \u2192 \uACBD\uB0A8\uB3C4 \u2192 \uAD6D\uD1A0\uBD80"},{t:"\uAC80\uC99D\xB7\uD3C9\uAC00",d:"2027.1~2",n:"\uC801\uACA9\uC131 \u2192 \uC11C\uBA74\xB7\uD604\uC7A5\xB7\uBC1C\uD45C"},{t:"\uC120\uC815 \uBC1C\uD45C",d:"2027.2(\uC7A0\uC815)",n:"\uC804\uAD6D 7\uACF3(\uAD8C\uC5ED\uBCC4 1\uACF3)"},{t:"\uD2B9\uC704 \uC2EC\uC758\xB7\uCC29\uC218",d:"2027 \uC0C1\uBC18\uAE30",n:"\uACF5\uC2E4 1~2\uACF3 \uBA3C\uC800 \uC815\uBE44"},{t:"\uC0AC\uC5C5\xB7\uC6B4\uC601",d:"4\uB144 + 10\uB144",n:"\uAD6D\uBE44 \uC9C0\uC6D0 \uD6C4\uC5D0\uB3C4 \uC6B4\uC601"}].map((a,e)=>`<li class="${e<t?"done":e===t?"now":""}">
+      <span class="fl-n">${e===t?"\uC9C0\uAE08":e+1}</span><b>${n(a.t)}</b><em>${n(a.d)}</em><small>${n(a.n)}</small></li>`).join("")}</ol>`}var Es=[["\uC0AC\uC5C5 \uC18C\uAC1C","guide","img/kpi_money.webp","\uC9C0\uC6D0 \uADDC\uBAA8\xB7\uC694\uAC74"],["\uC694\uAC74 \uC810\uAC80","check","img/qm_check.webp","\uCC44\uC6B4 \uAC83\xB7\uB0A8\uC740 \uAC83"],["\uB300\uC0C1\uC9C0 \uC9C0\uB3C4","sites","img/kpi_area.webp","13\uACF3\xB7\uAD6C\uC5ED\uACC4"],["\uACC4\uD68D \uAD6C\uC0C1","plan","img/req_org.webp","\uAC70\uC810\xB7\uCF58\uD150\uCE20"],["\uCD94\uC9C4 \uC77C\uC815","todo","img/kpi_period.webp","\uB2EC\uB825\xB7\uD560 \uC77C"],["\uC9C4\uD589 \uAE30\uB85D","log","img/req_operate.webp","\uD68C\uC758\xB7\uACB0\uC815"],["\uBD09\uB9AC\uB2E8\uAE38 10\uB144","history","img/kpi_voice.webp","\uADF8\uB54C\xB7\uC9C0\uAE08\xB7\uB2E4\uC74C"],["\uC790\uB8CC\uC2E4","library","img/qm_library.webp","\uC6D0\uBB38\xB7\uBCF4\uACE0\uC11C"]];function Ss(t){let s=U(),a=(t.schedule||[]).filter(d=>Y(d,s)).sort((d,u)=>d.date.localeCompare(u.date)).slice(0,5),e=t.requirements||[],l=d=>e.filter(u=>u.status===d).length,o=l("ok"),i=l("ing")+l("chk"),c=l("no"),r=e.length||1,v=t.stages||[],h=Math.max(0,v.findIndex(d=>d.state==="now")),x=v.length>1?`${h/(v.length-1)*84}%`:"0%",w=[...t.timeline||[]].filter(d=>d.date<=s&&d.type!=="\uC608\uC815").sort((d,u)=>u.date.localeCompare(d.date)).slice(0,6),E={no:0,chk:1,ing:2},g=e.filter(d=>d.status!=="ok").sort((d,u)=>(E[d.status]??3)-(E[u.status]??3)).slice(0,4),T=(t.geo?.compare?.zones||{}).zoneK||{},k=d=>({\uACB0\uC815:"navy",\uD68C\uC758:"sage",\uC0B0\uCD9C\uBB3C:"gold",\uD604\uC7A5:"clay"})[d]||"";return`
+  <section class="hero">
+    <div class="wrap">
+      <span class="badge rv"><i></i>2027 \uAC70\uC810\uD2B9\uD654 \uC6D0\uB3C4\uC2EC RE:CORE \uD504\uB85C\uC81D\uD2B8 \xB7 \uAE40\uD574\uC2DC \uCD94\uC9C4</span>
+      <h1 class="rv d1">\uB2E4\uC2DC \uCC44\uC6B0\uACE0, \uB2E4\uC2DC \uC0B4\uC544\uB098\uB294<br><em>\uAE40\uD574 \uC6D0\uB3C4\uC2EC</em></h1>
+      <p class="lead rv d2">\uAC00\uC57C\uC758 \uC5ED\uC0AC \uC704 \uBD09\uB9AC\uB2E8\uAE38\uC758 \uBE48 \uC810\uD3EC\uB97C \uC0AC\uB78C\uACFC \uCF58\uD150\uCE20\uB85C \uB2E4\uC2DC \uCC44\uC6C1\uB2C8\uB2E4. <br>\uC0AC\uC5C5 \uB0B4\uC6A9\uACFC \uAE40\uD574\uC758 \uC900\uBE44 \uD604\uD669\uC744 \uC774 \uB204\uB9AC\uC9D1 \uD55C\uACF3\uC5D0\uC11C \uC548\uB0B4\uD569\uB2C8\uB2E4.</p>
+      <div class="cta rv d3">
+        <a class="btn pri" href="#/guide">${m("book")}\uC0AC\uC5C5 \uC18C\uAC1C</a>
+        <a class="btn line" href="#/sites">${m("map")}\uB300\uC0C1\uC9C0 \uC9C0\uB3C4</a>
+        <button class="btn line" data-tour>${m("bulb")}3\uBD84 \uB458\uB7EC\uBCF4\uAE30</button>
+      </div>
+    </div>
+    <div class="art">${z(t.images.hero,"\uAE40\uD574 \uC6D0\uB3C4\uC2EC \uACE8\uBAA9\uACFC \uAC00\uC57C \uACE0\uBD84, \uACBD\uC804\uCCA0\uC774 \uBCF4\uC774\uB294 \uC5F0\uCD9C \uADF8\uB9BC")}<span class="artcap">\uC5F0\uCD9C \uADF8\uB9BC</span></div>
+  </section>
+
+  <section class="quick"><div class="wrap"><div class="quick-in">
+    ${Es.map(([d,u,f,b],j)=>`<a class="qm rv d${j%4+1}" href="#/${st(u)}"><span class="qm-i">${z(f,"")}</span><b>${n(d)}</b><small>${n(b)}</small></a>`).join("")}
+  </div></div></section>
+
+  <section class="sec" style="padding-top:56px"><div class="wrap"><div class="board2">
+    <div class="board rv">
+      <div class="board-h"><h2>\uC54C\uB9BC\xB7\uC18C\uC2DD</h2><a href="#/log/tl">\uC804\uCCB4 \uBCF4\uAE30 ${m("arrow")}</a></div>
+      <ul>${w.map(d=>`<li><a href="#/log/tl"><span class="tag min ${k(d.type)}">${n(d.type)}</span><b>${n(d.title)}</b><time>${n(d.date.slice(5).replace("-","."))}</time></a></li>`).join("")}</ul>
+    </div>
+    <div class="board rv d1">
+      <div class="board-h"><h2>\uC8FC\uC694 \uC77C\uC815</h2><a href="#/todo">\uB2EC\uB825 \uBCF4\uAE30 ${m("arrow")}</a></div>
+      <ul class="sched">${a.map(d=>{let u=rt(d.date),f=Nt(d);return`<li><a href="#/todo"><span class="dd ${u<=7&&!d.month_only?"soon":""} ${d.month_only?"mo":""}"><b>${n(f.big)}</b><small>${n(f.small)}</small></span><span class="sc-t"><b>${n(d.title)}</b><small>${n(d.detail||"")}</small></span></a></li>`}).join("")}</ul>
+    </div>
+  </div></div></section>
+
+  <section class="kband"><div class="wrap">
+    <div class="kband-h rv"><span class="eyebrow" style="color:#F4D58D">\uC22B\uC790\uB85C \uBCF4\uB294 RE:CORE</span><h2>\uC9C0\uC5ED \uD55C \uACF3\uC5D0 \uC774\uB9CC\uD07C \uC9C0\uC6D0\uD569\uB2C8\uB2E4</h2></div>
+    <div class="kband-g">
+      ${(t.kpis||[]).map((d,u)=>`<div class="kb rv d${u%4+1}"><div class="kb-i">${z(d.icon,"")}</div><div class="kb-v"><span data-count="${d.v}" data-dec="${d.dec||0}">0</span><small>${n(d.unit)}</small></div><div class="kb-k">${n(d.k)}</div><div class="kb-s">${n(d.s)}</div></div>`).join("")}
+    </div>
+    <p class="kband-src">${n(t.guideline.kpi_note||"")}</p>
+  </div></section>
+
+  <section class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uCD94\uC9C4 \uD604\uD669</span><h2>\uAE40\uD574\uB294 \uC9C0\uAE08 \uC5B4\uB514\uAE4C\uC9C0 \uC654\uB098\uC694?</h2><p>${n(t.meta.stage_lead||"")}</p></div>
+    <div class="steps rv"><div class="bar" data-to="${x}"></div>
+      ${v.map((d,u)=>`
+      <a class="step ${d.state}" href="#/log" style="text-decoration:none;color:inherit">
+        <div class="dot">${d.state==="done"?m("check"):u+1}</div>
+        <div><h4>${n(d.title)}</h4><p>${n(d.desc)}</p><span class="when">${n(d.when)}</span></div>
+      </a>`).join("")}
+    </div>
+    <div class="card rv" style="max-width:980px;margin:40px auto 0">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+        <h3 style="font-size:19px">\uC2E0\uCCAD \uC694\uAC74 ${e.length}\uAC1C \uC810\uAC80</h3>
+        <div style="display:flex;gap:16px;flex-wrap:wrap">${Q("ok",`\uCDA9\uC871 ${o}`)} ${Q("ing",`\uC9C4\uD589\xB7\uD655\uC778 \uC911 ${i}`)} ${Q("no",`\uBBF8\uCDA9\uC871 ${c}`)}</div>
+      </div>
+      <div class="meter"><span class="ok" data-w="${o/r*100}%"></span><span class="ing" data-w="${i/r*100}%"></span><span class="no" data-w="${c/r*100}%"></span></div>
+      <div style="display:grid;gap:10px;margin-top:18px">
+        ${g.map(d=>`<a href="#/check" class="gap-row">${Q(d.status)}<b style="font-weight:600">${n(d.title)}</b><span class="cap">${n(d.next||"")}</span></a>`).join("")}
+      </div>
+      <div style="text-align:center;margin-top:18px"><a class="btn line" href="#/check">\uC694\uAC74 \uC810\uAC80\uD45C \uC804\uCCB4 ${m("arrow")}</a></div>
+    </div>
+  </div></section>
+
+  <section class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC0AC\uC5C5 \uAD6C\uC870</span><h2>\uC138 \uBD80\uCC98 \uC0AC\uC5C5\uC774 \uAE40\uD574 \uC6D0\uB3C4\uC2EC \uD55C \uACF3\uC5D0 \uBAA8\uC785\uB2C8\uB2E4</h2><p>\uAD6D\uD1A0\uBD80(\uACF5\uAC04)\xB7\uBB38\uCCB4\uBD80(\uCF58\uD150\uCE20)\xB7\uC911\uAE30\uBD80(\uCC3D\uC5C5)\uB97C \uAE40\uD574\uC2DC\uAC00 \uD55C \uACC4\uD68D\uC73C\uB85C \uBB36\uC5B4 \uC2E0\uCCAD\uD569\uB2C8\uB2E4.</p></div>
+    ${Ut()}
+    <div class="sec-h rv" style="margin-top:64px"><span class="eyebrow">\uCD94\uC9C4 \uC808\uCC28</span><h2>\uACF5\uBAA8\uAE4C\uC9C0 \uC774\uB807\uAC8C \uC9C4\uD589\uB429\uB2C8\uB2E4</h2><p>\uB0A0\uC9DC\uB294 \uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uAE30\uC900 \uC7A0\uC815\uC774\uBA70, 12\uC6D4 \uD655\uC815 \uACF5\uACE0\uC5D0\uC11C \uB2E4\uC2DC \uD655\uC778\uD569\uB2C8\uB2E4.</p></div>
+    ${Dt(0)}
+  </div></section>
+
+  <section class="sec"><div class="wrap">
+    <div class="spot rv">
+      <div class="spot-im">${z("img/site_map_city.webp","\uAE40\uD574\uC2DC\uAC00 \uC815\uD55C \uC6B0\uC120\uC21C\uC704 13\uACF3 \uC704\uCE58(\uC2DC \uC81C\uACF5)","zoomable")}</div>
+      <div class="spot-tx">
+        <span class="eyebrow">\uAE40\uD574 \uC6D0\uB3C4\uC2EC \uB300\uC0C1\uC9C0</span>
+        <h2>\uBD09\uB9AC\uB2E8\uAE38\uC744 \uB530\uB77C<br>13\uACF3\uC774 \uBAA8\uC5EC \uC788\uC2B5\uB2C8\uB2E4</h2>
+        <ul>
+          <li><b>13\uACF3</b>\uAE40\uD574\uC2DC \uC6B0\uC120\uC21C\uC704 \uB300\uC0C1\uC9C0(\uB9E4\uB9E4 8 \xB7 \uC784\uB300 5)</li>
+          <li><b>${(T.area||0).toLocaleString("ko-KR")}\u33A1</b>\uD655\uC815 \uAD6C\uC5ED\uACC4(10/11) \u2014 13\uACF3\xB7\uBD09\uD669\uC608\uC220\uADF9\uC7A5 \uD3EC\uD568, \uAD8C\uC7A5 15\uB9CC\u33A1\uBCF4\uB2E4 \uB113\uC74C</li>
+          <li><b>\uD575\uC2EC \uAC70\uC810</b>5\uBC88 3\uCE35 \uAC74\uBB3C + 10\uBC88 \uC8FC\uCC28 \uD6C4\uBCF4 \uBD80\uC9C0</li>
+          <li><b>${(T.shops||0).toLocaleString("ko-KR")}\uACF3</b>\uD655\uC815 \uAD6C\uC5ED \uC548 \uC810\uD3EC \xB7 20\uB144 \uC774\uC0C1 \uB178\uD6C4\uAC74\uCD95\uBB3C ${T.old20_reg??T.old20??"\u2014"}%(\uAC74\uCD95\uBB3C\uB300\uC7A5)</li>
+        </ul>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><a class="btn pri" href="#/sites">${m("map")}\uC9C0\uB3C4\uC5D0\uC11C \uBCF4\uAE30</a><a class="btn line" href="#/sites/zones">\uD655\uC815 \uAD6C\uC5ED\uACC4 \uBCF4\uAE30</a></div>
+        <p class="cap" style="margin-top:12px">\uADF8\uB9BC: \uAE40\uD574\uC2DC \uC81C\uACF5 \uC704\uCE58\uB3C4(10\uC6D4 8\uC77C)</p>
+      </div>
+    </div>
+  </div></section>
+
+  <section class="sec alt" style="padding:56px 0"><div class="wrap">
+    <div class="board-h" style="margin-bottom:16px"><h2 style="font-size:22px">\uAD00\uB828 \uB204\uB9AC\uC9D1\xB7\uC790\uB8CC</h2></div>
+    <div class="banners">
+      <a class="bn rv" href="#/library">${m("file")}<b>\uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uC6D0\uBB38</b><span>\uAD6D\uD1A0\uBD80 \uC124\uBA85\uD68C\uBCF8 91\uCABD</span></a>
+      <a class="bn rv d1" href="${W("https://andy555-cmyk.github.io/hayday-envmap/gimhae-wondosim.html")}" target="_blank" rel="noopener">${m("layers")}<b>\uD658\uACBD\uBD84\uC11D\uB9F5 \u2014 \uAE40\uD574</b><span>\uAC74\uBB3C\xB7\uC810\uD3EC\xB7\uB178\uD6C4\uB3C4 \uC9C0\uB3C4</span></a>
+      <a class="bn rv d2" href="${W("https://andy555-cmyk.github.io/hayday-envmap/synmap/")}" target="_blank" rel="noopener">${m("map")}<b>\uC885\uD569\uBD84\uC11D\uB9F5</b><span>\uC5ED\xB7\uAE38\xB7\uAD00\uAD11\uC9C0 \uBD84\uC11D</span></a>
+      <a class="bn rv d3" href="#/brief">${m("print")}<b>\uBCF4\uACE0\uC6A9 1\uC7A5</b><span>A4 \uC778\uC1C4\xB7\uBA54\uC2E0\uC800 \uAE00 \uBCF5\uC0AC</span></a>
+    </div>
+  </div></section>`}var de={};N(de,{mount:()=>js,render:()=>Ms});var Oe="guide91",ut=t=>t?pt(Oe,t,`\uC6D0\uBB38 ${t}\uCABD`):"";function Ms(t){let s=t.guideline,a=s.money,e=s.brief_lines||{},l=Object.values(e).join(" "),o=Math.max(...(s.eval||[]).map(i=>+i.score||0),1);return`
+  <section class="page-hero"><div class="wrap">
+    <div class="crumb">\uC0AC\uC5C5 \uC774\uD574</div>
+    <h1 class="rv">RE:CORE \uC0AC\uC5C5, \uC27D\uAC8C \uC774\uD574\uD558\uAE30</h1>
+    <p class="lead rv d1">${n(s.title)} \uB0B4\uC6A9\uC744 \uBCF4\uACE0\uC11C\uC5D0 \uBC14\uB85C \uC62E\uAE38 \uC218 \uC788\uAC8C \uC815\uB9AC\uD588\uC2B5\uB2C8\uB2E4. \uBB38\uC7A5\uB9C8\uB2E4 <b>\uC6D0\uBB38 \uCABD</b> \uB2E8\uCD94\uB97C \uB204\uB974\uBA74 \uD574\uB2F9 \uCABD\uC774 \uC5F4\uB9BD\uB2C8\uB2E4.</p>
+    <div class="rv d2" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px">
+      ${pt(Oe,null,"\uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uC6D0\uBB38 91\uCABD \uC5F4\uAE30")} ${pt("guide92",null,"9/9 \uC218\uB839\uBCF8 92\uCABD")}
+    </div>
+    <div class="art rv d2">${z(t.images.sec_guide,"\uBE48 \uC810\uD3EC\uAC00 \uC0C8 \uAC00\uAC8C\uB85C \uBC14\uB00C\uB294 \uBAA8\uC2B5 \uC5F0\uCD9C \uADF8\uB9BC")}</div>
+  </div></section>
+
+  <section id="s-sum" class="sec"><div class="wrap" style="max-width:960px">
+    <div class="sec-h rv"><span class="eyebrow">\uBCF4\uACE0\uC6A9 \uC694\uC57D</span><h2>\uC0C1\uAE09\uC790\uAED8 \uC774\uB807\uAC8C \uB9D0\uC500\uD558\uC2DC\uBA74 \uB429\uB2C8\uB2E4</h2><p>\uBCF5\uC0AC \uB2E8\uCD94\uB97C \uB204\uB974\uBA74 \uBB38\uC7A5\uC774 \uADF8\uB300\uB85C \uBCF5\uC0AC\uB429\uB2C8\uB2E4.</p></div>
+    ${Object.entries(e).map(([i,c],r)=>`
+      <div class="quote-box rv d${r%4+1}" style="margin-bottom:12px"><span class="tag navy" style="margin-bottom:8px">${n(i)}</span><p style="margin-top:8px">${n(c)}</p>${gt(c)}</div>`).join("")}
+    <div style="text-align:center;margin-top:16px">${gt(l,"\uB2E4\uC12F \uBB38\uC7A5 \uD55C \uBC88\uC5D0 \uBCF5\uC0AC")}</div>
+    <div class="note navy" style="margin-top:20px">${m("info")}<div>${n(s.status_note)}</div></div>
+  </div></section>
+
+  <section id="s-money" class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC9C0\uC6D0 \uADDC\uBAA8</span><h2>\uC9C0\uC6D0 \uADDC\uBAA8\uC640 \uC9C0\uC6D0 \uBC29\uC2DD</h2><p>\uC9C0\uC5ED \uD55C \uACF3\uB2F9 <b>\uAD6D\uBE44 ${n(a.gov_total)}</b>, \uC9C0\uBC29\uBE44\uB97C \uB354\uD558\uBA74 <b>\uCD1D ${n(a.total)}</b>, \uAE30\uAC04\uC740 \uCD5C\uB300 4\uB144\uC785\uB2C8\uB2E4. ${ut(a.page)}</p></div>
+    <div class="card rv" style="max-width:980px;margin:0 auto">
+      <h3 style="font-size:18px;margin-bottom:12px">\uC0AC\uC5C5\uBCC4 \uAD6D\uBE44\xB7\uC9C0\uBC29\uBE44 (\uB2E8\uC704 \uC5B5\uC6D0)</h3>
+      ${(a.parts||[]).map(i=>`
+        <div style="margin-bottom:18px">
+          <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px"><b>${n(i.name)}</b><span class="cap">${n(i.ratio)} \xB7 \uCD1D ${n(i.total)}\uC5B5</span></div>
+          <div class="money">
+            <div style="background:var(--navy)" data-w="${i.gov/i.total*100}%">\uAD6D\uBE44 ${n(i.gov)}\uC5B5</div>
+            <div style="background:var(--celadon);color:var(--ink)" data-w="${(i.total-i.gov)/i.total*100}%">\uC9C0\uBC29\uBE44 ${n(+(i.total-i.gov).toFixed(1))}\uC5B5</div>
+          </div>
+          <div class="scale" title="\uCD1D\uC0AC\uC5C5\uBE44 \uADDC\uBAA8 \uBE44\uAD50(\uAC00\uC7A5 \uD070 \uC0AC\uC5C5 = 300\uC5B5)">
+            <span class="cap" style="flex:none;width:64px">\uADDC\uBAA8 \uBE44\uAD50</span>
+            <div class="tr"><div class="fl" data-w="${i.total/a.max*100}%"></div></div><b>\uCD1D ${n(i.total)}\uC5B5</b>
+          </div>
+          <p class="cap" style="margin-top:6px">${n(i.note||"")}</p>
+        </div>`).join("")}
+      <p class="cap">${n(a.check||"")}</p>
+    </div>
+    <div class="grid g3" style="margin-top:22px">
+      ${(s.rules||[]).map((i,c)=>`<div class="card rv d${c%3+1}"><span class="tag clay">${n(i.tag||"\uC9D1\uD589 \uAE30\uC900")}</span><h3 style="margin-top:10px">${n(i.k)}</h3><p class="small">${n(i.v)}</p><div style="margin-top:12px">${ut(i.page)}</div></div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-req" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uB300\uC0C1\uC9C0 \uC694\uAC74</span><h2>\uC5B4\uB5A4 \uACF3\uC774 \uC2E0\uCCAD\uD560 \uC218 \uC788\uB098\uC694?</h2><p>\uD544\uC218 \uC694\uAC74\uC744 \uD558\uB098\uB77C\uB3C4 \uBABB \uCC44\uC6B0\uBA74 \uC2E0\uCCAD\uC774 \uC5B4\uB835\uC2B5\uB2C8\uB2E4. \uAE40\uD574 \uD604\uC7AC \uC0C1\uD0DC\uB294 <a href="#/check">\uC694\uAC74 \uC810\uAC80</a>\uC5D0\uC11C \uBD05\uB2C8\uB2E4.</p></div>
+    <div class="grid g3">
+      ${(s.requirements||[]).map((i,c)=>`
+      <div class="card rv d${c%3+1}">
+        <div style="display:flex;gap:8px;align-items:center"><span class="tag ${i.kind==="\uD544\uC218"?"red":i.kind==="\uAD8C\uC7A5"?"gold":"navy"}">${n(i.kind)}</span><b style="font-size:18px">${n(i.k)}</b></div>
+        <p class="small" style="margin-top:10px">${bt(i.v,t.terms,3)}</p>
+        ${i.memo?`<p class="cap" style="margin-top:8px">\u{1F4A1} ${n(i.memo)}</p>`:""}
+        <div style="margin-top:12px">${ut(i.page)}</div>
+      </div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-eval" class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC120\uC815 \uBC29\uC2DD</span><h2>\uC5B4\uB5BB\uAC8C \uBF51\uB098\uC694?</h2><p>${n(s.eval_lead||"")}</p></div>
+    <div class="card rv" style="max-width:1040px;margin:0 auto 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h3 style="font-size:19px">\u2460 \uC0AC\uC804 \uC801\uACA9\uC131 \uAC80\uC99D(\uAD6D\uD1A0\uBD80 \uB3C4\uC2DC\uC7AC\uC0DD\uD65C\uC131\uD654\uACC4\uD68D) \u2014 \uD558\uB098\uB77C\uB3C4 \uBABB \uB118\uC73C\uBA74 \uD0C8\uB77D</h3>${ut(30)}</div>
+      <div class="grid g2" style="gap:8px;margin-top:12px">${(s.eval_pf||[]).map(i=>`<div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--paper);font-size:15px"><span class="tag red" style="flex:none">P/F</span>${n(i.item)}</div>`).join("")}</div>
+    </div>
+    <div class="grid g2" style="max-width:1040px;margin:0 auto">
+      ${[["\u2461 \uAD6D\uD1A0\uBD80 \uACC4\uD68D (100\uC810)",s.eval_molit,"var(--navy)",31],["\u2462 \uBB38\uCCB4\uBD80 \uACC4\uD68D (100\uC810)",s.eval_mcst,"var(--clay)",33]].map(([i,c,r,v],h)=>`
+      <div class="card rv d${h+1}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px"><h3 style="font-size:19px">${i}</h3>${ut(v)}</div>
+        <div class="bars">${(c||[]).map(x=>`<div class="bar-row ev"><div><b style="font-weight:600;font-size:15px">${n(x.item)}</b><div class="cap">${n(x.group||"")}</div></div><div class="tr"><div class="fl" style="background:${r}" data-w="${(+x.score||0)/15*100}%"></div></div><div class="v">${n(x.score_label)}</div></div>`).join("")}</div>
+      </div>`).join("")}
+    </div>
+    <div class="card rv" style="max-width:1040px;margin:20px auto 0">
+      <h3 style="font-size:19px">\u2463 \uAC00\uC810</h3>
+      <div class="grid g2" style="gap:8px;margin-top:12px">${(s.eval_bonus||[]).map(i=>`<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--gold-l);font-size:15px"><b style="flex:none;color:#8B6614">${n(i.score_label)}</b>${n(i.item)}</div>`).join("")}</div>
+      <p class="cap" style="margin-top:14px">${n(s.eval_note||"")}</p>
+    </div>
+  </div></section>
+
+  <section id="s-actors" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uCD94\uC9C4 \uCCB4\uACC4</span><h2>\uB204\uAC00 \uBB34\uC5C7\uC744 \uB9E1\uB098\uC694?</h2><p>\uC138 \uBD80\uCC98 \uC0AC\uC5C5\uC744 \uAE40\uD574\uC2DC\uAC00 \uD55C \uACC4\uD68D\uC73C\uB85C \uBB36\uC5B4 \uC2E0\uCCAD\uD558\uACE0, \uACBD\uC0C1\uB0A8\uB3C4\xB7HUG\xB7\uC804\uBB38\uAE30\uAD00\uC774 \uD568\uAED8\uD569\uB2C8\uB2E4.</p></div>
+    ${Ut()}
+    <div style="height:36px"></div>
+    <div class="grid g4">
+      ${(s.actors||[]).map((i,c)=>`<div class="card rv d${c%4+1}" style="padding:20px;border-top:4px solid var(--${i.tone})"><b style="font-size:17px">${n(i.who)}</b><p class="small" style="margin-top:6px">${n(i.role)}</p></div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-sched" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uCD94\uC9C4 \uC808\uCC28</span><h2>\uACF5\uBAA8\uAE4C\uC9C0 \uC774\uB807\uAC8C \uC9C4\uD589\uB429\uB2C8\uB2E4</h2><p>\uB0A0\uC9DC\uB294 \uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uAE30\uC900 \uC7A0\uC815\uC785\uB2C8\uB2E4. \uC544\uB798\uC5D0 \uC6D0\uBB38 \uC77C\uC815\uACFC \uC81C\uCD9C \uC11C\uB958\uB97C \uC790\uC138\uD788 \uC801\uC5C8\uC2B5\uB2C8\uB2E4.</p></div>
+    ${Dt(0)}
+    <div style="height:44px"></div>
+    <div class="grid g2">
+      <div class="rv">
+        <div class="sec-h" style="margin:0 0 20px"><span class="eyebrow">\uACF5\uBAA8 \uC77C\uC815</span><h2>\uC5B8\uC81C \uBB34\uC5C7\uC744 \uD558\uB098\uC694?</h2></div>
+        <div class="tl" style="margin:0">
+          ${(s.schedule||[]).map(i=>`<div class="tl-it k-\uACB0\uC815"><div class="dt">${n(i.when)}</div><h4>${n(i.what)}</h4>${i.page?`<p class="cap">\uC6D0\uBB38 ${Et(i.page)}\uCABD</p>`:""}</div>`).join("")}
+        </div>
+      </div>
+      <div class="rv d1">
+        <div class="sec-h" style="margin:0 0 20px"><span class="eyebrow">\uC81C\uCD9C \uC11C\uB958</span><h2>\uBB34\uC5C7\uC744 \uB0B4\uC57C \uD558\uB098\uC694?</h2></div>
+        ${(s.documents||[]).map((i,c)=>`<div class="todo"><span class="tag navy" style="flex:none">${c+1}</span><div><b>${n(i.name)}</b><span>${n(i.note||"")}${i.page?` \xB7 \uC6D0\uBB38 ${Et(i.page)}\uCABD`:""}</span></div></div>`).join("")}
+      </div>
+    </div>
+  </div></section>
+
+  <section class="sec" style="padding-top:0"><div class="wrap" style="max-width:960px">
+    <div class="card rv" style="background:var(--gold-l);border-color:transparent">
+      <h3 style="font-size:19px;display:flex;gap:8px;align-items:center">${m("warn")} 12\uC6D4 \uD655\uC815 \uACF5\uACE0 \uB54C \uAF2D \uB2E4\uC2DC \uBCFC \uACF3</h3>
+      <p class="small" style="margin-top:6px">\uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uC548\uC5D0\uC11C \uC11C\uB85C \uB2E4\uB974\uAC8C \uC801\uD78C \uBD80\uBD84\uC785\uB2C8\uB2E4. \uCEE8\uC124\uD305 \uB54C \uC9C8\uC758\uD558\uAC70\uB098 \uD655\uC815 \uACF5\uACE0\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694.</p>
+      <ul style="margin:12px 0 0;padding-left:20px;font-size:15px">${(s.conflicts||[]).map(i=>`<li style="margin-bottom:6px">${n(i.what)} <span class="cap">(\uC6D0\uBB38 ${i.pages.join("\xB7")}\uCABD)</span></li>`).join("")}</ul>
+    </div>
+  </div></section>
+
+  <section class="sec alt" id="s-faq"><div class="wrap" style="max-width:960px">
+    <div class="sec-h rv"><span class="eyebrow">\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38</span><h2>\uB2F4\uB2F9\uC790\uAC00 \uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38</h2><p>\uB2F5\uB9C8\uB2E4 \uADFC\uAC70 \uCABD\uC744 \uB2EC\uC558\uC2B5\uB2C8\uB2E4. \uC544\uB798 \uCE78\uC5D0 \uB0B1\uB9D0\uC744 \uB123\uC73C\uBA74 \uBC14\uB85C \uAC78\uB7EC\uC9D1\uB2C8\uB2E4.</p></div>
+    <input id="faqQ" type="search" placeholder="\uC608: \uACF5\uC2E4, \uB9E4\uC785, \uC9C0\uBC29\uBE44, \uD3C9\uAC00" style="width:100%;height:50px;border:1px solid var(--line2);border-radius:12px;padding:0 16px;font-size:16px;margin-bottom:16px;font-family:inherit">
+    <div id="faqList">
+    ${(t.faq||[]).map((i,c)=>`
+      <div class="acc" id="s-faq-${c}" data-hay="${n((i.q+" "+i.a).toLowerCase())}">
+        <button aria-expanded="false"><span class="q">Q</span>${n(i.q)}<span class="chev">${m("chev")}</span></button>
+        <div class="body"><div><div class="in"><p>${bt(i.a,t.terms,3)}</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">${ut(i.page)}${gt(i.q+" \u2014 "+i.a,"\uB2F5 \uBCF5\uC0AC")}</div></div></div></div>
+      </div>`).join("")}
+    </div>
+  </div></section>
+
+  <section class="sec" id="s-terms"><div class="wrap" style="max-width:960px">
+    <div class="sec-h rv"><span class="eyebrow">\uC6A9\uC5B4 \uD480\uC774</span><h2>\uCC98\uC74C \uBCF4\uB294 \uB9D0, \uC5EC\uAE30\uC11C \uD655\uC778\uD558\uC138\uC694</h2><p>\uBCF8\uBB38 \uACF3\uACF3\uC758 <span class="term" tabindex="0" data-term="${n((t.terms||[])[0]?.term||"")}">\uC810\uC120 \uBC11\uC904</span> \uB0B1\uB9D0\uC5D0 \uB9C8\uC6B0\uC2A4\uB97C \uC62C\uB824\uB3C4 \uD480\uC774\uAC00 \uB098\uC635\uB2C8\uB2E4.</p></div>
+    <input id="termQ" type="search" placeholder="\uC608: \uAD8C\uC6D0, \uC0C1\uC0DD\uD615, \uD31D\uC5C5" style="width:100%;height:50px;border:1px solid var(--line2);border-radius:12px;padding:0 16px;font-size:16px;margin-bottom:16px;font-family:inherit">
+    <div id="termList" class="grid g2" style="gap:10px">
+      ${(t.terms||[]).map((i,c)=>`
+      <div class="acc" id="s-term-${c}" data-hay="${n((i.term+" "+i.def).toLowerCase())}" style="margin:0">
+        <button aria-expanded="false"><span class="q" style="font-size:13px">\uD480\uC774</span>${n(i.term)}<span class="chev">${m("chev")}</span></button>
+        <div class="body"><div><div class="in"><p>${n(i.def)}</p>${i.page?`<div style="margin-top:10px">${ut(i.page)}</div>`:""}</div></div></div>
+      </div>`).join("")}
+    </div>
+  </div></section>`}function js(t){let s=p("#termQ",t);s?.addEventListener("input",()=>{let e=s.value.trim().toLowerCase();L("#termList .acc",t).forEach(l=>{l.style.display=!e||l.dataset.hay.includes(e)?"":"none"})});let a=p("#faqQ",t);a?.addEventListener("input",()=>{let e=a.value.trim().toLowerCase();L("#faqList .acc",t).forEach(l=>{l.style.display=!e||l.dataset.hay.includes(e)?"":"none"})})}var pe={};N(pe,{mount:()=>Cs,render:()=>Ts});var Pe={ok:"\uCDA9\uC871",ing:"\uC9C4\uD589 \uC911",chk:"\uD655\uC778 \uD544\uC694",no:"\uBBF8\uCDA9\uC871"};function Ts(t){let s=t.requirements||[],a=e=>s.filter(l=>e==="ing"?l.status==="ing"||l.status==="chk":l.status===e).length;return`
+  <section class="page-hero"><div class="wrap">
+    <div class="crumb">\uC694\uAC74 \uC810\uAC80</div>
+    <h1 class="rv">\uAE40\uD574\uB294 \uC2E0\uCCAD \uC694\uAC74\uC744 \uC5BC\uB9C8\uB098 \uCC44\uC6E0\uB098\uC694?</h1>
+    <p class="lead rv d1">\uAC00\uC774\uB4DC\uB77C\uC778(\uC548)\uC758 \uC694\uAC74\uC744 \uD55C \uC904\uC529 \uB193\uACE0, \uAE40\uD574\uC758 \uD604\uC7AC \uC0C1\uD0DC\uC640 \uADFC\uAC70, \uB2E4\uC74C\uC5D0 \uD560 \uC77C\uACFC \uB2F4\uB2F9\uC744 \uC801\uC5C8\uC2B5\uB2C8\uB2E4. \uC904\uC744 \uB204\uB974\uBA74 \uC790\uC138\uD55C \uB0B4\uC6A9\uC774 \uD3BC\uCCD0\uC9D1\uB2C8\uB2E4.</p>
+    <div class="art rv d2">${z(t.images.sec_check,"\uC810\uAC80\uD45C\uC640 \uAD6C\uC5ED \uACBD\uACC4\uB97C \uC0B4\uD53C\uB294 \uB2F4\uB2F9\uC790 \uC5F0\uCD9C \uADF8\uB9BC")}</div>
+  </div></section>
+
+  <section id="s-list" class="sec" style="padding-top:40px"><div class="wrap" style="max-width:1040px">
+    <div class="grid g4" style="margin-bottom:26px">
+      <div class="card kpi"><div class="v" style="color:var(--ink)"><span data-count="${s.length}">0</span><small>\uAC1C</small></div><div class="k">\uC810\uAC80 \uC694\uAC74</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--sage)"><span data-count="${a("ok")}">0</span><small>\uAC1C</small></div><div class="k">\uCDA9\uC871</div></div>
+      <div class="card kpi"><div class="v" style="color:#9A6E0E"><span data-count="${a("ing")}">0</span><small>\uAC1C</small></div><div class="k">\uC9C4\uD589\xB7\uD655\uC778 \uC911</div></div>
+      <div class="card kpi"><div class="v" style="color:var(--red)"><span data-count="${a("no")}">0</span><small>\uAC1C</small></div><div class="k">\uBBF8\uCDA9\uC871</div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div class="filters" style="margin:0;justify-content:flex-start" id="reqF">
+        <button class="chip on" data-f="all">\uC804\uCCB4</button><button class="chip" data-f="no">\uBBF8\uCDA9\uC871</button><button class="chip" data-f="ing">\uC9C4\uD589\xB7\uD655\uC778 \uC911</button><button class="chip" data-f="ok">\uCDA9\uC871</button>
+      </div>
+      <div style="display:flex;gap:8px"><button class="copy" id="reqCsv">${m("down")}\uC5D1\uC140\uB85C \uB0B4\uB824\uBC1B\uAE30</button><button class="copy" id="reqOpen">${m("chev")}\uBAA8\uB450 \uD3BC\uCE58\uAE30</button></div>
+    </div>
+    <div id="reqList">
+      ${s.map((e,l)=>`
+      <div class="req rv" data-s="${e.status==="chk"?"ing":e.status}">
+        <div class="ic">${z(e.icon,"")}</div>
+        <div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="tag ${e.kind==="\uD544\uC218"?"red":e.kind==="\uAD8C\uC7A5"?"gold":"navy"}">${n(e.kind)}</span><h3>${n(e.title)}</h3></div>
+          <p class="sum"><b style="color:var(--ink2)">\uAE40\uD574 \uD604\uC7AC</b> \xB7 ${bt(e.now,t.terms,2)}</p>
+        </div>
+        <div class="stw">${Q(e.status,Pe[e.status])}<button type="button" class="rchev" aria-expanded="false" aria-label="${n(e.title)} \uC790\uC138\uD788">${m("chev")}</button></div>
+        <div class="more"><div><dl class="kv">
+          <dt>\uAC00\uC774\uB4DC\uB77C\uC778 \uAE30\uC900</dt><dd>${bt(e.rule,t.terms)} ${e.page?pt("guide91",e.page):""}</dd>
+          <dt>\uAE40\uD574 \uADFC\uAC70</dt><dd>${n(e.evidence||"\u2014")}</dd>
+          <dt>\uB2E4\uC74C \uD560 \uC77C</dt><dd><b>${n(e.next||"\u2014")}</b></dd>
+          <dt>\uB2F4\uB2F9</dt><dd>${n(e.who||"\u2014")}</dd>
+          ${e.risk?`<dt>\uC8FC\uC758</dt><dd style="color:var(--red)">${n(e.risk)}</dd>`:""}
+        </dl></div></div>
+      </div>`).join("")}
+    </div>
+    <p class="cap" style="margin-top:20px">${n(t.meta.check_note||"")}</p>
+  </div></section>`}var Fe=(t,s)=>{t.classList.toggle("open",s),t.querySelector(".rchev")?.setAttribute("aria-expanded",String(s))};function Cs(t,s){let a=p("#reqList",t);a.addEventListener("click",l=>{if(l.target.closest("[data-doc]")||l.target.closest(".more"))return;let o=l.target.closest(".req");o&&Fe(o,!o.classList.contains("open"))}),p("#reqF",t).addEventListener("click",l=>{let o=l.target.closest(".chip");if(!o)return;L("#reqF .chip",t).forEach(c=>{c.classList.toggle("on",c===o),c.setAttribute("aria-pressed",String(c===o))});let i=o.dataset.f;L(".req",a).forEach(c=>{c.style.display=i==="all"||c.dataset.s===i?"":"none"})});let e=!1;p("#reqOpen",t).addEventListener("click",l=>{e=!e,L(".req",a).forEach(o=>Fe(o,e)),l.currentTarget.lastChild.textContent=e?"\uBAA8\uB450 \uC811\uAE30":"\uBAA8\uB450 \uD3BC\uCE58\uAE30"}),p("#reqCsv",t).addEventListener("click",()=>{let l=[["\uBC88\uD638","\uAD6C\uBD84","\uC694\uAC74","\uAC00\uC774\uB4DC\uB77C\uC778 \uAE30\uC900","\uC6D0\uBB38 \uCABD","\uAE40\uD574 \uD604\uC7AC","\uC0C1\uD0DC","\uADFC\uAC70","\uB2E4\uC74C \uD560 \uC77C","\uB2F4\uB2F9"]];(s.requirements||[]).forEach((r,v)=>l.push([v+1,r.kind,r.title,r.rule,Et(r.page)||"",r.now,Pe[r.status]||r.status,r.evidence||"",r.next||"",r.who||""]));let o="\uFEFF"+l.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join(`\r
+`),i=document.createElement("a"),c=URL.createObjectURL(new Blob([o],{type:"text/csv;charset=utf-8"}));i.href=c,setTimeout(()=>URL.revokeObjectURL(c),1e3),i.download=`\uAE40\uD574_RECORE_\uC694\uAC74\uC810\uAC80\uD45C_${s.meta.asof.replace(/[^0-9]/g,"")}.csv`,document.body.appendChild(i),i.click(),i.remove(),H("\uC5D1\uC140\uC5D0\uC11C \uC5F4 \uC218 \uC788\uB294 \uD30C\uC77C\uB85C \uB0B4\uB824\uBC1B\uC558\uC2B5\uB2C8\uB2E4")})}var ve={};N(ve,{mount:()=>Is,render:()=>Rs,unmount:()=>Hs});var M=null,Mt=[],jt=null,Ne=null,Tt=0,Kt=new Set;function $t(t,s){let a=Tt,e=setTimeout(()=>{Kt.delete(e),a===Tt&&M&&t()},s);Kt.add(e)}var Wt=null;function zs(){return window.maplibregl?Promise.resolve():(Wt||(Wt=new Promise((t,s)=>{let a=document.createElement("link");a.rel="stylesheet",a.href="vendor/maplibre-gl-4.7.1/maplibre-gl.css",document.head.appendChild(a);let e=document.createElement("script");e.src="vendor/maplibre-gl-4.7.1/maplibre-gl.js",e.onload=()=>t(),e.onerror=()=>{Wt=null,s(new Error("\uC9C0\uB3C4 \uB3C4\uAD6C\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4"))},document.head.appendChild(e)})),Wt)}var As="https://server.arcgisonline.com/ArcGIS/rest/services",_s=`${As}/World_Imagery/MapServer/tile/{z}/{y}/{x}`;function ue(t){return t.role==="\uAC70\uC810"?"hub":t.role==="\uCC3D\uC791"?"make":""}function Rs(t){let s=t.geo,a=t.sites||[],e=s.compare,l=e.rows.filter(i=>i[0]!=="over150"),o=s.boundaries.filter(i=>e.zones[i.id]);return`
+  <section class="page-hero" style="padding-bottom:28px"><div class="wrap">
+    <div class="crumb">\uB300\uC0C1\uC9C0</div>
+    <h1 class="rv">\uB300\uC0C1\uC9C0\xB7\uAD6C\uC5ED\uACC4\uB97C \uC9C0\uB3C4\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694</h1>
+    <p class="lead rv d1">\uAE40\uD574\uC2DC\uAC00 10\uC6D4 8\uC77C \uC815\uD55C <b>\uC6B0\uC120\uC21C\uC704 13\uACF3</b>\uACFC <b>10\uC6D4 11\uC77C \uD655\uC815\uD55C \uAD6C\uC5ED\uACC4</b>\uB97C \uD55C \uC9C0\uB3C4\uC5D0 \uC62C\uB838\uC2B5\uB2C8\uB2E4. \uBC88\uD638\uB97C \uB204\uB974\uBA74 \uD604\uC7A5 \uC0AC\uC9C4\uACFC \uC870\uAC74\uC774 \uB098\uC635\uB2C8\uB2E4.</p>
+  </div></section>
+
+  <section id="s-map" class="mapwrap" aria-label="\uB300\uC0C1\uC9C0 \uC9C0\uB3C4">
+    <aside class="mapside">
+      <div class="top">
+        <h2>\uAD6C\uC5ED\uACC4</h2>
+        <div class="seg" id="zoneSeg">
+          ${s.boundaries.filter(i=>i.toggle).map(i=>`<button data-z="${i.id}" class="${i.default?"on":""}" title="${n(i.name)}"><i style="border-color:${dt(i.color)}"></i>${n(i.short)}</button>`).join("")}
+        </div>
+        <p class="cap" id="zoneInfo" style="margin-top:10px"></p>
+        <h2 style="font-size:18px;margin-top:16px">\uAC78\uC5B4\uC11C \uC787\uB294 \uAE38</h2>
+        <div class="seg" id="walkSeg">
+          ${(s.walks||[]).map(i=>`<button data-wk="${n(i.id)}" title="${n(i.note)}"><i style="border-color:${dt(i.color)};border-radius:50%"></i>${n(i.name)}</button>`).join("")}
+        </div>
+        <p class="cap" id="walkInfo" style="margin-top:8px">\uB204\uB974\uBA74 \uC9C0\uB3C4\uC5D0 \uAE38\uC774 \uADF8\uB824\uC9D1\uB2C8\uB2E4. \uBCF4\uD589 \uAE38 \uACC4\uC0B0\uAC12\uC774\uBA70 \uC2E4\uC81C \uC774\uB3D9 \uAE30\uB85D\uC774 \uC544\uB2D9\uB2C8\uB2E4.</p>
+      </div>
+      <div class="sitelist" id="siteList">
+        ${a.map(i=>`<div class="site-it ${ue(i)}" data-id="${n(i.id)}" tabindex="0" role="button"><span class="n">${i.no}</span><div><b>${n(i.jibun)}</b><span>${n(i.type)} \xB7 ${n(i.short_use)}</span></div><span class="cap">${i.is_new?'<span class="tag gold">\uC0C8\uB85C \uCD94\uAC00</span>':""}</span></div>`).join("")}
+      </div>
+    </aside>
+    <div id="map" role="region" aria-label="\uC9C0\uB3C4">
+      <div class="mapwait" id="mapWait">${z("img/site_map_city.webp","")}<div class="mapwait-in"><span class="spin" aria-hidden="true"></span>\uC9C0\uB3C4\uB97C \uC900\uBE44\uD558\uACE0 \uC788\uC2B5\uB2C8\uB2E4\u2026</div></div>
+      <div class="mapbase" id="mapBase"><button data-b="road" class="on">\uC77C\uBC18 \uC9C0\uB3C4</button><button data-b="sat">\uC704\uC131</button></div>
+      <div class="maplegend">
+        <div><i style="background:var(--navy)"></i>\uB300\uC0C1\uC9C0(\uBC88\uD638 = \uC2DC \uC6B0\uC120\uC21C\uC704)</div>
+        <div><i style="background:var(--clay)"></i>\uD575\uC2EC \uAC70\uC810(5\uBC88 \uAC74\uBB3C \xB7 10\uBC88 \uC8FC\uCC28 \uD6C4\uBCF4)</div>
+        <div><i style="background:#7A5BA6"></i>\uAC1C\uC778 \uCC3D\uC791 \uACF5\uAC04 \uD6C4\uBCF4(13)</div>
+        <div><i style="background:#fff;border:2px solid #555;border-radius:3px"></i>\uACBD\uC804\uCCA0\uC5ED \xB7 \uC8FC\uC694 \uC2DC\uC124</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="s-zones" class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uAD6C\uC5ED\uACC4 \uBE44\uAD50</span><h2>\uD655\uC815 \uAD6C\uC5ED\uACC4\uC640 10/8 \uD6C4\uBCF4 \uBE44\uAD50</h2><p>${n(s.compare_lead)}</p></div>
+    <p class="scroll-hint">\u2190 \uD45C\uB97C \uC606\uC73C\uB85C \uBC00\uC5B4 10/8 \uD6C4\uBCF4\uC640 \uBE44\uAD50\uD558\uC138\uC694</p>
+    <div class="tbl-wrap rv"><table class="tbl cmp">
+      <thead><tr><th>\uD56D\uBAA9</th>${o.map(i=>`<th style="color:${dt(i.color)}">${n(i.short)}<div class="cap" style="font-weight:500">${n(i.status)}</div></th>`).join("")}</tr></thead>
+      <tbody>
+        ${l.map(([i,c,r])=>`<tr><td><b style="font-weight:600">${n(c)}</b></td>${o.map(v=>{let h=e.zones[v.id][i],x=i==="area"&&h>15e4;return`<td class="r num" style="${x?"color:var(--red);font-weight:700":""}">${typeof h=="number"?h.toLocaleString("ko-KR"):n(h)} <span class="cap">${n(r)}</span>${x?'<div class="cap" style="color:var(--red)">\uAD8C\uC7A5 15\uB9CC\u33A1 \uCD08\uACFC</div>':""}</td>`}).join("")}</tr>`).join("")}
+        <tr><td><b style="font-weight:600">\uC124\uBA85</b></td>${o.map(i=>`<td class="small" style="min-width:200px">${n(i.desc)}</td>`).join("")}</tr>
+      </tbody></table></div>
+    <p class="cap" style="margin-top:12px">${n(e.source)}</p>
+  </div></section>
+
+  <section id="s-cards" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC2DC \uC6B0\uC120\uC21C\uC704 13\uACF3</span><h2>\uB300\uC0C1\uC9C0 \uD55C \uACF3\uC529 \uBCF4\uAE30</h2><p>${n(s.sites_note)}</p></div>
+    <div class="filters" id="siteF">
+      <button class="chip on" data-f="all">\uC804\uCCB4 ${a.length}</button>
+      ${[...new Set(a.map(i=>i.type_group))].map(i=>`<button class="chip" data-f="${n(i)}">${n(i)} ${a.filter(c=>c.type_group===i).length}</button>`).join("")}
+    </div>
+    <div class="grid g3" id="siteCards">
+      ${a.map((i,c)=>`
+      <article class="card hov site-card ${ue(i)} rv d${c%3+1}" id="site-${n(i.id)}" data-id="${n(i.id)}" data-t="${n(i.type_group)}">
+        <div class="im">${z(i.photo,`${i.jibun} \uD604\uC7A5 \uC0AC\uC9C4`,"zoomable")}<span class="no">${i.no}</span></div>
+        <div class="tx">
+          <h3>${n(i.jibun)}</h3>
+          <div class="meta"><span class="tag ${i.role==="\uAC70\uC810"?"clay":"navy"}">${n(i.role==="\uAC70\uC810"?"\uD575\uC2EC \uAC70\uC810":i.role==="\uCC3D\uC791"?"\uCC3D\uC791 \uACF5\uAC04 \uD6C4\uBCF4":"\uBC29\uBB38\uAC1D \uACF5\uAC04")}</span><span class="tag">${n(i.type)}</span>${i.is_new?'<span class="tag gold">10/8 \uC0C8\uB85C \uCD94\uAC00</span>':""}</div>
+          <dl class="kv" style="display:grid;grid-template-columns:72px 1fr;gap:6px 10px;margin-top:12px;font-size:15px">
+            <dt class="muted">\uC2DC \uC790\uB8CC</dt><dd style="margin:0">${n(i.vacancy_note)}</dd>
+            <dt class="muted">\uB300\uC7A5</dt><dd style="margin:0">${n(i.area_note)}</dd>
+            <dt class="muted">\uC4F0\uC784</dt><dd style="margin:0">${n(i.use)}</dd>
+          </dl>
+          <button class="copy" style="margin-top:12px" data-fly="${n(i.id)}">${m("pin")}\uC9C0\uB3C4\uC5D0\uC11C \uBCF4\uAE30</button>
+        </div>
+      </article>`).join("")}
+    </div>
+    ${(t.sites_dropped||[]).length?`
+    <div class="card rv" style="margin-top:28px">
+      <h3>${m("info","ico")} 10/7 \uBAA9\uB85D\uC5D0 \uC788\uC5C8\uC9C0\uB9CC 10/8 \uC2DC \uBAA9\uB85D\uC5D0\uC11C \uBE60\uC9C4 \uACF3</h3>
+      <div class="tbl-wrap" style="margin-top:12px;box-shadow:none"><table class="tbl"><thead><tr><th>\uC9C0\uBC88</th><th>10/7 \uBC88\uD638</th><th>\uC0AC\uC720</th></tr></thead><tbody>
+      ${t.sites_dropped.map(i=>`<tr><td>${n(i.jibun)}</td><td>${n(i.prev)}</td><td>${n(i.why)}</td></tr>`).join("")}
+      </tbody></table></div>
+    </div>`:""}
+    <div class="note" style="margin-top:20px">${m("warn")}<div>${n(s.privacy_note)}</div></div>
+  </div></section>`}function Be(t,s){for(let a of t.boundaries){let e=a.always||s.has(a.id)?"visible":"none";for(let l of["-f","-l"])M.getLayer(a.id+l)&&M.setLayoutProperty(a.id+l,"visibility",e)}}function qs(t){return`<div class="pop"><div class="im">${z(t.photo,t.jibun)}</div><div class="tx">
+    <h4>${t.no}. ${n(t.jibun)}</h4>
+    <p>${n(t.type)}<br>${n(t.vacancy_note)}</p>
+    <p style="margin-top:6px;color:var(--ink)"><b>${n(t.use)}</b></p>
+     <a href="#site-${n(t.id)}" data-card="${n(t.id)}" style="display:inline-block;margin-top:8px;font-size:14px;font-weight:600">\uCE74\uB4DC\uC5D0\uC11C \uC790\uC138\uD788 \u2192</a>
+  </div></div>`}function St(t,s=!0){let a=(Ne.sites||[]).find(e=>String(e.id)===String(t));!a||!M||(L(".site-it").forEach(e=>e.classList.toggle("on",e.dataset.id===String(t))),Mt.forEach(e=>e.getElement().classList.toggle("on",e._sid===String(t))),s&&M.flyTo({center:a.lnglat,zoom:Math.max(M.getZoom(),17),speed:.9}),jt?.remove(),jt=new maplibregl.Popup({offset:20,maxWidth:"300px",closeButton:!0}).setLngLat(a.lnglat).setHTML(qs(a)).addTo(M),Lt(jt.getElement()))}async function Is(t,s,a){Ne=s;let e=s.geo,l=++Tt;try{await zs()}catch{let d=p("#mapWait .mapwait-in",t);d&&(d.textContent="\uC9C0\uB3C4 \uB3C4\uAD6C\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC704 \uADF8\uB9BC(\uC2DC \uC81C\uACF5 \uC704\uCE58\uB3C4)\uC744 \uCC38\uACE0\uD558\uC2DC\uACE0, \uC0C8\uB85C\uACE0\uCE68\uD574 \uC8FC\uC138\uC694.");return}if(l!==Tt||!t.isConnected)return;let o=new Set(e.boundaries.filter(d=>d.default).map(d=>d.id)),i="https://tiles.openfreemap.org/styles/positron",c={version:8,sources:{osm:{type:"raster",tiles:["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],tileSize:256,maxzoom:19,attribution:"\xA9 OpenStreetMap contributors"}},layers:[{id:"osm",type:"raster",source:"osm",paint:{"raster-saturation":-.6,"raster-brightness-min":.06}}]};M=new maplibregl.Map({container:p("#map",t),style:i,center:e.center,zoom:16,minZoom:12,maxZoom:19,attributionControl:{compact:!0},pixelRatio:Math.min(window.devicePixelRatio||1,2),cooperativeGestures:matchMedia("(max-width: 900px)").matches});let r=!1,v=!1;M.once("style.load",()=>{v=!0});let h=()=>{r||v||(r=!0,M.setStyle(c,{diff:!1}))};M.on("error",d=>{!v&&/style|openfreemap|Failed to fetch|Load failed|NetworkError/i.test(String(d?.error?.message||""))&&h()}),$t(h,7e3),M.addControl(new maplibregl.NavigationControl({showCompass:!1}),"bottom-right");let x=new Set,w=(d,u)=>{let f=M.getSource("wk-"+d.id);if(!f)return;if(!u){f.setData({type:"Feature",geometry:{type:"LineString",coordinates:[]},properties:{}});return}let b=d.coords,j=[0];for(let C=1;C<b.length;C++)j.push(j[C-1]+Math.hypot((b[C][0]-b[C-1][0])*Math.cos(b[C][1]*Math.PI/180),b[C][1]-b[C-1][1]));let y=j.at(-1)||1,R=performance.now(),_=document.documentElement.classList.contains("nomo")?0:1600,P=C=>{if(!x.has(d.id))return;let B=_?Math.min(1,(C-R)/_):1,Z=1-Math.pow(1-B,3),tt=Z*y,O=1;for(;O<b.length&&j[O]<tt;)O++;let kt=b.slice(0,O);if(O<b.length){let Pt=(tt-j[O-1])/(j[O]-j[O-1]||1);kt.push([b[O-1][0]+(b[O][0]-b[O-1][0])*Pt,b[O-1][1]+(b[O][1]-b[O-1][1])*Pt])}f.setData({type:"Feature",geometry:{type:"LineString",coordinates:kt.length>1?kt:[b[0],b[0]]},properties:{}}),B<1&&requestAnimationFrame(P)};requestAnimationFrame(P);let V=b.map(C=>C[0]),$=b.map(C=>C[1]);M.fitBounds([[Math.min(...V),Math.min(...$)],[Math.max(...V),Math.max(...$)]],{padding:70,duration:_?900:0,maxZoom:17})},E=L("#mapBase button, #walkSeg button",t);E.forEach(d=>{d.disabled=!0});let g=()=>{if(M.getSource("zones"))return;let d=M.getStyle().layers||[],u=d.find(y=>y.type==="symbol")?.id;for(let y of d)if(y.type==="symbol"&&y.layout?.["text-field"])try{M.setLayoutProperty(y.id,"text-field",["coalesce",["get","name:ko"],["get","name"]])}catch{}M.addSource("sat",{type:"raster",tiles:[_s],tileSize:256,maxzoom:19,attribution:"\uC704\uC131 Esri World Imagery"}),M.addLayer({id:"sat",type:"raster",source:"sat",layout:{visibility:"none"}},u);for(let y of e.boundaries)M.addSource(y.id,{type:"geojson",data:{type:"Feature",geometry:y.geometry,properties:{}}}),M.addLayer({id:y.id+"-f",type:"fill",source:y.id,paint:{"fill-color":y.color,"fill-opacity":y.fill??.08}},u),M.addLayer({id:y.id+"-l",type:"line",source:y.id,paint:{"line-color":y.color,"line-width":y.width||3,...y.dash?{"line-dasharray":y.dash}:{}}});for(let y of e.walks||[])M.addSource("wk-"+y.id,{type:"geojson",data:{type:"Feature",geometry:{type:"LineString",coordinates:[]},properties:{}}}),M.addLayer({id:"wk-"+y.id+"-c",type:"line",source:"wk-"+y.id,layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":"#fff","line-width":8,"line-opacity":.9}}),M.addLayer({id:"wk-"+y.id,type:"line",source:"wk-"+y.id,layout:{"line-cap":"round","line-join":"round"},paint:{"line-color":y.color,"line-width":4.5}});M.addSource("zones",{type:"geojson",data:{type:"FeatureCollection",features:[]}}),Be(e,o),E.forEach(y=>{y.disabled=!1});let f=t.querySelector("#mapWait");f&&(f.classList.add("done"),$t(()=>f.remove(),450));let b=p("#mapBase button.on",t)?.dataset.b;M.getLayer("sat")&&M.setLayoutProperty("sat","visibility",b==="sat"?"visible":"none");for(let y of e.walks||[])x.has(y.id)&&w(y,!0);let j=e.boundaries.find(y=>y.id===e.fit_to)||e.boundaries.find(y=>y.default);if(j){let y=j.geometry.coordinates.flat(2),R=[],_=[];for(let P=0;P<y.length;P+=2)R.push(y[P]),_.push(y[P+1]);M.fitBounds([[Math.min(...R),Math.min(..._)],[Math.max(...R),Math.max(..._)]],{padding:50,duration:0})}k()};M.on("load",g),M.on("style.load",()=>{if(r)try{g(),T()}catch(d){console.error("\uC9C0\uB3C4 \uCE35 \uB2E4\uC2DC \uC62C\uB9AC\uAE30 \uC2E4\uD328",d)}}),$t(()=>{try{M.isStyleLoaded()&&g()}catch{}},1500);for(let d of e.places){let u=document.createElement("div");u.style.cssText="display:flex;align-items:center;gap:5px;font:600 13px Pretendard,sans-serif;color:#2b3440;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;pointer-events:none",u.innerHTML=`<i style="width:${d.kind==="station"?10:8}px;height:${d.kind==="station"?10:8}px;border-radius:${d.kind==="station"?"2px":"50%"};background:${d.kind==="station"?"#fff":"#6E9C84"};border:2px solid ${d.kind==="station"?"#3b4654":"#fff"};display:inline-block"></i>${n(d.name)}`,new maplibregl.Marker({element:u,anchor:"left"}).setLngLat(d.lnglat).addTo(M)}Mt=(s.sites||[]).map((d,u)=>{let f=document.createElement("button");f.className=`pin ${ue(d)}`,f.setAttribute("aria-label",`${d.no}\uBC88 ${d.jibun}`),f.style.animationDelay=`${.15+u*.05}s`,f.innerHTML=`<span>${d.no}</span>`,f.addEventListener("click",j=>{j.stopPropagation(),St(d.id,!1)});let b=new maplibregl.Marker({element:f}).setLngLat(d.lnglat).addTo(M);return b._sid=String(d.id),b});let T=()=>{let d=Mt.map(b=>M.project(b.getLngLat())),u=d.map(()=>({x:0,y:0})),f=30;for(let b=0;b<d.length;b++)for(let j=b+1;j<d.length;j++){let y=d[j].x-d[b].x,R=d[j].y-d[b].y,_=Math.hypot(y,R);if(_>=f)continue;let P=_>.5?y/_:1,V=_>.5?R/_:0,$=(f-_)/2;u[b].x-=P*$,u[b].y-=V*$,u[j].x+=P*$,u[j].y+=V*$}Mt.forEach((b,j)=>b.setOffset([u[j].x,u[j].y]))};M.on("moveend",T),M.on("load",T),$t(T,1600);function k(){let d=e.boundaries.filter(u=>o.has(u.id)&&e.compare.zones[u.id]);p("#zoneInfo",t).innerHTML=d.map(u=>{let f=e.compare.zones[u.id];return`<b style="color:${u.color}">${n(u.short)}</b> ${f.area.toLocaleString("ko-KR")}\u33A1 \xB7 13\uACF3 \uC911 ${f.sites_in}\uACF3 \uD3EC\uD568${f.area>15e4?' \xB7 <span style="color:var(--red)">\uAD8C\uC7A5 15\uB9CC\u33A1 \uCD08\uACFC</span>':""}`}).join("<br>")||"\uCF1C\uC9C4 \uAD6C\uC5ED\uACC4\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4"}p("#zoneSeg",t).addEventListener("click",d=>{let u=d.target.closest("button");if(!u)return;let f=u.dataset.z,b=e.boundaries.find(j=>j.id===f);o.has(f)?o.delete(f):o.add(f),u.classList.toggle("on",o.has(f)),Be(e,o),k()}),p("#walkSeg",t)?.addEventListener("click",d=>{let u=d.target.closest("button");if(!u)return;let f=(e.walks||[]).find(y=>y.id===u.dataset.wk);if(!f)return;let b=!x.has(f.id);b?x.add(f.id):x.delete(f.id),u.classList.toggle("on",b),w(f,b);let j=(e.walks||[]).filter(y=>x.has(y.id));p("#walkInfo",t).innerHTML=j.length?j.map(y=>`<b style="color:${y.color}">${n(y.name)}</b> ${n(y.meta)}<br><span>${n(y.note)}</span>`).join("<br>"):"\uB204\uB974\uBA74 \uC9C0\uB3C4\uC5D0 \uAE38\uC774 \uADF8\uB824\uC9D1\uB2C8\uB2E4. \uBCF4\uD589 \uAE38 \uACC4\uC0B0\uAC12\uC774\uBA70 \uC2E4\uC81C \uC774\uB3D9 \uAE30\uB85D\uC774 \uC544\uB2D9\uB2C8\uB2E4."}),p("#mapBase",t).addEventListener("click",d=>{let u=d.target.closest("button");u&&(L("#mapBase button",t).forEach(f=>f.classList.toggle("on",f===u)),M.getLayer("sat")&&M.setLayoutProperty("sat","visibility",u.dataset.b==="sat"?"visible":"none"))}),p("#siteList",t).addEventListener("click",d=>{let u=d.target.closest(".site-it");u&&St(u.dataset.id)}),p("#siteList",t).addEventListener("keydown",d=>{if(d.key==="Enter"){let u=d.target.closest(".site-it");u&&St(u.dataset.id)}}),t.addEventListener("click",d=>{let u=d.target.closest("[data-fly]");if(u){d.preventDefault(),p("#map",t).scrollIntoView({behavior:"smooth",block:"center"}),$t(()=>St(u.dataset.fly),350);return}let f=d.target.closest("[data-card]");if(f){d.preventDefault();let b=document.getElementById("site-"+f.dataset.card);b?.scrollIntoView({behavior:"smooth",block:"center"}),b?.animate([{boxShadow:"0 0 0 4px rgba(201,154,46,.7)"},{boxShadow:"0 0 0 0 rgba(201,154,46,0)"}],{duration:1600})}}),p("#siteF",t).addEventListener("click",d=>{let u=d.target.closest(".chip");u&&(L("#siteF .chip",t).forEach(f=>f.classList.toggle("on",f===u)),L("#siteCards .site-card",t).forEach(f=>{f.style.display=u.dataset.f==="all"||f.dataset.t===u.dataset.f?"":"none"}))}),/^\d+$/.test(a||"")&&$t(()=>{p("#map",t).scrollIntoView({block:"center"}),St(a)},900)}function Hs(){Tt++;for(let t of Kt)clearTimeout(t);Kt.clear();try{jt?.remove(),M?.remove()}catch{}M=null,Mt=[],jt=null}var me={};N(me,{mount:()=>Fs,render:()=>Os});var Gt=t=>`<span class="tag ${t==="\uD655\uC815"?"sage":t==="\uAC80\uD1A0 \uC911"?"gold":t==="\uC544\uC774\uB514\uC5B4"?"navy":""}">${n(t)}</span>`;function Os(t){let s=t.plan,a=Object.fromEntries((t.sites||[]).map(e=>[String(e.id),e]));return`
+  <section class="page-hero"><div class="wrap">
+    <div class="crumb">\uAD6C\uC0C1</div>
+    <h1 class="rv">\uBD09\uB9AC\uB2E8\uAE38\uC5D0 \uBB34\uC5C7\uC744, \uC5B4\uB5BB\uAC8C \uCC44\uC6B0\uB098\uC694?</h1>
+    <p class="lead rv d1">${n(s.lead)}</p>
+    <div class="art rv d2">${z(t.images.sec_plan,"\uB2EB\uD78C \uCE74\uD398\uC640 \uBE48\uD130\uAC00 \uBB38\uD654 \uAC70\uC810\uC73C\uB85C \uBC14\uB00C\uB294 \uBAA8\uC2B5 \uC5F0\uCD9C \uADF8\uB9BC")}</div>
+  </div></section>
+
+  <section id="s-dir" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC815\uD574\uC9C4 \uBC29\uD5A5</span><h2>10\uC6D4 8\uC77C \uD604\uC7A5 \uC2E4\uBB34\uD68C\uC758\uC5D0\uC11C \uC815\uD55C \uAC83</h2><p>\uAE40\uD574\uC2DC \uB2F4\uB2F9\uACFC \uD604\uC7A5\uC744 \uD568\uAED8 \uAC77\uACE0 \uC815\uD55C \uC6D0\uCE59\uC785\uB2C8\uB2E4. \uD45C\uC2DC: ${Gt("\uD655\uC815")} \uD569\uC758\uB428 \xB7 ${Gt("\uAC80\uD1A0 \uC911")} \uB354 \uD655\uC778 \xB7 ${Gt("\uC544\uC774\uB514\uC5B4")} \uC81C\uC548 \uB2E8\uACC4</p></div>
+    <div class="grid g3">
+      ${(s.principles||[]).map((e,l)=>`
+      <div class="card hov rv d${l%3+1}">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:30px;font-weight:700;color:var(--celadon);line-height:1">${String(l+1).padStart(2,"0")}</span>${Gt(e.state)}</div>
+        <h3 style="margin-top:10px">${n(e.title)}</h3><p class="small">${n(e.desc)}</p>
+      </div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-struct" class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC0AC\uC5C5 \uAD6C\uC870</span><h2>\uC138 \uBD80\uCC98 \uC0AC\uC5C5\uC744 \uD55C \uADF8\uB987\uC5D0</h2><p>${n(s.structure_lead)}</p></div>
+    <div class="grid g3">
+      ${(s.structure||[]).map((e,l)=>`
+      <div class="card rv d${l+1}" style="border-top:5px solid ${dt(e.color)}">
+        <div class="cap" style="font-weight:700;color:${dt(e.color)}">${n(e.dept)}</div>
+        <h3 style="margin-top:4px">${n(e.name)}</h3>
+        <p class="small muted">${n(e.money)}</p>
+        <hr class="soft" style="margin:14px 0">
+        <div class="cap" style="font-weight:700">\uAC00\uC774\uB4DC\uB77C\uC778\uC774 \uC9C0\uC6D0\uD558\uB294 \uAC83</div>
+        <ul style="margin:6px 0 0;padding-left:18px;font-size:15px">${e.what.map(o=>`<li>${n(o)}</li>`).join("")}</ul>
+        <div class="cap" style="font-weight:700;margin-top:12px">\uAE40\uD574\uC5D0 \uB2F4\uC744 \uAC83(\uC548)</div>
+        <ul style="margin:6px 0 0;padding-left:18px;font-size:15px">${e.ours.map(o=>`<li>${n(o)}</li>`).join("")}</ul>
+      </div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-hub" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uD575\uC2EC \uAC70\uC810</span><h2>${n(s.hub.title)}</h2><p>${n(s.hub.desc)}</p></div>
+    <div class="grid g2">
+      ${s.hub.sites.map((e,l)=>{let o=a[String(e)];return o?`
+      <article class="card hov site-card hub wide rv d${l+1}">
+        <div class="im">${z(o.photo,o.jibun+" \uD604\uC7A5 \uC0AC\uC9C4","zoomable")}<span class="no">${o.no}</span></div>
+        <div class="tx"><h3>${n(o.jibun)} \u2014 ${n(o.short_use)}</h3><p class="small" style="margin-top:6px">${n(o.use2||o.use)}</p>
+          <div class="meta"><span class="tag">${n(o.type)}</span><span class="tag">${n(o.area_note)}</span></div>
+          <a class="copy" style="margin-top:12px" href="#/sites/${n(o.id)}">${m("pin")}\uC9C0\uB3C4\uC5D0\uC11C \uBCF4\uAE30</a></div>
+      </article>`:""}).join("")}
+    </div>
+    <div class="grid g3" style="margin-top:20px">
+      ${(s.hub.facts||[]).map((e,l)=>`<div class="card rv d${l+1}" style="padding:20px"><b>${n(e.k)}</b><p class="small">${n(e.v)}</p></div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-culture" class="sec sand"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uBB38\uD654 \uCF58\uD150\uCE20</span><h2>\uBE48 \uC810\uD3EC\uC5D0 \uCC44\uC6B8 \uCF58\uD150\uCE20 \uD6C4\uBCF4 30</h2><p>${n(s.culture.lead)}</p></div>
+    <div class="grid g4" style="margin-bottom:28px">
+      ${s.culture.picks.map((e,l)=>`
+      <div class="card hov rv d${l+1}" style="border:2px solid var(--clay-l)">
+        <span class="tag clay">\uCD94\uCC9C ${n(e.no)}</span>
+        <h3 style="margin-top:10px">${n(e.name)}</h3><p class="small">${n(e.what)}</p>
+        <p class="cap" style="margin-top:10px"><b>\uC65C</b> ${n(e.why)}</p>
+        <p class="cap" style="margin-top:6px"><b>\uD655\uC778\uD560 \uAC83</b> ${n(e.check)}</p>
+      </div>`).join("")}
+    </div>
+    <div class="filters" id="cuF"><button class="chip on" data-f="all">\uC804\uCCB4 30</button>${s.culture.groups.map(e=>`<button class="chip" data-f="${n(e)}">${n(e)}</button>`).join("")}</div>
+    <div class="grid g3" id="cuList">
+      ${s.culture.items.map(e=>`<div class="card" data-g="${n(e.group)}" style="padding:16px 18px;display:flex;gap:12px;align-items:flex-start;${e.pick?"border-color:var(--clay)":""}">
+        <span style="flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-weight:700;font-size:14px;background:${e.pick?"var(--clay)":"var(--paper)"};color:${e.pick?"#fff":"var(--ink2)"}">${n(e.no)}</span>
+        <div><b style="font-size:16px">${n(e.name)}</b>${e.hold?' <span class="tag">\uBCF4\uB958</span>':""}<p class="cap" style="margin-top:2px">${n(e.what)}</p></div></div>`).join("")}
+    </div>
+    <p class="cap" style="margin-top:16px">${n(s.culture.note)}</p>
+  </div></section>
+
+  <section id="s-mp" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uB9C8\uC2A4\uD130\uD50C\uB79C \uC5F0\uCD9C\uC548</span><h2>\uADF8\uB9BC\uC73C\uB85C \uBCF8 \uB450 \uAC00\uC9C0 \uBC29\uD5A5</h2><p>${n(s.mp_lead)}</p></div>
+    <div class="grid g2">
+      ${(s.masterplans||[]).map((e,l)=>`
+      <figure class="card rv d${l+1}" style="padding:0;overflow:hidden;margin:0">
+        <div style="aspect-ratio:16/10;background:var(--sand);overflow:hidden">${z(e.img,e.title,"zoomable",'style="width:100%;height:100%;object-fit:cover"')}</div>
+        <figcaption style="padding:18px 20px"><span class="tag navy">${n(e.tag)}</span><h3 style="margin-top:8px">${n(e.title)}</h3><p class="small">${n(e.desc)}</p><p class="cap" style="margin-top:6px">AI\uB85C \uADF8\uB9B0 \uC5F0\uCD9C \uADF8\uB9BC \u2014 \uC2E4\uC81C \uC124\uACC4\uC548\uC774 \uC544\uB2D9\uB2C8\uB2E4</p></figcaption>
+      </figure>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-open" class="sec alt"><div class="wrap" style="max-width:960px">
+    <div class="sec-h rv"><span class="eyebrow">\uC544\uC9C1 \uC815\uD560 \uAC83</span><h2>10\uC6D4 15\uC77C \uC2E4\uBB34\uD68C\uC758\uC5D0\uC11C \uD568\uAED8 \uC815\uD560 \uAC83</h2><p>\uC544\uB798 \uD56D\uBAA9\uC774 \uC815\uD574\uC9C0\uBA74 \uACC4\uD68D\uC11C \uCD08\uC548\uC774 \uBE60\uB974\uAC8C \uC644\uC131\uB429\uB2C8\uB2E4.</p></div>
+    ${(s.open||[]).map((e,l)=>`
+      <div class="acc rv">
+        <button aria-expanded="false"><span class="q">${l+1}</span>${n(e.q)}<span class="chev">${m("chev")}</span></button>
+        <div class="body"><div><div class="in"><p>${n(e.a)}</p></div></div></div>
+      </div>`).join("")}
+  </div></section>`}function Fs(t){p("#cuF",t)?.addEventListener("click",s=>{let a=s.target.closest(".chip");a&&(L("#cuF .chip",t).forEach(e=>e.classList.toggle("on",e===a)),L("#cuList>.card",t).forEach(e=>{e.style.display=a.dataset.f==="all"||e.dataset.g===a.dataset.f?"":"none"}))})}var he={};N(he,{mount:()=>Bs,render:()=>Ps});function Ps(t){let s=t.field;return`
+  <section class="page-hero"><div class="wrap">
+    <div class="crumb">\uD604\uC7A5\xB7\uB370\uC774\uD130</div>
+    <h1 class="rv">\uD604\uC7A5\uC758 \uBAA9\uC18C\uB9AC\uC640 \uC22B\uC790\uB85C \uBCF8 \uC6D0\uB3C4\uC2EC</h1>
+    <p class="lead rv d1">\uC9C1\uC811 \uAC77\uACE0 \uBB3C\uC5B4\uBCF8 \uB0B4\uC6A9\uACFC \uACF5\uACF5\uB370\uC774\uD130 \uBD84\uC11D \uACB0\uACFC\uC785\uB2C8\uB2E4. \uC22B\uC790\uB9C8\uB2E4 \uACC4\uC0B0 \uBC29\uBC95\uACFC \uCD9C\uCC98\uB97C \uB2EC\uC544 \uBCF4\uACE0\uC11C\uC5D0 \uADF8\uB300\uB85C \uC778\uC6A9\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p>
+    <div class="art rv d2">${z(t.images.sec_voice,"\uAC00\uAC8C \uC55E\uC5D0\uC11C \uC8FC\uBBFC \uC758\uACAC\uC744 \uB4E3\uB294 \uBAA8\uC2B5 \uC5F0\uCD9C \uADF8\uB9BC")}</div>
+  </div></section>
+
+  <section id="s-voice" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uD604\uC7A5 \uBAA9\uC18C\uB9AC</span><h2>\uC8FC\uBBFC\xB7\uC0C1\uC778 \uC57D 50\uBA85\uC774 \uB9D0\uD55C \uAC83</h2><p>${n(s.voice.lead)}</p></div>
+    <div class="grid g3">
+      ${s.voice.themes.map((a,e)=>`
+      <div class="card hov rv d${e%3+1}">
+        <span class="vicon" aria-hidden="true">${m(["pin","bulb","clock","warn","map","user"][e%6])}</span>
+        <h3 style="margin-top:8px">${n(a.title)}</h3>
+        <ul style="margin:10px 0 0;padding-left:18px;font-size:15px;color:var(--ink2)">${a.points.map(l=>`<li style="margin-bottom:4px">${n(l)}</li>`).join("")}</ul>
+      </div>`).join("")}
+    </div>
+    <div class="note navy" style="margin-top:22px">${m("info")}<div>${n(s.voice.note)}</div></div>
+  </div></section>
+
+  <section id="s-decline" class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC1E0\uD1F4 \uC694\uAC74</span><h2>\uC6D0\uB3C4\uC2EC\uC774 \uC1E0\uD1F4 \uC694\uAC74\uC744 \uCC44\uC6B0\uB098\uC694?</h2><p>${n(s.decline.lead)}</p></div>
+    <div class="grid g3">
+      ${s.decline.items.map((a,e)=>`
+      <div class="card rv d${e+1}" style="text-align:center">
+        <span class="tag ${a.ok?"sage":"gold"}">${a.ok?"\uC694\uAC74 \uCDA9\uC871":"\uCD94\uAC00 \uD655\uC778"}</span>
+        <div class="kpi" style="padding:14px 0 4px"><div class="v" style="color:var(--navy)">${n(a.value)}</div><div class="k">${n(a.label)}</div></div>
+        <p class="cap">${n(a.basis)}</p>
+      </div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-ind" class="sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC6D0\uB3C4\uC2EC \uC9C0\uD45C</span><h2>\uC22B\uC790\uB85C \uBCF8 \uC6D0\uB3C4\uC2EC</h2><p>\uCE74\uB4DC\uB97C \uB204\uB974\uBA74 \uACC4\uC0B0 \uBC29\uBC95\uC774 \uD3BC\uCCD0\uC9D1\uB2C8\uB2E4.</p></div>
+    <div class="grid g4" id="indGrid">
+      ${s.indicators.map((a,e)=>`
+      <div class="card hov rv d${e%4+1}" style="cursor:pointer;padding:20px" data-ind role="button" tabindex="0" aria-expanded="false">
+        <div class="cap" style="font-weight:700;color:var(--clay)">${n(a.group)}</div>
+        <div style="font-size:30px;font-weight:700;color:var(--navy);margin-top:6px;letter-spacing:-.02em">${a.tone==="down"?'<span style="font-size:18px;color:var(--muted)" aria-label="\uAC10\uC18C">\u25BC </span>':a.tone==="up"?'<span style="font-size:18px;color:var(--muted)" aria-label="\uC99D\uAC00">\u25B2 </span>':""}${n(a.display)}</div>
+        <b style="display:block;font-size:16px;margin-top:4px">${n(a.label)}</b>
+        <p class="cap" style="margin-top:2px">${n(a.scope)}</p>
+        <div class="more" hidden style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line2);font-size:14px;color:var(--ink2)">${n(a.method)}<div class="cap" style="margin-top:6px">\uCD9C\uCC98: ${n(a.source)}</div></div>
+      </div>`).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-tools" class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uBD84\uC11D \uB3C4\uAD6C</span><h2>\uB354 \uAE4A\uAC8C \uBCF4\uACE0 \uC2F6\uC73C\uC2DC\uBA74</h2><p>\uC6A9\uC5ED \uACFC\uC815\uC5D0\uC11C \uB9CC\uB4E0 \uBD84\uC11D \uC9C0\uB3C4\uC785\uB2C8\uB2E4. \uC0C8 \uCC3D\uC73C\uB85C \uC5F4\uB9BD\uB2C8\uB2E4.</p></div>
+    <div class="grid g3">
+      ${s.tools.map((a,e)=>`
+      <a class="card hov guide-card rv d${e+1}" href="${n(W(a.url))}" ${a.url.startsWith("#")?"":'target="_blank" rel="noopener"'}>
+        <div class="im">${z(a.img,a.name)}</div>
+        <div class="tx"><h3>${n(a.name)}<span class="arr">${m("ext")}</span></h3><p>${n(a.desc)}</p>${a.note?`<p class="cap" style="margin-top:6px">${n(a.note)}</p>`:""}</div>
+      </a>`).join("")}
+    </div>
+  </div></section>`}function Bs(t){let s=a=>{let e=a.getAttribute("aria-expanded")!=="true";a.setAttribute("aria-expanded",String(e)),a.querySelector(".more").hidden=!e};p("#indGrid",t)?.addEventListener("click",a=>{let e=a.target.closest("[data-ind]");e&&s(e)}),p("#indGrid",t)?.addEventListener("keydown",a=>{(a.key==="Enter"||a.key===" ")&&a.target.matches("[data-ind]")&&(a.preventDefault(),s(a.target))})}var fe={};N(fe,{mount:()=>Ws,render:()=>Ds});var Ns=["\uD68C\uC758","\uACB0\uC815","\uD604\uC7A5","\uD611\uC758","\uC0B0\uCD9C\uBB3C","\uC608\uC815"],Us=t=>({\uACB0\uC815:"navy",\uD68C\uC758:"sage",\uC0B0\uCD9C\uBB3C:"gold",\uD604\uC7A5:"clay",\uC608\uC815:""})[t]||"";function Ds(t){let s=U(),a=[...t.timeline||[]].sort((i,c)=>c.date.localeCompare(i.date)),e=[];for(let i of a){let c=i.date.slice(0,7),r=e.find(v=>v.m===c);r||(r={m:c,items:[]},e.push(r)),r.items.push(i)}let l=i=>`${i.slice(0,4)}\uB144 ${+i.slice(5,7)}\uC6D4`,o=t.decisions||[];return`
+  <section class="page-hero"><div class="wrap">
+    <div class="crumb">\uC9C4\uD589 \uAE30\uB85D</div>
+    <h1 class="rv">\uC5B8\uC81C, \uBB34\uC5C7\uC744 \uD588\uACE0 \uBB34\uC5C7\uC744 \uC815\uD588\uB098\uC694?</h1>
+    <p class="lead rv d1">8\uC6D4 \uCC29\uC218\uBD80\uD130 \uC9C0\uAE08\uAE4C\uC9C0\uC758 \uD68C\uC758\xB7\uD604\uC7A5\uC870\uC0AC\xB7\uACB0\uC815\xB7\uC0B0\uCD9C\uBB3C\uC744 \uB0A0\uC9DC\uC21C\uC73C\uB85C \uC815\uB9AC\uD588\uC2B5\uB2C8\uB2E4. \uB2F4\uB2F9\uC774 \uBC14\uB00C\uC5B4\uB3C4 \uC774 \uAE30\uB85D\uB9CC \uBCF4\uBA74 \uD750\uB984\uC744 \uC774\uC5B4\uBC1B\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p>
+    <div class="art rv d2">${z(t.images.sec_log,"\uC774\uC815\uD45C\uB97C \uB530\uB77C \uAC77\uB294 \uC0AC\uB78C\uB4E4 \uC5F0\uCD9C \uADF8\uB9BC")}</div>
+  </div></section>
+
+  ${(t.meetings||[]).length?`
+  <section id="s-meet" class="sec" style="padding-top:36px"><div class="wrap" style="max-width:1000px">
+    <div class="sec-h rv"><span class="eyebrow">\uC8FC\uC694 \uD68C\uC758</span><h2>\uD68C\uC758\uC5D0\uC11C \uBB34\uC5C7\uC744 \uB4E4\uC5C8\uACE0 \uC815\uD588\uB098\uC694?</h2><p>\uC8FC\uC694 \uD68C\uC758 ${t.meetings.length}\uBC88\uC744 \uC9E7\uAC8C \uC694\uC57D\uD588\uC2B5\uB2C8\uB2E4. \uC904\uC744 \uB204\uB974\uBA74 \uD3BC\uCCD0\uC9D1\uB2C8\uB2E4.</p></div>
+    ${t.meetings.map((i,c)=>`
+      <div class="acc rv ${c===t.meetings.length-1?"open":""}">
+        <button aria-expanded="${c===t.meetings.length-1}"><span class="q" style="width:auto;padding:0 8px;white-space:nowrap">${n(K(i.date,!1))}</span>${n(i.title)}<span class="chev">${m("chev")}</span></button>
+        <div class="body"><div><div class="in">
+          <p class="cap">${[i.place,i.who].filter(Boolean).map(n).join(" \xB7 ")}</p>
+          <ul style="margin:10px 0 0;padding-left:18px">${(i.points||[]).map(r=>`<li style="margin-bottom:4px">${n(r)}</li>`).join("")}</ul>
+          ${(i.decided||[]).length?`<div class="note navy" style="margin-top:12px">${m("check")}<div><b>\uC815\uD574\uC9C4 \uAC83</b><br>${i.decided.map(r=>n(r)).join("<br>")}</div></div>`:""}
+          ${i.later?`<p class="cap" style="margin-top:10px;color:var(--clay)">\uC774\uD6C4 \u2192 ${n(i.later)}</p>`:""}
+        </div></div></div>
+      </div>`).join("")}
+  </div></section>`:""}
+
+  <section id="s-dec" class="sec ${(t.meetings||[]).length?"alt":""}" style="padding-top:36px"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC8FC\uC694 \uACB0\uC815</span><h2>\uC9C0\uAE08 \uC720\uD6A8\uD55C \uACB0\uC815</h2><p>\uBC14\uB010 \uACB0\uC815\uC740 \u2018\uBC14\uB01C\u2019\uC73C\uB85C \uB0A8\uACA8 \uB450\uC5B4, \uC65C \uC9C0\uAE08 \uBC29\uD5A5\uC774 \uB418\uC5C8\uB294\uC9C0 \uB530\uB77C\uAC08 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p></div>
+    <div class="tbl-wrap rv" style="max-width:1100px;margin:0 auto"><table class="tbl stack">
+      <thead><tr><th style="width:110px">\uB0A0\uC9DC</th><th>\uACB0\uC815</th><th style="width:120px">\uC0C1\uD0DC</th><th>\uB204\uAC00\xB7\uC5B4\uB514\uC11C</th></tr></thead>
+      <tbody>${o.map((i,c)=>`${c===0||o[c-1].state!==i.state?`<tr class="dec-g"><td colspan="4">${n(i.state==="\uC720\uD6A8"?"\uC9C0\uAE08 \uC720\uD6A8\uD55C \uACB0\uC815":i.state==="\uBC14\uB01C"?"\uBC14\uB010 \uACB0\uC815(\uC774\uB825)":"\uAC80\uD1A0 \uC911")}</td></tr>`:""}<tr><td class="num" data-l="\uB0A0\uC9DC">${K(i.date,!1)}</td><td><b style="font-weight:600">${n(i.title)}</b>${i.why?`<div class="cap">${n(i.why)}</div>`:""}${i.after?`<div class="cap" style="color:var(--clay)">\u2192 ${n(i.after)}</div>`:""}</td><td><span class="tag ${i.state==="\uC720\uD6A8"?"sage":i.state==="\uBC14\uB01C"?"":"gold"}">${n(i.state)}</span></td><td class="small" data-l="\uB204\uAC00\xB7\uC5B4\uB514\uC11C">${n(i.who)}</td></tr>`).join("")}</tbody>
+    </table></div>
+  </div></section>
+
+  <section id="s-tl" class="sec ${(t.meetings||[]).length?"":"alt"}"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uD0C0\uC784\uB77C\uC778</span><h2>\uB0A0\uC9DC\uC21C \uAE30\uB85D</h2></div>
+    <div class="filters" id="logF"><button class="chip on" data-f="all">\uC804\uCCB4 ${a.length}</button>${Ns.map(i=>{let c=a.filter(r=>r.type===i).length;return c?`<button class="chip" data-f="${i}">${i} ${c}</button>`:""}).join("")}</div>
+    <div class="tl" id="logList">
+      ${e.map(i=>`<div class="tl-m" data-m>${l(i.m)}</div>${i.items.map(c=>`
+        <div class="tl-it k-${n(c.type)} rv" data-t="${n(c.type)}" style="${c.date>s?"border-style:dashed;background:#fff":""}">
+          <div class="dt">${K(c.date)}${c.date>s?" \xB7 \uC608\uC815":""}</div>
+          <h4><span class="tag ${Us(c.type)}">${n(c.type)}</span>${n(c.title)}</h4>
+          <p>${n(c.summary)}</p>
+        </div>`).join("")}`).join("")}
+    </div>
+  </div></section>`}function Ws(t){p("#logF",t)?.addEventListener("click",s=>{let a=s.target.closest(".chip");if(!a)return;L("#logF .chip",t).forEach(i=>i.classList.toggle("on",i===a));let e=a.dataset.f;L("#logList .tl-it",t).forEach(i=>{i.style.display=e==="all"||i.dataset.t===e?"":"none"});let l=null,o=!1;for(let i of L("#logList > *",t))i.hasAttribute("data-m")?(l&&(l.style.display=o?"":"none"),l=i,o=!1):i.style.display!=="none"&&(o=!0);l&&(l.style.display=o?"":"none")})}var ge={};N(ge,{mount:()=>Xs,render:()=>Vs,unmount:()=>ta});var Ue="gm-todo-done",De=()=>{try{return new Set(JSON.parse(localStorage.getItem(Ue)||"[]"))}catch{return new Set}},Ks=t=>{try{localStorage.setItem(Ue,JSON.stringify([...t]))}catch{}};function Gs(t,s){let[a,e]=t.split("-").map(Number),l=new Date(Date.UTC(a,e-1,1)),o=new Date(Date.UTC(a,e,0)).getUTCDate(),i=l.getUTCDay(),c=U(),r="";for(let h=0;h<i;h++)r+='<div class="cd e"></div>';for(let h=1;h<=o;h++){let x=`${t}-${String(h).padStart(2,"0")}`,w=s.filter(g=>g.date===x&&!g.month_only),E=(i+h-1)%7;r+=`<div class="cd ${x===c?"today":""} ${w.length?"has":""}" ${w.length?`title="${n(w.map(g=>g.title).join(" / "))}"`:""}>
+      <span class="dn" style="${E===0?"color:var(--red)":E===6?"color:var(--navy)":""}">${h}</span>
+      ${w.map(g=>`<span class="ev ${g.kind==="\uB9C8\uAC10"?"dead":g.tentative?"tent":""}">${n(g.short||g.title)}</span>`).join("")}
+    </div>`}let v=s.filter(h=>h.month_only&&h.date.slice(0,7)===t);return`<div class="cal-h"><b>${a}\uB144 ${e}\uC6D4</b></div>${v.length?`<div class="note" style="margin-bottom:10px">${m("cal")}<div><b>\uC774\uB2EC \uC911(\uB0A0\uC9DC \uBBF8\uC815)</b> \xB7 ${v.map(h=>n(h.title)).join(" / ")}</div></div>`:""}<div class="cal">${"\uC77C\uC6D4\uD654\uC218\uBAA9\uAE08\uD1A0".split("").map(h=>`<div class="cw">${h}</div>`).join("")}${r}</div>`}function Vs(t){let s=U(),e=[...t.schedule||[]].sort((i,c)=>i.date.localeCompare(c.date)).filter(i=>Y(i,s)),l=[["\uAE40\uD574\uC2DC","clay"],["\uC6A9\uC5ED\uC0AC","navy"],["\uACF5\uB3D9","sage"]],o=De();return`
+  <style>
+    .cal-h{display:flex;justify-content:center;margin-bottom:10px;font-size:19px}
+    .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+    .cw{text-align:center;font-size:14px;color:var(--muted);font-weight:600;padding:4px 0}
+    .cd{min-height:86px;border:1px solid var(--line);border-radius:10px;padding:6px;background:#fff;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+    .cd.e{border:0;background:none}
+    .cd.today{border:2px solid var(--navy)}
+    .cd.has{background:var(--paper)}
+    .cd .dn{font-size:14px;font-weight:600}
+    .cd .ev{display:block;font-size:13px;line-height:1.35;padding:2px 6px;border-radius:6px;background:var(--navy);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .cd .ev.tent{background:#fff;color:var(--navy);border:1px dashed var(--navy)}
+    .cd .ev.dead{background:var(--clay)}
+    .calnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    @media (max-width:640px){.cd{min-height:58px;padding:4px}}
+  </style>
+  <section class="page-hero"><div class="wrap">
+    <div class="crumb">\uD560 \uC77C</div>
+    <h1 class="rv">\uB2E4\uC74C\uC5D0 \uBB34\uC5C7\uC744, \uB204\uAC00 \uD558\uB098\uC694?</h1>
+    <p class="lead rv d1">\uB2E4\uAC00\uC624\uB294 \uC77C\uC815\uACFC \uD560 \uC77C\uC744 <b>\uAE40\uD574\uC2DC \xB7 \uC6A9\uC5ED\uC0AC \xB7 \uACF5\uB3D9</b>\uC73C\uB85C \uB098\uB234\uC2B5\uB2C8\uB2E4. \uC77C\uC815\uC740 \uD734\uB300\uC804\uD654\xB7\uC5C5\uBB34\uC6A9 \uB2EC\uB825\uC5D0 \uBC14\uB85C \uB123\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p>
+    <div class="rv d2" style="margin-top:18px"><button class="btn pri" id="icsBtn">${m("cal")}\uC77C\uC815\uC744 \uB0B4 \uB2EC\uB825\uC5D0 \uB123\uAE30(.ics)</button></div>
+    <div class="art rv d2">${z(t.images.sec_todo,"\uB2EC\uB825\uACFC \uC810\uAC80\uD45C\uAC00 \uB193\uC778 \uCC45\uC0C1 \uC5F0\uCD9C \uADF8\uB9BC")}</div>
+  </div></section>
+
+  <section id="s-cal" class="sec" style="padding-top:36px"><div class="wrap">
+    <div class="grid" style="grid-template-columns:1.35fr 1fr;gap:28px;align-items:start" id="calWrap">
+      <div class="card rv">
+        <div class="calnav"><button class="copy" id="calPrev">\u2039 \uC774\uC804 \uB2EC</button><span class="cap">\uC810\uC120 = \uB0A0\uC9DC \uD655\uC778 \uD544\uC694</span><button class="copy" id="calNext">\uB2E4\uC74C \uB2EC \u203A</button></div>
+        <div id="calBox"></div>
+      </div>
+      <div class="rv d1">
+        <h3 style="font-size:20px;margin-bottom:12px">\uB2E4\uAC00\uC624\uB294 \uC77C\uC815</h3>
+        ${e.map(i=>{let c=rt(i.date),r=Nt(i);return`
+          <div class="dcard ${c<=7&&!i.month_only?"soon":""}" style="box-shadow:var(--shadow);margin-bottom:10px;cursor:default">
+            <div class="d" style="width:68px;height:68px;${i.month_only?"background:var(--ink2)":""}"><b style="font-size:20px">${r.big}</b><small>${r.small}</small></div>
+            <div><h4>${n(i.title)}${i.tentative?' <span class="tag gold">\uD655\uC778 \uD544\uC694</span>':""}</h4><p>${n(i.detail||"")}</p></div>
+          </div>`}).join("")}
+      </div>
+    </div>
+  </div></section>
+
+  <section id="s-roles" class="sec alt"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uB204\uAC00 \uBB34\uC5C7\uC744</span><h2>\uC5ED\uD560\uBCC4 \uD560 \uC77C</h2><p>10\uC6D4 8\uC77C \uC2E4\uBB34\uD68C\uC758\uC5D0\uC11C \uB098\uB208 \uC5ED\uD560\uC744 \uC815\uB9AC\uD588\uC2B5\uB2C8\uB2E4. \uCCB4\uD06C \uD45C\uC2DC\uB294 \uBCF4\uB294 \uBD84 \uAE30\uAE30\uC5D0\uB9CC \uC800\uC7A5\uB429\uB2C8\uB2E4.</p></div>
+    <div class="kan">
+      ${l.map(([i,c])=>{let r=(t.todos||[]).filter(v=>v.who===i);return`
+      <div class="col rv"><h3><span class="tag ${c}">${i}</span><span class="cnt">${r.length}\uAC74</span></h3>
+        ${r.map(v=>`<label class="todo ${o.has(v.id)?"chk":""}"><input type="checkbox" data-id="${n(v.id)}" ${o.has(v.id)?"checked":""}><div><b>${n(v.title)}</b><span>${v.due?`${m("clock","sicon")} ${n(v.due)} \xB7 `:""}${n(v.detail||"")}</span></div></label>`).join("")}
+      </div>`}).join("")}
+    </div>
+  </div></section>
+
+  <section id="s-req" class="sec"><div class="wrap" style="max-width:1000px">
+    <div class="sec-h rv"><span class="eyebrow">\uC790\uB8CC \uC694\uCCAD</span><h2>\uC2DC\uC5D0\uC11C \uC900\uBE44\uD574 \uC8FC\uC2E4 \uC790\uB8CC</h2><p>\uACC4\uD68D\uC11C \uCD08\uC548\uC5D0 \uAF2D \uD544\uC694\uD55C \uC790\uB8CC\uC785\uB2C8\uB2E4. \uBC1B\uB294 \uB300\uB85C \uC774 \uD45C\uB97C \uAC31\uC2E0\uD569\uB2C8\uB2E4.</p></div>
+    <div class="tbl-wrap rv"><table class="tbl stack"><thead><tr><th>\uC790\uB8CC</th><th>\uC4F0\uC784</th><th style="width:130px">\uC0C1\uD0DC</th></tr></thead><tbody>
+      ${(t.requests||[]).map(i=>`<tr><td><b style="font-weight:600">${n(i.what)}</b></td><td class="small">${n(i.why)}</td><td><span class="tag ${i.state.startsWith("\uBC1B\uC74C")?"sage":i.state.startsWith("\uB300\uAE30")?"gold":i.state.includes("\uD655\uC778")?"red":"navy"}">${n(i.state)}</span></td></tr>`).join("")}
+    </tbody></table></div>
+  </div></section>`}var Zs=new TextEncoder;function Qs(t){let s=[],a="";for(let e of t){let l=s.length?74:75;Zs.encode(a+e).length>l?(s.push(a),a=e):a+=e}return s.push(a),s.join(`\r
+ `)}var Ys=(t,s)=>new Date(`${t}T${s}:00+09:00`).toISOString().replace(/[-:]/g,"").replace(/\.\d{3}Z$/,"Z");function Js(t){let s=o=>o.replace(/-/g,""),a=o=>String(o||"").replace(/\\/g,"\\\\").replace(/[,;]/g,i=>"\\"+i).replace(/\n/g,"\\n"),e=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d{3}Z$/,"Z"),l=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//gimhae-recore//ko","CALSCALE:GREGORIAN","METHOD:PUBLISH","X-WR-CALNAME:\uAE40\uD574 \uC6D0\uB3C4\uC2EC RE:CORE","X-WR-TIMEZONE:Asia/Seoul"];for(let o of t.schedule||[])if(!(o.date<U()||o.month_only)){if(l.push("BEGIN:VEVENT",`UID:${s(o.date)}-${encodeURIComponent(o.title).replace(/%/g,"").slice(0,40)}@gimhae-recore`,`DTSTAMP:${e}`),o.time)l.push(`DTSTART:${Ys(o.date,o.time)}`,"DURATION:PT2H");else{let i=new Date(o.date+"T00:00:00Z");i.setUTCDate(i.getUTCDate()+1),l.push(`DTSTART;VALUE=DATE:${s(o.date)}`,`DTEND;VALUE=DATE:${i.toISOString().slice(0,10).replace(/-/g,"")}`)}l.push(`SUMMARY:${a((o.tentative?"(\uD655\uC778 \uD544\uC694) ":"")+o.title)}`,`DESCRIPTION:${a(o.detail)}`,"END:VEVENT")}return l.push("END:VCALENDAR"),l.map(Qs).join(`\r
+`)+`\r
+`}function Xs(t,s){let a=[...new Set((s.schedule||[]).map(r=>r.date.slice(0,7)))].sort(),e=U().slice(0,7),l=Math.max(0,a.indexOf(e));a.indexOf(e)<0&&(l=a.findIndex(r=>r>e)>=0?a.findIndex(r=>r>e):0);let o=[];{let[r,v]=(a[0]||e).split("-").map(Number),[h,x]=(a.at(-1)||e).split("-").map(Number);for(let w=r,E=v;(w<h||w===h&&E<=x)&&(E>12&&(E=1,w++),o.push(`${w}-${String(E).padStart(2,"0")}`),!(o.length>24));E++);}let i=Math.max(0,o.indexOf(e)),c=()=>{p("#calBox",t).innerHTML=Gs(o[i],s.schedule||[]),p("#calPrev",t).disabled=i<=0,p("#calNext",t).disabled=i>=o.length-1};c(),p("#calPrev",t).addEventListener("click",()=>{i>0&&(i--,c())}),p("#calNext",t).addEventListener("click",()=>{i<o.length-1&&(i++,c())}),t.addEventListener("change",r=>{let v=r.target.closest(".todo input");if(!v)return;let h=De();v.checked?h.add(v.dataset.id):h.delete(v.dataset.id),Ks(h),v.closest(".todo").classList.toggle("chk",v.checked)}),p("#icsBtn",t).addEventListener("click",()=>{let r=document.createElement("a"),v=URL.createObjectURL(new Blob([Js(s)],{type:"text/calendar;charset=utf-8"}));r.href=v,r.download="\uAE40\uD574_RECORE_\uC77C\uC815.ics",document.body.appendChild(r),r.click(),r.remove(),setTimeout(()=>URL.revokeObjectURL(v),1e3),H("\uB2EC\uB825 \uD30C\uC77C\uC744 \uB0B4\uB824\uBC1B\uC558\uC2B5\uB2C8\uB2E4. \uC5F4\uBA74 \uC77C\uC815\uC774 \uCD94\uAC00\uB429\uB2C8\uB2E4")}),Ct=matchMedia("(max-width: 900px)"),zt=()=>{let r=p("#calWrap",t);r&&(r.style.gridTemplateColumns=Ct.matches?"1fr":"1.35fr 1fr")},zt(),Ct.addEventListener?.("change",zt)}var Ct=null,zt=null;function ta(){Ct?.removeEventListener?.("change",zt),Ct=zt=null}var be={};N(be,{mount:()=>sa,render:()=>ea});function ea(t){let s=t.library||[],a=[...new Set(s.map(e=>e.group))];return`
+  <section class="page-hero"><div class="wrap">
+    <div class="crumb">\uC790\uB8CC\uC2E4</div>
+    <h1 class="rv">\uD544\uC694\uD55C \uC790\uB8CC\uB97C \uBC14\uB85C \uAEBC\uB0B4 \uC4F0\uC138\uC694</h1>
+    <p class="lead rv d1">\uC6A9\uC5ED \uACFC\uC815\uC5D0\uC11C \uB9CC\uB4E0 \uBCF4\uACE0\uC11C\xB7\uC9C0\uB3C4\xB7\uBD84\uC11D \uC790\uB8CC\uC640 \uAC00\uC774\uB4DC\uB77C\uC778 \uC6D0\uBB38\uC744 \uBAA8\uC558\uC2B5\uB2C8\uB2E4. \uBBF8\uB9AC\uBCF4\uAE30\uB97C \uB204\uB974\uBA74 \uD06C\uAC8C \uBCF4\uC774\uACE0, \uB2E8\uCD94\uB85C \uC5F4\uAC70\uB098 \uB0B4\uB824\uBC1B\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p>
+    <div class="art rv d2">${z(t.images.sec_library,"\uBCF4\uACE0\uC11C\uC640 \uC9C0\uB3C4\uAC00 \uC815\uB9AC\uB41C \uC5F0\uCD9C \uADF8\uB9BC")}</div>
+  </div></section>
+
+  <section id="s-list" class="sec" style="padding-top:36px"><div class="wrap">
+    <div class="grid g4" style="margin-bottom:28px">
+      ${(t.stats||[]).map((e,l)=>`<div class="card kpi rv d${l+1}"><div class="v"><span data-count="${e.v}">0</span><small>${n(e.unit)}</small></div><div class="k">${n(e.k)}</div><div class="s">${n(e.s||"")}</div></div>`).join("")}
+    </div>
+    <div class="filters" id="libF"><button class="chip on" data-f="all">\uC804\uCCB4 ${s.length}</button>${a.map(e=>`<button class="chip" data-f="${n(e)}">${n(e)} ${s.filter(l=>l.group===e).length}</button>`).join("")}</div>
+    <div class="grid g3" id="libList">
+      ${s.map((e,l)=>`
+      <div class="card hov lib-card rv d${l%3+1}" data-g="${n(e.group)}">
+        <div class="im">${e.thumb?z(e.thumb,e.title,"zoomable"):""}<span class="tag ${e.kind==="PDF"?"clay":e.kind==="\uC6F9"?"navy":"sage"}" style="position:absolute;left:12px;top:12px">${n(e.kind)}</span></div>
+        <div class="tx">
+          <div class="cap">${n(e.date)} \xB7 ${n(e.group)}</div>
+          <h3 style="margin-top:2px">${n(e.title)}</h3>
+          <p>${n(e.desc)}</p>
+          <div class="act">
+            ${e.file?`<button class="copy" data-open="${n(e.file)}">${m("file")}\uC5F4\uAE30</button><button class="copy" data-dl="${n(e.file)}" data-name="${n(e.dlname||e.title)}">${m("down")}\uB0B4\uB824\uBC1B\uAE30</button>`:""}
+            ${(e.extra||[]).map(o=>`<button class="copy" data-dl="${n(o.file)}" data-name="${n(o.dlname||o.label)}">${m("down")}${n(o.label)}</button>`).join("")}
+            ${e.url?`<a class="copy" href="${n(e.url)}" target="_blank" rel="noopener">${m("ext")}\uC0C8 \uCC3D\uC73C\uB85C \uC5F4\uAE30</a>`:""}
+            ${e.route?`<a class="copy" href="#/${n(e.route)}">${m("arrow")}\uC774 \uC548\uB0B4\uD310\uC5D0\uC11C \uBCF4\uAE30</a>`:""}
+          </div>
+          ${e.note?`<p class="cap" style="margin-top:8px">${n(e.note)}</p>`:""}
+        </div>
+      </div>`).join("")}
+    </div>
+  </div></section>`}function sa(t){p("#libF",t)?.addEventListener("click",s=>{let a=s.target.closest(".chip");a&&(L("#libF .chip",t).forEach(e=>e.classList.toggle("on",e===a)),L("#libList .lib-card",t).forEach(e=>{e.style.display=a.dataset.f==="all"||e.dataset.g===a.dataset.f?"":"none"}))}),t.addEventListener("click",async s=>{let a=s.target.closest("[data-open]"),e=s.target.closest("[data-dl]");if(!a&&!e)return;s.preventDefault();let l=a?a.dataset.open:e.dataset.dl,o=l.split(".").pop(),i=(e||a.closest(".lib-card")?.querySelector("[data-dl]"))?.dataset.name||l.split("/").pop().replace(/\.[^.]+$/,""),c=a&&/^pdf$/i.test(o)?window.open("","_blank"):null;H("\uD30C\uC77C\uC744 \uC900\uBE44\uD558\uB294 \uC911\uC785\uB2C8\uB2E4\u2026");try{let r=await et(l);if(window.__ASSET||(r=new URL(r,location.href).href),c&&!c.closed){c.location.replace(r);return}let v=document.createElement("a");v.href=r,v.download=`${i}.${o}`,document.body.appendChild(v),v.click(),v.remove()}catch{try{c?.close()}catch{}H("\uD30C\uC77C\uC744 \uC5F4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4")}})}var $e={};N($e,{render:()=>ia});function aa(t){let s=t.brief,a=t.requirements||[],e=o=>a.filter(i=>i.status===o||o==="ing"&&i.status==="chk").length,l=(t.schedule||[]).filter(o=>Y(o)).slice(0,4);return[`[\uAE40\uD574 \uC6D0\uB3C4\uC2EC RE:CORE \uC900\uBE44 \uD604\uD669] ${t.meta.asof} \uAE30\uC900`,"","\u25A0 \uC0AC\uC5C5 \uAC1C\uC694",...s.overview.map(o=>`- ${o}`),"","\u25A0 \uAE40\uD574 \uC900\uBE44 \uD604\uD669",...s.status.map(o=>`- ${o}`),`- \uC2E0\uCCAD \uC694\uAC74 ${a.length}\uAC1C \uC911 \uCDA9\uC871 ${e("ok")} \xB7 \uC9C4\uD589\xB7\uD655\uC778 \uC911 ${e("ing")} \xB7 \uBBF8\uCDA9\uC871 ${e("no")}`,"","\u25A0 \uC8FC\uC694 \uC77C\uC815",...l.map(o=>`- ${o.month_only?`${+o.date.slice(5,7)}\uC6D4 \uC911`:K(o.date)} ${o.title}${o.tentative&&!o.month_only?"(\uD655\uC778 \uD544\uC694)":""}`),"","\u25A0 \uB2E4\uC74C \uD560 \uC77C",...s.next.map(o=>`- ${o}`)].join(`
+`)}function ia(t){let s=t.brief,a=t.requirements||[],e=o=>a.filter(i=>i.status===o||o==="ing"&&i.status==="chk").length,l=(t.schedule||[]).filter(o=>Y(o)).slice(0,5);return`
+  <style>
+    .a4{width:min(210mm,100%);margin:0 auto;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-h);padding:16mm 15mm;border-radius:6px;font-size:14.5px;line-height:1.6}
+    .a4 h1{font-size:23px;text-align:left}
+    .a4 .top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--navy);padding-bottom:8px;margin-bottom:12px;gap:12px}
+    .a4 .top .cap{font-size:13px}
+    .a4 h2{font-size:15.5px;color:var(--navy);margin:12px 0 6px;display:flex;align-items:center;gap:6px}
+    .a4 h2::before{content:"";width:5px;height:15px;background:var(--clay);border-radius:2px}
+    .a4 ul{margin:0;padding-left:18px}
+    .a4 li{margin-bottom:2px}
+    .a4 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .a4 .box{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--paper)}
+    .a4 table{width:100%;border-collapse:collapse;font-size:13.5px}
+    .a4 td,.a4 th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left}
+    .a4 .meter{height:10px}
+    .a4 .foot{margin-top:12px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:6px}
+    .a4 tr,.a4 li{break-inside:avoid;page-break-inside:avoid}
+    @media (max-width:700px){.a4{padding:20px 16px}.a4 .two{grid-template-columns:1fr}
+      .a4 .gaps thead{display:none}.a4 .gaps,.a4 .gaps tbody,.a4 .gaps tr,.a4 .gaps td{display:block;width:100%!important}
+      .a4 .gaps tr{padding:8px 0;border-bottom:1px solid var(--line)}.a4 .gaps td{border:0;padding:1px 0}}
+    @media print{body{background:#fff}.a4{box-shadow:none;border:0;padding:0;width:auto;font-size:9.5pt;line-height:1.45}.a4 h1{font-size:17pt}.a4 h2{margin:8px 0 4px;font-size:11pt}.a4 table{font-size:9pt}.page-hero,.bar-actions,.pinfo,.keysum,.subnav,.util,.totop{display:none!important}main{min-height:0}}
+  </style>
+  <section class="page-hero no-print" style="padding:36px 0 20px"><div class="wrap">
+    <div class="crumb">\uBCF4\uACE0\uC6A9 1\uC7A5</div>
+    <h1 class="rv" style="font-size:36px">\uC0C1\uAE09\uC790 \uBCF4\uACE0\uC6A9 \uD55C \uC7A5 \uC694\uC57D</h1>
+    <p class="lead rv d1">\uC778\uC1C4\uD558\uAC70\uB098 PDF\uB85C \uC800\uC7A5\uD574 \uACB0\uC7AC\xB7\uBCF4\uACE0\uC5D0 \uC4F0\uC138\uC694. \uBA54\uC2E0\uC800 \uBCF4\uACE0\uC6A9 \uAE00\uB3C4 \uD55C \uBC88\uC5D0 \uBCF5\uC0AC\uD560 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p>
+    <div class="bar-actions rv d2" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px">
+      <button class="btn pri" onclick="window.print()">${m("print")}\uC778\uC1C4 \xB7 PDF\uB85C \uC800\uC7A5</button>
+      ${gt(aa(t),"\uBA54\uC2E0\uC800\uC6A9 \uAE00 \uBCF5\uC0AC")}
+    </div>
+  </div></section>
+  <section style="padding:10px 16px 60px">
+    <article class="a4">
+      <div class="top"><div><div class="cap">${n(t.meta.program)}</div><h1>\uAE40\uD574 \uC6D0\uB3C4\uC2EC RE:CORE \uC0AC\uC5C5 \uC900\uBE44 \uD604\uD669</h1></div><div class="cap" style="text-align:right">${n(t.meta.asof)} \uAE30\uC900</div></div>
+      <h2>\uC0AC\uC5C5 \uAC1C\uC694</h2>
+      <ul>${s.overview.map(o=>`<li>${n(o)}</li>`).join("")}</ul>
+      <div class="two">
+        <div>
+          <h2>\uAE40\uD574 \uC900\uBE44 \uD604\uD669</h2>
+          <ul>${s.status.map(o=>`<li>${n(o)}</li>`).join("")}</ul>
+          <div class="box" style="margin-top:8px">
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><b>\uC2E0\uCCAD \uC694\uAC74 ${a.length}\uAC1C</b><span>\uCDA9\uC871 ${e("ok")} \xB7 \uC9C4\uD589\xB7\uD655\uC778 \uC911 ${e("ing")} \xB7 \uBBF8\uCDA9\uC871 ${e("no")}</span></div>
+            <div class="meter"><span class="ok" style="width:${e("ok")/a.length*100}%"></span><span class="ing" style="width:${e("ing")/a.length*100}%"></span><span class="no" style="width:${e("no")/a.length*100}%"></span></div>
+          </div>
+        </div>
+        <div>
+          <h2>\uC8FC\uC694 \uC77C\uC815</h2>
+          <table><tbody>${l.map(o=>`<tr><td style="white-space:nowrap;width:104px"><b>${o.month_only?`${+o.date.slice(5,7)}\uC6D4 \uC911`:K(o.date)}</b></td><td>${n(o.title)}${o.tentative&&!o.month_only?' <span style="color:#9A6E0E">(\uD655\uC778 \uD544\uC694)</span>':""}</td><td style="white-space:nowrap;color:var(--muted)">${o.month_only?"\uC7A0\uC815":ce(rt(o.date))}</td></tr>`).join("")}</tbody></table>
+        </div>
+      </div>
+      <h2>\uBA3C\uC800 \uCC59\uAE38 \uC694\uAC74 <span style="font-weight:400;color:var(--muted);font-size:13px">(\uBBF8\uCDA9\uC871\xB7\uD655\uC778 \uD544\uC694 \uC6B0\uC120 ${Math.min(6,a.filter(o=>o.status!=="ok").length)}\uAC1C \xB7 \uC804\uCCB4\uB294 \uC694\uAC74 \uC810\uAC80 \uD654\uBA74)</span></h2>
+      <table class="gaps"><thead><tr><th style="width:30%">\uC694\uAC74</th><th style="width:12%">\uC0C1\uD0DC</th><th>\uB2E4\uC74C \uD560 \uC77C</th></tr></thead><tbody>
+        ${a.filter(o=>o.status!=="ok").sort((o,i)=>({no:0,chk:1,ing:2}[o.status]??3)-({no:0,chk:1,ing:2}[i.status]??3)).slice(0,6).map(o=>`<tr><td><b>${n(o.title)}</b></td><td style="white-space:nowrap">${Q(o.status,{no:"\uBBF8\uCDA9\uC871",chk:"\uD655\uC778 \uD544\uC694",ing:"\uC9C4\uD589 \uC911"}[o.status]||"")}</td><td>${n(o.next||"")}</td></tr>`).join("")}
+      </tbody></table>
+      <h2>\uB2E4\uC74C \uD560 \uC77C</h2>
+      <ul>${s.next.map(o=>`<li>${n(o)}</li>`).join("")}</ul>
+      <div class="foot">\uADFC\uAC70: \uAD6D\uD1A0\uAD50\uD1B5\uBD80 \u300C2027\uB144 \uAC70\uC810\uD2B9\uD654 \uC6D0\uB3C4\uC2EC RE:CORE \uD504\uB85C\uC81D\uD2B8 \uC2DC\uBC94\uC0AC\uC5C5 \uAC00\uC774\uB4DC\uB77C\uC778(\uC548)\u300D(2026.9.11 \uC124\uBA85\uD68C\uBCF8), \uAE40\uD574\uC2DC \uB300\uC0C1\uC9C0 \uBAA9\uB85D(10.8), \uD604\uC7A5 \uC2E4\uBB34\uD68C\uC758(10.8) \xB7 \uAC00\uC774\uB4DC\uB77C\uC778\uC740 \uD655\uC815 \uACF5\uACE0 \uC804 \uC548(\u6848)\uC73C\uB85C \uBC14\uB014 \uC218 \uC788\uC74C</div>
+    </article>
+  </section>`}var ke={};N(ke,{mount:()=>ca,render:()=>la,unmount:()=>ra});var S=null,q=null,ye=[],At=0,at=null,vt=null,xe=[],it=(t,s)=>{let a=setTimeout(t,s);return ye.push(a),a},_t=()=>document.documentElement.classList.contains("nomo"),Zt=(t,s=1200)=>`${t}-${s}.webp`,Qt=t=>`${t}-720.webp 720w, ${t}-1200.webp 1200w`,D=t=>t.replace(/^(\d{4})-(\d{2})-\d{2}$/,"$1.$2"),na=t=>`https://map.kakao.com/link/roadview/${t[1]},${t[0]}`,oa=t=>Number(t).toLocaleString("ko-KR");function la(){return`
+  <section class="page-hero hist-hero"><div class="wrap">
+    <div class="crumb">\uBD09\uB9AC\uB2E8\uAE38 10\uB144</div>
+    <h1 class="rv">\uBD09\uB9AC\uB2E8\uAE38 10\uB144<small>\uADF8\uB54C \xB7 \uC9C0\uAE08 \xB7 \uB2E4\uC74C</small></h1>
+    <p class="lead rv d1">\uAC19\uC740 \uACE8\uBAA9\uC744 \uD574\uB9C8\uB2E4 \uCC0D\uC740 \uAC70\uB9AC \uC0AC\uC9C4\uACFC \uAC00\uAC8C \uC778\uD5C8\uAC00 \uAE30\uB85D\uC73C\uB85C \uBD09\uB9AC\uB2E8\uAE38\uC774 \uC5B4\uB5BB\uAC8C \uC0DD\uAE30\uACE0, \uCEE4\uC9C0\uACE0, \uBA48\uCDC4\uB294\uC9C0 \uBD05\uB2C8\uB2E4. \uADF8\uB9AC\uACE0 \uB2E4\uC74C 10\uB144\uC744 \uADF8\uB9BD\uB2C8\uB2E4.</p>
+    <div class="hist-flip rv d2" id="hFlip" aria-label="\uAC19\uC740 \uC790\uB9AC \uC2DC\uAC04 \uB118\uAE30\uAE30">
+      <div class="hf-stage"><img class="hf-a" alt=""><img class="hf-b" alt=""><div class="hf-year" aria-live="polite"></div></div>
+      <div class="hf-bar"><button type="button" class="hf-play" aria-label="\uBA48\uCDA4">${m("clock")}<span>\uBA48\uCDA4</span></button><button type="button" class="hf-nav" data-step="-1" aria-label="\uC774\uC804 \uC2DC\uC810">\u2039</button><div class="hf-dots"></div><button type="button" class="hf-nav" data-step="1" aria-label="\uB2E4\uC74C \uC2DC\uC810">\u203A</button><span class="hf-cap"></span></div>
+    </div>
+    <div class="hist-nums rv d3" id="hNums"></div>
+    <div class="hist-act rv d3"><a class="btn pri" href="#/history/curve">${m("chart")}\uC22B\uC790\uB85C \uBCF4\uAE30</a><a class="btn line" href="#/history/map">${m("map")}\uC9C0\uB3C4\uB85C \uBCF4\uAE30</a><button type="button" class="btn line" id="hPresent">${m("layers")}\uBC1C\uD45C \uBAA8\uB4DC</button></div>
+  </div></section>
+
+  <section id="s-curve" class="sec hist-sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC22B\uC790\uB85C \uBCF8 10\uB144</span><h2>\uC7AC\uC0DD\uC0AC\uC5C5 7\uB144 \uB3D9\uC548 2.7\uBC30, \uADF8 \uB4A4\uC5D4 \uBA48\uCDA4</h2><p id="hCurveLead">\uBD09\uD669\uB300\uAE38(\uBD09\uB9AC\uB2E8\uAE38) \uC591\uCABD \uAC00\uAC8C \uC218(\uC778\uD5C8\uAC00 \uC5C5\uC18C)\uB97C \uD574\uB9C8\uB2E4 \uC14C\uC2B5\uB2C8\uB2E4. \uAE43\uBC1C\uC740 \uADF8\uD574 \uC788\uC5C8\uB358 \uC77C\uC785\uB2C8\uB2E4.</p></div>
+    <div class="card hist-curve rv" id="hCurve"><div class="hist-wait">\uC790\uB8CC\uB97C \uBD88\uB7EC\uC624\uB294 \uC911\u2026</div></div>
+    <details class="cap hist-note" id="hCurveNote"></details>
+  </div></section>
+
+  <section id="s-map" class="sec alt hist-sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC9C0\uB3C4 \uD0C0\uC784\uB7A9\uC2A4</span><h2>\uAC00\uAC8C\uAC00 \uCF1C\uC9C0\uACE0, \uAEBC\uC9C0\uB294 10\uB144</h2><p>\u25B6\uB97C \uB204\uB974\uBA74 2009\uB144\uBD80\uD130 \uD574\uB9C8\uB2E4 \uADF8\uD574 \uC601\uC5C5 \uC911\uC778 \uAC00\uAC8C\uAC00 \uC9C0\uB3C4\uC5D0 \uCF1C\uC9D1\uB2C8\uB2E4. \uCD08\uB85D\uC740 \uADF8\uD574 \uC0C8\uB85C \uC5F0 \uACF3, \uBE68\uAC15\uC740 \uADF8\uD574 \uB2EB\uC740 \uACF3\uC785\uB2C8\uB2E4.</p></div>
+    <div class="hist-mapwrap rv">
+      <div id="hMap" class="hist-map"><div class="hist-wait">\uC9C0\uB3C4\uB97C \uBD88\uB7EC\uC624\uB294 \uC911\u2026</div></div>
+      <div class="hist-ctrl">
+        <button type="button" class="hist-playbtn" id="hPlay" aria-label="\uC7AC\uC0DD">\u25B6</button>
+        <div class="hist-yr"><b id="hYr">2009</b><input type="range" id="hRange" min="2009" max="2026" step="1" value="2009" aria-label="\uC5F0\uB3C4"></div>
+        <div class="hist-cnt" id="hCnt"></div>
+      </div>
+      <div class="hist-legend"><span><i class="lg-a"></i>\uC601\uC5C5 \uC911</span><span><i class="lg-o"></i>\uADF8\uD574 \uAC1C\uC5C5</span><span><i class="lg-c"></i>\uADF8\uD574 \uD3D0\uC5C5</span><span><i class="lg-z"></i>\uD655\uC815 \uAD6C\uC5ED\uACC4</span><span><i class="lg-p"></i>\uAC19\uC740 \uC790\uB9AC \uC0AC\uC9C4 \uC9C0\uC810</span></div>
+    </div>
+  </div></section>
+
+  <section id="s-same" class="sec hist-sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uAC19\uC740 \uC790\uB9AC, \uADF8\uB54C\uC640 \uC9C0\uAE08</span><h2>\uBD09\uD669\uB300\uAE38 8\uACF3\uC744 \uAC19\uC740 \uBC29\uD5A5\uC5D0\uC11C</h2><p>\uBD09\uD669\uC5ED \uCABD \uC785\uAD6C\uBD80\uD130 \uC218\uB85C\uC655\uB989 \uCABD \uB05D\uAE4C\uC9C0 \uAD50\uCC28\uB85C 8\uACF3\uC785\uB2C8\uB2E4. \uAC00\uC6B4\uB370 \uC190\uC7A1\uC774\uB97C \uC88C\uC6B0\uB85C \uB04C\uC5B4 \u300C\uADF8\uB54C\u300D\uC640 \u300C\uC9C0\uAE08\u300D\uC744 \uACAC\uC8FC\uC138\uC694. \uC544\uB798 \uB0A0\uC9DC\uB97C \uB204\uB974\uBA74 \u300C\uADF8\uB54C\u300D\uAC00 \uBC14\uB01D\uB2C8\uB2E4.</p></div>
+    <div class="hist-tabs rv" id="hTabs" role="tablist"></div>
+    <div class="hist-cmp rv" id="hCmp"><div class="hist-wait">\uC0AC\uC9C4\uC744 \uBD88\uB7EC\uC624\uB294 \uC911\u2026</div></div>
+    <div class="hist-dates rv" id="hDates"></div>
+    <details class="hist-more rv" id="hSites"><summary>\uB300\uC0C1\uC9C0 13\uACF3\uB3C4 \uAC19\uC740 \uBC29\uC2DD\uC73C\uB85C \uBCF4\uAE30</summary><div class="hist-tabs" id="hTabs2"></div></details>
+  </div></section>
+
+  <section id="s-years" class="sec alt hist-sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uC5F0\uD45C</span><h2>\uD574\uB9C8\uB2E4 \uBB34\uC2A8 \uC77C\uC774 \uC788\uC5C8\uB098</h2><p>\uADF8\uD574 \uC788\uC5C8\uB358 \uACF5\uACF5\uC0AC\uC5C5\xB7\uBCF4\uB3C4\uC640 \uBD09\uB9AC\uB2E8\uAE38 \uAC00\uAC8C\uC758 \uAC1C\uC5C5\xB7\uD3D0\uC5C5 \uC218\uC785\uB2C8\uB2E4. \uCE74\uB4DC\uB97C \uC606\uC73C\uB85C \uB118\uAE30\uC138\uC694.</p></div>
+    <div class="hist-years rv" id="hYears"></div>
+  </div></section>
+
+  <section id="s-next" class="sec hist-sec"><div class="wrap">
+    <div class="sec-h rv"><span class="eyebrow">\uB2E4\uC74C 10\uB144</span><h2>\uADF8\uB798\uC11C, \uC9C0\uAE08 \uB2E4\uC2DC \uCC44\uC6C1\uB2C8\uB2E4</h2></div>
+    <div class="grid g2 rv" id="hWhy"></div>
+    <div class="hist-future rv" id="hFuture"></div>
+    <div class="hist-act" style="justify-content:center"><a class="btn pri" href="#/sites">${m("map")}\uB300\uC0C1\uC9C0 13\uACF3 \uC9C0\uB3C4</a><a class="btn line" href="#/plan">${m("bulb")}\uACC4\uD68D \uAD6C\uC0C1</a></div>
+  </div></section>
+
+  <section id="s-src" class="sec hist-sec"><div class="wrap"><div class="card hist-src" id="hSrc"></div></div></section>
+  <div class="hist-present-bar no-print" id="hPbar" hidden><button type="button" data-p="prev" aria-label="\uC774\uC804">\u2039</button><span id="hPnum"></span><button type="button" data-p="next" aria-label="\uB2E4\uC74C">\u203A</button><button type="button" data-p="exit">\uBC1C\uD45C \uB05D\uB0B4\uAE30</button></div>`}async function ca(t){let s=++At;try{S||(S=await(await fetch("data/history.json",{cache:"no-cache"})).json())}catch{L(".hist-wait",t).forEach(o=>{o.textContent="\uC790\uB8CC\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C\uACE0\uCE68\uD574 \uC8FC\uC138\uC694."});return}if(s!==At||!t.isConnected)return;da(t),pa(t),We(t),ha(t),fa(t),ga(t),ba(t),$a(t);let a=innerWidth,e=null,l=()=>{Math.abs(innerWidth-a)<40||(a=innerWidth,clearTimeout(e),e=it(()=>{t.isConnected&&(We(t),p("#hCurve",t).classList.add("drawn"))},250))};addEventListener("resize",l),xe.push(()=>removeEventListener("resize",l)),vt=new IntersectionObserver(o=>{o.some(i=>i.isIntersecting)&&(vt.disconnect(),vt=null,va(t,s))},{rootMargin:"300px"}),vt.observe(p("#hMap",t))}function ra(){if(At++,ye.forEach(clearTimeout),ye=[],xe.forEach(t=>t()),xe=[],vt&&(vt.disconnect(),vt=null),q){try{q.remove()}catch{}q=null}at&&(removeEventListener("keydown",at),at=null),document.documentElement.classList.remove("hist-presenting"),document.fullscreenElement&&document.exitFullscreen?.().catch(()=>{})}function da(t){let s=S.points.find(u=>u.id==="R07"),a=s&&s.shots.length>=5?s:S.points.find(u=>u.id==="R01")||S.points[0],e=a.shots,l=p("#hFlip",t),o=p(".hf-a",l),i=p(".hf-b",l),c=p(".hf-year",l),r=p(".hf-cap",l),v=p(".hf-dots",l),h=p(".hf-play",l);v.innerHTML=e.map((u,f)=>`<button type="button" aria-label="${n(D(u.date))}" data-i="${f}"></button>`).join("");let x=_t()?e.length-1:0,w=o,E=!_t(),g=null,T=u=>{x=(u+e.length)%e.length;let f=e[x],b=w===o?i:o;b.srcset=Qt(f.img),b.sizes="(max-width:900px) 100vw, 1100px",b.src=Zt(f.img,1200),b.alt=`${a.label} ${D(f.date)} \uAC70\uB9AC \uC0AC\uC9C4`;let j=()=>{b.classList.add("on"),w.classList.remove("on"),w=b};b.complete?j():b.onload=j,c.textContent=f.date.slice(0,4),r.textContent=`${a.label} \xB7 ${D(f.date)} \xB7 \uCE74\uCE74\uC624\uB9F5 \uB85C\uB4DC\uBDF0`,L("button",v).forEach((y,R)=>y.classList.toggle("on",R===x))},k=()=>{E&&(T(x+1),g=it(k,x===e.length-1?2600:1300))},d=u=>{E=u,h.querySelector("span").textContent=u?"\uBA48\uCDA4":"\uC7AC\uC0DD",h.setAttribute("aria-label",u?"\uBA48\uCDA4":"\uC7AC\uC0DD"),clearTimeout(g),u&&(g=it(k,1300))};h.addEventListener("click",()=>d(!E)),v.addEventListener("click",u=>{let f=u.target.closest("[data-i]");f&&(d(!1),T(+f.dataset.i))}),L(".hf-nav",l).forEach(u=>u.addEventListener("click",()=>{d(!1),T(x+ +u.dataset.step)})),T(x),E&&(g=it(k,1600)),e.forEach(u=>{let f=new Image;f.srcset=Qt(u.img),f.sizes="(max-width:900px) 100vw, 1100px"})}function pa(t){let s=S.headline,a=S.yearly.zone,e=a.find(r=>r.y===2024),l=a.find(r=>r.y===2025),o=a.at(-1),i=[{a:s.band16,b:s.band25,unit:"\uAC74",k:"\uBD09\uB9AC\uB2E8\uAE38 735m \uAC00\uAC8C",s:"2016 \u2192 2025 \xB7 \uAC00\uAC8C\uD615 \uC778\uD5C8\uAC00 \uAC74\uC218"},{a:s.zone16,b:s.zonePeak.a,unit:"\uAC74",k:"\uD655\uC815 \uAD6C\uC5ED \uC548 \uAC00\uAC8C",s:`2016 \u2192 ${s.zonePeak.y} \uC815\uC810 \xB7 2026.10 \uD604\uC7AC ${a.at(-1).a}\uAC74`},{big:"2024\xB725",unit:"\uB144",k:"2\uB144 \uC5F0\uC18D \uB2EB\uB294 \uAC00\uAC8C\uAC00 \uB354 \uB9CE\uC74C",s:`\uAD6C\uC5ED \uC804\uCCB4 \uD3D0\uC5C5 ${e.c}\xB7${l.c} > \uAC1C\uC5C5 ${e.o}\xB7${l.o} \xB7 2026.10 \uD604\uC7AC ${o.c}\xB7${o.o}\uB85C \uAC19\uC74C`}],c=p("#hNums",t);c.innerHTML=i.map(r=>`<div class="hn"><b>${r.big?`<span>${n(r.big)}</span>`:`<span data-to="${r.a}">${r.a}</span><i>\u2192</i><span data-to="${r.b}">${r.b}</span>`}<small>${n(r.unit)}</small></b><span>${n(r.k)}</span><em>${n(r.s)}</em></div>`).join(""),!_t()&&L("[data-to]",c).forEach(r=>{let v=+r.dataset.to;if(!Number.isFinite(v)||v>3e3)return;let h=performance.now(),x=1400;r.textContent="0";let w=E=>{let g=Math.min(1,(E-h)/x);r.textContent=oa(Math.round(v*(1-Math.pow(1-g,3)))),g<1&&r.isConnected&&requestAnimationFrame(w)};it(()=>requestAnimationFrame(w),500)})}function We(t){let s=S.yearly.zone,a=S.yearly.band,e=s[0].y,l=s.at(-1).y,o=p("#hCurve",t),i=Math.max(640,Math.round(o.clientWidth-36)),c=440,r=54,v=46,h=70,x=46,w=$=>r+($-e)/(l-e)*(i-r-v),E=Math.ceil(Math.max(...s.map($=>$.a))*1.25/50)*50,g=$=>h+(1-$/E)*(c-h-x),T=$=>$.map((C,B)=>`${B?"L":"M"}${w(C.y).toFixed(1)},${g(C.a).toFixed(1)}`).join(""),k=[[2011,"\uACBD\uC804\uCCA0 \uBD09\uD669\uC5ED"],[2015,"\uB3C4\uC2DC\uC7AC\uC0DD \uC120\uC815"],[2017,"\u300C\uBD09\uB9AC\uB2E8\uAE38\u300D \uAC80\uC0C9 \uB4F1\uC7A5"],[2019,"\uCCAB \uC9D1\uC911 \uBCF4\uB3C4\xB7\uC0C1\uC778\uC870\uD569"],[2023,"\uC138\uACC4\uC720\uC0B0\xB7\uACF5\uC601\uC8FC\uCC28\uC7A5"],[2024,"2\uB144 \uC5F0\uC18D \uD3D0\uC5C5 > \uAC1C\uC5C5"]],d=[];for(let $=0;$<=E;$+=50)d.push($);let u=`<div class="cv-scroll"><svg viewBox="0 0 ${i} ${c}" width="${i}" height="${c}" style="width:${i}px;height:${c}px" role="img" aria-label="\uC5F0\uB3C4\uBCC4 \uAC00\uAC8C\uD615 \uC778\uD5C8\uAC00 \uAC74\uC218: \uBD09\uB9AC\uB2E8\uAE38 ${a[0].a}\uAC74(${e})\uC5D0\uC11C ${a.at(-1).a}\uAC74(${l}), \uAD6C\uC5ED ${s[0].a}\uAC74\uC5D0\uC11C ${s.at(-1).a}\uAC74">
+    <rect x="${w(2016)}" y="${h-30}" width="${w(2022)-w(2016)}" height="${c-h-x+30}" class="cv-band"/>
+    <text x="${(w(2016)+w(2022))/2}" y="${h-12}" class="cv-bandt" text-anchor="middle">\uC6D0\uB3C4\uC2EC \uB3C4\uC2DC\uC7AC\uC0DD 2016~2022 \xB7 \uCD1D\uC0AC\uC5C5\uBE44 467\uC5B5 \uC6D0</text>
+    ${d.map($=>`<line x1="${r}" x2="${i-v}" y1="${g($)}" y2="${g($)}" class="cv-grid"/><text x="${r-8}" y="${g($)+5}" class="cv-tick" text-anchor="end">${$}</text>`).join("")}
+    ${s.map($=>$.y%2===1||$.y===l?`<text x="${w($.y)}" y="${c-x+24}" class="cv-tick" text-anchor="middle">${$.y===l?"2026":$.y}</text>`:"").join("")}
+    ${k.map(([$,C],B)=>{let Z=h+2+B%3*24,tt=w($)>i-190;return`<g class="cv-flag" style="--d:${B}"><line x1="${w($)}" x2="${w($)}" y1="${Z}" y2="${c-x}"/><circle cx="${w($)}" cy="${Z}" r="4"/><text x="${tt?w($)-7:w($)+7}" y="${Z+5}" text-anchor="${tt?"end":"start"}">${n(C)}</text></g>`}).join("")}
+    <path d="${T(s)}" class="cv-z"/><path d="${T(a)}" class="cv-b"/>
+    ${s.map($=>`<circle cx="${w($.y)}" cy="${g($.a)}" r="3.5" class="cv-zp"/>`).join("")}
+    ${a.map($=>`<circle cx="${w($.y)}" cy="${g($.a)}" r="4.5" class="cv-bp"/>`).join("")}
+    <text x="${w(l)-6}" y="${g(s.at(-1).a)+26}" class="cv-lab z" text-anchor="end">\uD655\uC815 \uAD6C\uC5ED \uC804\uCCB4 ${s.at(-1).a}\uAC74</text>
+    <text x="${w(l)-6}" y="${g(a.at(-1).a)+26}" class="cv-lab b" text-anchor="end">\uBD09\uB9AC\uB2E8\uAE38 735m ${a.at(-1).a}\uAC74</text>
+    ${s.map($=>`<rect x="${w($.y)-(i-r-v)/(l-e)/2}" y="${h}" width="${(i-r-v)/(l-e)}" height="${c-h-x}" class="cv-hit" data-y="${$.y}"/>`).join("")}
+  </svg></div><div class="cv-tip" hidden></div>`;o.innerHTML=u;let f=p(".cv-scroll",o);f.scrollWidth>f.clientWidth+4&&(f.scrollLeft=f.scrollWidth);let b=p(".cv-tip",o),j=($,C)=>{let B=s.find(ct=>ct.y===$),Z=a.find(ct=>ct.y===$),tt=S.events.filter(ct=>ct.y===$).map(ct=>ct.title);b.hidden=!1,b.innerHTML=`<b>${$===l?"2026(10\uC6D4 13\uC77C \uD604\uC7AC)":$+"\uB144"}</b><span>\uBD09\uB9AC\uB2E8\uAE38 ${Z.a}\uAC74 \xB7 \uAC1C\uC5C5 ${Z.o} \xB7 \uD3D0\uC5C5 ${Z.c}</span><span>\uAD6C\uC5ED \uC804\uCCB4 ${B.a}\uAC74 \xB7 \uAC1C\uC5C5 ${B.o} \xB7 \uD3D0\uC5C5 ${B.c}</span>${tt.length?`<em>${n(tt.slice(0,2).join(" \xB7 "))}</em>`:""}`;let O=o.getBoundingClientRect(),kt=p(".cv-scroll",o),Pt=w($)+18-(kt?.scrollLeft||0);b.style.left=Math.min(Math.max(8,Pt-110),O.width-228)+"px"};o.addEventListener("pointermove",$=>{let C=$.target.closest(".cv-hit");C&&j(+C.dataset.y,$)}),o.addEventListener("click",$=>{let C=$.target.closest(".cv-hit");C&&j(+C.dataset.y,$)}),o.addEventListener("pointerleave",()=>{b.hidden=!0});let y=new IntersectionObserver($=>{$[0].isIntersecting&&(o.classList.add("drawn"),y.disconnect())},{threshold:.35});y.observe(o);let R=a.find($=>$.y===2016).a,_=a.find($=>$.y===2022).a,P=S.headline.zonePeak;p("#hCurveLead",t).textContent=`\uBD09\uD669\uB300\uAE38(\uBD09\uB9AC\uB2E8\uAE38) \uC591\uCABD \uAC00\uAC8C(\uAC00\uAC8C\uD615 \uC778\uD5C8\uAC00 \uAC74\uC218)\uB294 \uC7AC\uC0DD\uC0AC\uC5C5\uC774 \uC2DC\uC791\uB41C 2016\uB144 ${R}\uAC74\uC5D0\uC11C \uC0AC\uC5C5\uC774 \uB05D\uB09C 2022\uB144 ${_}\uAC74\uC73C\uB85C \uB298\uC5C8\uC2B5\uB2C8\uB2E4. \uC0AC\uC5C5 \uC911 2.7\uBC30\uB85C \uB298\uC5C8\uACE0, \uADF8 \uB4A4 3\uB144\uC740 90\uAC74\uB300\uC5D0\uC11C \uBA48\uCDC4\uC2B5\uB2C8\uB2E4. \uAD6C\uC5ED \uC804\uCCB4\uB294 ${P.y}\uB144 ${P.a}\uAC74\uC774 \uAC00\uC7A5 \uB9CE\uC558\uACE0, 2024\xB72025\uB144\uC5D0\uB294 2\uB144 \uC5F0\uC18D \uB2EB\uB294 \uAC00\uAC8C\uAC00 \uC5EC\uB294 \uAC00\uAC8C\uBCF4\uB2E4 \uB9CE\uC558\uC2B5\uB2C8\uB2E4.`;let V=S.trend||[];if(V.length){let $=Math.max(...V.map(C=>C.v));o.insertAdjacentHTML("beforeend",`<div class="cv-trend"><b>\u300C\uAE40\uD574 \uBD09\uB9AC\uB2E8\uAE38\u300D \uAC80\uC0C9 \uAD00\uC2EC\uB3C4</b><div>${V.map(C=>`<span style="--h:${(C.v/$*100).toFixed(0)}%" title="${C.y}\uB144 ${C.v}"><i></i><small>${String(C.y).slice(2)}</small></span>`).join("")}</div><em>2018\uB144\uC774 \uAC00\uC7A5 \uB192\uACE0 \uC774\uD6C4 \uB0AE\uC544\uC9D0</em></div>`)}p("#hCurveNote",t).innerHTML=`<summary>\uACC4\uC0B0 \uAE30\uC900\xB7\uCD9C\uCC98 \uBCF4\uAE30</summary><p>${n(`\uAC00\uAC8C \uC218 = \uAC00\uAC8C\uD615 \uC778\uD5C8\uAC00 \uAC74\uC218(\uD55C \uAC00\uAC8C\uAC00 \uC778\uD5C8\uAC00\uB97C \uC5EC\uB7FF \uAC00\uC9C8 \uC218 \uC788\uC5B4 \uC2E4\uC81C \uAC00\uAC8C \uC218\uC640 \uB2E4\uB984) \xB7 ${S.note.def} \xB7 ${S.note.band} \xB7 ${S.note.license} \xB7 ${S.note.trend} \xB7 ${S.note.money}`)}</p>`}function ua(){return window.maplibregl?Promise.resolve():new Promise((t,s)=>{if(!document.querySelector('link[href*="maplibre-gl.css"]')){let e=document.createElement("link");e.rel="stylesheet",e.href="vendor/maplibre-gl-4.7.1/maplibre-gl.css",document.head.appendChild(e)}let a=document.createElement("script");a.src="vendor/maplibre-gl-4.7.1/maplibre-gl.js",a.onload=()=>t(),a.onerror=()=>s(new Error("\uC9C0\uB3C4 \uB3C4\uAD6C\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4")),document.head.appendChild(a)})}async function va(t,s){try{await ua()}catch{let g=p("#hMap .hist-wait",t);g&&(g.textContent="\uC9C0\uB3C4 \uB3C4\uAD6C\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C\uACE0\uCE68\uD574 \uC8FC\uC138\uC694.");return}if(s!==At||!t.isConnected)return;let a=p("#hMap",t);a.innerHTML="";let e=S.zoneK.coordinates[0],l=999,o=999,i=-999,c=-999;for(let[g,T]of e)l=Math.min(l,g),o=Math.min(o,T),i=Math.max(i,g),c=Math.max(c,T);q=new maplibregl.Map({container:a,style:"https://tiles.openfreemap.org/styles/positron",bounds:[[l,o],[i,c]],fitBoundsOptions:{padding:30},minZoom:13,maxZoom:19,attributionControl:{compact:!0},pixelRatio:Math.min(devicePixelRatio||1,2),cooperativeGestures:matchMedia("(max-width: 900px)").matches}),q.addControl(new maplibregl.NavigationControl({showCompass:!1}),"bottom-right");let r={type:"FeatureCollection",features:S.records.map(g=>({type:"Feature",properties:{o:g.o,c:g.c??9999,b:g.b?1:0},geometry:{type:"Point",coordinates:g.ll}}))};q.on("load",()=>{if(s===At){q.addSource("zk",{type:"geojson",data:{type:"Feature",geometry:S.zoneK,properties:{}}}),q.addLayer({id:"zk-fill",type:"fill",source:"zk",paint:{"fill-color":"#22406A","fill-opacity":.05}}),q.addLayer({id:"zk-line",type:"line",source:"zk",paint:{"line-color":"#B85C35","line-width":2.4,"line-dasharray":[2,1.2]}}),q.addSource("rec",{type:"geojson",data:r}),q.addLayer({id:"rec-a",type:"circle",source:"rec",paint:{"circle-radius":["interpolate",["linear"],["zoom"],14,2.6,17,5.5],"circle-color":"#22406A","circle-opacity":.75,"circle-stroke-color":"#fff","circle-stroke-width":.8}}),q.addLayer({id:"rec-o",type:"circle",source:"rec",paint:{"circle-radius":["interpolate",["linear"],["zoom"],14,5,17,10],"circle-color":"#2F9E6B","circle-opacity":.9,"circle-stroke-color":"#fff","circle-stroke-width":1.5}}),q.addLayer({id:"rec-c",type:"circle",source:"rec",paint:{"circle-radius":["interpolate",["linear"],["zoom"],14,5,17,10],"circle-color":"rgba(0,0,0,0)","circle-stroke-color":"#D23B3B","circle-stroke-width":2.4}});for(let g of S.points.filter(T=>T.kind==="street")){let T=document.createElement("button");T.type="button",T.className="hist-pin",T.textContent=g.id.slice(1).replace(/^0/,""),T.title=g.label+" \u2014 \uC0AC\uC9C4 \uBCF4\uAE30",T.addEventListener("click",()=>{we(t,g.id),location.hash="#/history/same"}),new maplibregl.Marker({element:T}).setLngLat(g.lnglat).addTo(q)}Vt(t,+p("#hRange",t).value)}});let v=p("#hRange",t),h=p("#hPlay",t),x=null,w=()=>{clearTimeout(x),x=null,h.textContent="\u25B6",h.setAttribute("aria-label","\uC7AC\uC0DD")},E=()=>{let g=+v.value;if(g>=2026){w();return}v.value=g+1,Vt(t,g+1),x=it(E,1100)};h.addEventListener("click",()=>{if(x){w();return}+v.value>=2026&&(v.value=2009,Vt(t,2009)),h.textContent="\u275A\u275A",h.setAttribute("aria-label","\uBA48\uCDA4"),x=it(E,700)}),v.addEventListener("input",()=>{w(),Vt(t,+v.value)})}function Vt(t,s){p("#hYr",t).textContent=s===2026?"2026.10":s;let a=S.yearly.zone.find(l=>l.y===s),e=S.yearly.band.find(l=>l.y===s);p("#hCnt",t).innerHTML=`<span><b>${a.a}</b>\uAC74 \uC601\uC5C5 \uC911 <small>\uAD6C\uC5ED</small></span><span><b>${e.a}</b>\uAC74 <small>\uBD09\uB9AC\uB2E8\uAE38</small></span><span class="o">\uAC1C\uC5C5 <b>${a.o}</b></span><span class="c">\uD3D0\uC5C5 <b>${a.c}</b></span>${s===2011?"<em>2011\uB144 7\uC6D4 \uD589\uC815 \uC77C\uAD04 \uD3D0\uC5C5 \uCC98\uB9AC \uD3EC\uD568</em>":""}`,!(!q||!q.getLayer("rec-a"))&&(q.setFilter("rec-a",["all",["<=",["get","o"],s],[">",["get","c"],s],["!=",["get","o"],s]]),q.setFilter("rec-o",["==",["get","o"],s]),q.setFilter("rec-c",["==",["get","c"],s]))}var ma=null;function ha(t){let s=S.points.filter(l=>l.kind==="street"),a=S.points.filter(l=>l.kind!=="street"),e=l=>`<button type="button" role="tab" data-pt="${n(l.id)}"><b>${n(l.id.replace(/^R0?/,"").replace(/^S0?/,""))}</b>${n(l.label.replace(/\s*\(\d+m\)$/,"").replace(/^대상지 \d+번 · /,""))}</button>`;p("#hTabs",t).innerHTML=s.map(e).join(""),p("#hTabs2",t).innerHTML=a.map(e).join(""),t.addEventListener("click",l=>{let o=l.target.closest("[data-pt]");o&&t.contains(o)&&we(t,o.dataset.pt)}),we(t,"R07")}function we(t,s){let a=S.points.find(o=>o.id===s);if(!a)return;ma=a,L("[data-pt]",t).forEach(o=>{let i=o.dataset.pt===s;o.classList.toggle("on",i),o.setAttribute("aria-selected",String(i))});let e=a.shots,l=e.at(-1);Ke(t,a,e[0],l),p("#hDates",t).innerHTML=`<span>\uADF8\uB54C:</span>${e.slice(0,-1).map((o,i)=>`<button type="button" data-d="${i}" class="${i===0?"on":""}">${n(D(o.date))}</button>`).join("")}<span class="now">\uC9C0\uAE08: ${n(D(l.date))}</span>`,p("#hDates",t).onclick=o=>{let i=o.target.closest("[data-d]");i&&(L("[data-d]",t).forEach(c=>c.classList.toggle("on",c===i)),Ke(t,a,e[+i.dataset.d],l))}}function Ke(t,s,a,e){let l=p("#hCmp",t);l.innerHTML=`<div class="cmp" style="--x:50%"><img class="cmp-b" src="${Zt(e.img)}" srcset="${Qt(e.img)}" sizes="(max-width:900px) 100vw, 1100px" alt="${n(s.label)} ${n(D(e.date))}"><div class="cmp-a"><img src="${Zt(a.img)}" srcset="${Qt(a.img)}" sizes="(max-width:900px) 100vw, 1100px" alt="${n(s.label)} ${n(D(a.date))}"></div>
+    <span class="cmp-t l">\uADF8\uB54C ${n(D(a.date))}</span><span class="cmp-t r">\uC9C0\uAE08 ${n(D(e.date))}</span>
+    <div class="cmp-h" role="slider" tabindex="0" aria-label="\uADF8\uB54C\uC640 \uC9C0\uAE08 \uB098\uB204\uB294 \uC190\uC7A1\uC774" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><i></i></div></div>
+    <div class="cmp-cap"><b>${n(s.label)}</b><a href="${W(na(s.lnglat))}" target="_blank" rel="noopener">\uCE74\uCE74\uC624\uB9F5 \uB85C\uB4DC\uBDF0\uC5D0\uC11C \uBCF4\uAE30 ${m("ext")}</a></div>`;let o=p(".cmp",l),i=p(".cmp-h",o),c=h=>{h=Math.max(0,Math.min(100,h)),o.style.setProperty("--x",h+"%"),i.setAttribute("aria-valuenow",String(Math.round(h)))},r=!1,v=h=>{let x=o.getBoundingClientRect();c((h.clientX-x.left)/x.width*100)};o.addEventListener("pointerdown",h=>{r=!0,o.setPointerCapture(h.pointerId),v(h)}),o.addEventListener("pointermove",h=>{r&&v(h)}),o.addEventListener("pointerup",()=>{r=!1}),i.addEventListener("keydown",h=>{let x=+i.getAttribute("aria-valuenow");h.key==="ArrowLeft"&&(c(x-5),h.preventDefault()),h.key==="ArrowRight"&&(c(x+5),h.preventDefault())}),!_t()&&!o.dataset.hinted&&(o.dataset.hinted="1",o.classList.add("hint"),it(()=>o.classList.remove("hint"),2200))}function fa(t){let s=S.yearly.band.map(l=>l.y),a=l=>{for(let o of["R07","R01","R04"]){let i=S.points.find(r=>r.id===o),c=i?.shots.find(r=>r.date.startsWith(String(l)));if(c)return{s:c,p:i}}return null},e={pub:"\uACF5\uACF5\uC0AC\uC5C5",biz:"\uC0C1\uAD8C",cul:"\uBB38\uD654",stat:"\uD1B5\uACC4",etc:"\uAE30\uD0C0"};p("#hYears",t).innerHTML=s.map(l=>{let o=S.yearly.band.find(v=>v.y===l),i=S.yearly.zone.find(v=>v.y===l),c=S.events.filter(v=>v.y===l),r=a(l);return`<article class="hy ${c.length?"":"quiet"}"><header><b>${l===2026?"2026":l}</b><span>\uBD09\uB9AC\uB2E8\uAE38 ${o.a}\uAC74 <i class="o">+${o.o}</i> <i class="c">\u2212${o.c}</i></span></header>
+      ${r?`<img loading="lazy" src="${Zt(r.s.img,720)}" alt="${n(r.p.label)} ${n(D(r.s.date))}"><small class="hy-ph">${n(r.p.label.replace(/\s*\(\d+m\)$/,""))} \xB7 ${n(D(r.s.date))}</small>`:""}
+      <ul>${c.map(v=>`<li><span class="tag min">${n(e[v.cat]||v.catName)}</span><b>${n(v.title)}</b><p>${n(v.detail)}</p><a href="${W(v.url)}" target="_blank" rel="noopener">${n(v.src)}${v.conf!=="\uD655\uC778"?" (\uC5F0\uB3C4 \uCD94\uC815)":""} ${m("ext")}</a></li>`).join("")||`<li class="none">\uC774 \uD574 \uAD6C\uC5ED \uC548 \uAC00\uAC8C\uD615 \uC778\uD5C8\uAC00: \uC601\uC5C5 ${i.a}\uAC74 \xB7 \uAC1C\uC5C5 ${i.o} \xB7 \uD3D0\uC5C5 ${i.c}${l===2011?" (7\uC6D4 \uD589\uC815 \uC77C\uAD04 \uD3D0\uC5C5 \uCC98\uB9AC \uD3EC\uD568)":""}</li>`}</ul></article>`}).join("")+`<article class="hy next"><header><b>2027~</b><span>\uB2E4\uC74C 10\uB144</span></header><ul><li><b>RE:CORE \uC2DC\uBC94\uC0AC\uC5C5</b><p>\uACF5\uC2E4 \uC0C1\uAC00 10\uD638 \uC774\uC0C1\uC744 \uBC29\uBB38\uAC1D \uACF5\uAC04\uC73C\uB85C \uCC44\uC6B0\uACE0, \uC5ED\xB7\uC720\uC801\uACFC \uBD09\uB9AC\uB2E8\uAE38\uC744 \uC787\uC2B5\uB2C8\uB2E4.</p><a href="#/history/next">\uB2E4\uC74C 10\uB144 \uBCF4\uAE30 ${m("arrow")}</a></li></ul></article>`}function ga(t){let s=S.yearly.band,a=s.find(c=>c.y===2016).a,e=s.find(c=>c.y===2022).a,l=s.find(c=>c.y===2025).a,o=[["chart","\uC7AC\uC0DD\uC0AC\uC5C5\uC774 \uAE38\uC744 \uD0A4\uC6E0\uC2B5\uB2C8\uB2E4",`2016~2022\uB144 \uC6D0\uB3C4\uC2EC \uB3C4\uC2DC\uC7AC\uC0DD(\uCD1D\uC0AC\uC5C5\uBE44 467\uC5B5 \uC6D0) \uB3D9\uC548 \uBD09\uB9AC\uB2E8\uAE38 \uAC00\uAC8C(\uAC00\uAC8C\uD615 \uC778\uD5C8\uAC00)\uB294 ${a}\uAC74\uC5D0\uC11C ${e}\uAC74\uC73C\uB85C \uB298\uC5C8\uC2B5\uB2C8\uB2E4. 2017\uB144 \u300C\uBD09\uB9AC\uB2E8\uAE38\u300D\uC774 \uAC80\uC0C9\uC5D0 \uB098\uD0C0\uB0AC\uACE0, 2019\uB144 \uC5B8\uB860\uC774 \u300C\uD654\uB824\uD55C \uBD80\uD65C\u300D\uB85C \uBCF4\uB3C4\uD588\uC2B5\uB2C8\uB2E4.`],["warn","\uC0AC\uC5C5\uC774 \uB05D\uB098\uC790 \uBA48\uCDC4\uC2B5\uB2C8\uB2E4",`2022\uB144 \uB4A4\uB85C \uBD09\uB9AC\uB2E8\uAE38 \uAC00\uAC8C\uB294 ${l}\uAC74 \uC548\uD30E\uC5D0\uC11C \uBA48\uCDC4\uACE0, \uAD6C\uC5ED \uC804\uCCB4\uB294 ${S.headline.zonePeak.y}\uB144 ${S.headline.zonePeak.a}\uAC74\uC774 \uC815\uC810\uC785\uB2C8\uB2E4. 2024\xB72025\uB144\uC5D0\uB294 2\uB144 \uC5F0\uC18D \uB2EB\uB294 \uAC00\uAC8C\uAC00 \uC5EC\uB294 \uAC00\uAC8C\uBCF4\uB2E4 \uB9CE\uC558\uACE0, \uAC80\uC0C9 \uAD00\uC2EC\uB3C4\uB3C4 2018\uB144\uC758 \uC808\uBC18 \uC218\uC900\uC785\uB2C8\uB2E4.`],["map","\uC0AC\uB78C\uC740 \uAC00\uAE4C\uC774 \uC788\uB294\uB370 \uAE38\uC774 \uBE44\uCF1C \uAC11\uB2C8\uB2E4","\uACBD\uC804\uCCA0 \uBD09\uD669\uC5ED\uC774 \uAD6C\uC5ED \uACBD\uACC4\uC5D0\uC11C 71m\uC778\uB370, \uC5ED\uC5D0\uC11C \uC720\uC801\xB7\uAD00\uAD11\uC9C0\uB85C \uAC00\uB294 \uAC00\uC7A5 \uC9E7\uC740 \uAE38 20\uAC1C \uC911 \uAD6C\uC5ED \uC548\uC744 \uC9C0\uB098\uB294 \uAE38\uC740 \uC5C6\uC2B5\uB2C8\uB2E4. \uADF8 \uAE38\uBAA9\uC758 \uBE48 \uC810\uD3EC\uB97C \uB2E4\uC2DC \uCC44\uC6B0\uB294 \uAC83\uC774 RE:CORE\uC785\uB2C8\uB2E4."]],i=S.heritage;if(i){let c=Object.fromEntries(i.layers.map(r=>[r.name.includes("\uD5C8\uC6A9")?"ok":r.name.includes("\uBCF4\uD638")?"pro":"des",r.pct]));o.push(["info","\uD568\uAED8 \uCC59\uAE38 \uAC83 \u2014 \uAD6D\uAC00\uC720\uC0B0 \u300C"+i.name+"\u300D",`\uAC1C\uBC1C\uC774 \uBAA8\uB450 \uB9C9\uD78C \uACF3\uC740 \uC544\uB2D9\uB2C8\uB2E4. \uD655\uC815 \uAD6C\uC5ED\uACC4\uC758 ${c.ok}%\uB294 \uAE30\uC900 \uC548\uC5D0\uC11C \uAC74\uCD95\uC774 \uB418\uB294 \u300C\uC5ED\uC0AC\uBB38\uD654\uD658\uACBD \uD604\uC0C1\uBCC0\uACBD \uD5C8\uC6A9\uAE30\uC900\u300D \uAD6C\uC5ED\uC774\uACE0, \uC9C0\uC815\uAD6C\uC5ED ${c.des}%\xB7\uBCF4\uD638\uAD6C\uC5ED ${c.pro}%\uB294 \uB354 \uC5C4\uACA9\uD569\uB2C8\uB2E4(${i.designation}, ${i.date.slice(0,4)}\uB144 \uC9C0\uC815). \uACE0\uCE58\uACE0 \uC9D3\uB294 \uACC4\uD68D\uB9C8\uB2E4 \uAD6C\uC5ED\uBCC4 \uB192\uC774\xB7\uD615\uD0DC \uAE30\uC900\uACFC \uD604\uC0C1\uBCC0\uACBD \uD5C8\uAC00\uB97C \uD568\uAED8 \uBD10\uC57C \uD569\uB2C8\uB2E4.`])}p("#hWhy",t).innerHTML=o.map(([c,r,v])=>`<div class="card hist-why"><span class="vicon">${m(c)}</span><h3>${n(r)}</h3><p>${n(v)}</p></div>`).join(""),p("#hFuture",t).innerHTML=`<ol>${S.future.map(c=>`<li><b>${n(c.when)}</b><span>${n(c.title)}</span></li>`).join("")}</ol><p class="cap">\uC77C\uC815\uC740 \uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uAE30\uC900 \uC7A0\uC815\uC774\uBA70 \uACF5\uACE0 \uB54C \uBC14\uB014 \uC218 \uC788\uC2B5\uB2C8\uB2E4.</p>`}function ba(t){p("#hSrc",t).innerHTML=`<h3>\uC790\uB8CC\uC640 \uC8FC\uC758</h3><ul>
+    <li>${n(S.note.photo)}</li><li>${n(S.note.license)}</li><li>${n(S.note.events)}</li><li>${n(S.note.money)}</li>
+    <li>${n(S.note.trend)}</li>${S.heritage?`<li>\uAD6D\uAC00\uC720\uC0B0 \uAD6C\uC5ED: ${n(S.heritage.src)} \uACBD\uACC4\uB85C \uD655\uC815 \uAD6C\uC5ED\uACC4\uC640 \uACB9\uCE5C \uBA74\uC801\uC744 \uACC4\uC0B0(2026-10-13)</li>`:""}
+    <li>\uAC00\uAC8C \uC218\uB294 \uC778\uD5C8\uAC00\uAC00 \uD544\uC694\uD55C \uC5C5\uC885 \uC911 \uC190\uB2D8\uC774 \uCC3E\uC544\uC624\uB294 \uAC00\uAC8C\uD615\uB9CC \uC149\uB2C8\uB2E4. \uC778\uD5C8\uAC00\uAC00 \uC5C6\uB294 \uC18C\uB9E4\uC810\xB7\uC0AC\uBB34\uC2E4\xB7\uACF5\uBC29\uC740 \uBE60\uC838 \uC2E4\uC81C \uAC00\uAC8C \uC218\uC640 \uB2E4\uB985\uB2C8\uB2E4.</li></ul>`}function $a(t){let s=()=>[t.querySelector(".hist-hero"),...L(".hist-sec",t)].filter(i=>i&&i.id!=="s-src"),a=p("#hPbar",t),e=0,l=i=>{let c=s();e=Math.max(0,Math.min(c.length-1,i)),c[e].scrollIntoView({behavior:_t()?"instant":"smooth",block:"start"}),p("#hPnum",t).textContent=`${e+1} / ${c.length}`},o=()=>{document.documentElement.classList.remove("hist-presenting"),a.hidden=!0,at&&(removeEventListener("keydown",at),at=null),document.fullscreenElement&&document.exitFullscreen?.().catch(()=>{})};p("#hPresent",t).addEventListener("click",()=>{document.documentElement.classList.add("hist-presenting"),a.hidden=!1,document.documentElement.requestFullscreen?.().catch(()=>{}),at=i=>{["ArrowRight","PageDown"," "].includes(i.key)?(i.preventDefault(),l(e+1)):["ArrowLeft","PageUp"].includes(i.key)?(i.preventDefault(),l(e-1)):i.key==="Escape"&&o()},addEventListener("keydown",at),l(0),H("\u2190 \u2192 \uD0A4\uB85C \uC7A5\uBA74\uC744 \uB118\uAE30\uACE0, Esc\uB85C \uB05D\uB0C5\uB2C8\uB2E4")}),a.addEventListener("click",i=>{let c=i.target.closest("[data-p]");c&&(c.dataset.p==="next"?l(e+1):c.dataset.p==="prev"?l(e-1):o())})}var A=null,I=0,ot=[],Ge=null,Yt=0;function ya(t){return{title:"\uB2E4\uC74C \uC77C\uC815",text:(t.schedule||[]).filter(a=>Y(a)).slice(0,4).map(a=>`${a.month_only?`${+a.date.slice(5,7)}\uC6D4 \uC911`:K(a.date)} \u2014 ${a.title}`).join(`
+`)}}async function nt(){let t=++Yt,s=ot[I],a=A.querySelector(".tour-box");a.classList.remove("in"),a.offsetWidth,a.classList.add("in"),A.querySelector(".tour-k").textContent=s.k,A.querySelector(".tour-t").textContent=s.title,A.querySelector(".tour-x").innerHTML=n(s.text).replace(/\n/g,"<br>");let e=A.querySelector(".tour-go");e.href=`#/${s.route}`,e.lastChild.textContent=s.cta,A.querySelector(".tour-dots").innerHTML=ot.map((i,c)=>`<button class="${c===I?"on":""}" data-i="${c}" aria-label="${c+1}\uBC88\uC9F8 \uC7A5"></button>`).join(""),A.querySelector(".tour-prev").disabled=I===0,A.querySelector(".tour-next").textContent=I===ot.length-1?"\uCC98\uC74C\uC73C\uB85C":"\uB2E4\uC74C";let l=A.querySelector(".tour-im img");l.style.opacity="0";let o=await et(s.img);t!==Yt||!A.classList.contains("open")||(l.onload=()=>{t===Yt&&(l.style.opacity="1")},l.src=o)}function Le(){if(!A)return;Yt++,A.classList.remove("open");let t=document.getElementById("main"),s=document.getElementById("hd");t&&(t.inert=!1),s&&(s.inert=!1);try{localStorage.setItem("gm-tour-seen","1")}catch{}document.querySelector(".tour-chip")?.remove(),Ge?.focus?.()}function Ve(t){if(ot=(t.tour||[]).map(e=>e.dynamic==="schedule"?{...e,...ya(t)}:e),!ot.length)return;if(Ge=document.activeElement,!A){A=document.createElement("div"),A.className="tour",A.setAttribute("role","dialog"),A.setAttribute("aria-modal","true"),A.setAttribute("aria-label","3\uBD84 \uB458\uB7EC\uBCF4\uAE30"),A.innerHTML=`<div class="tour-dim"></div>
+      <div class="tour-box">
+        <button class="tour-close" aria-label="\uB2EB\uAE30">${m("close")}</button>
+        <div class="tour-im"><img alt=""></div>
+        <div class="tour-tx">
+          <div class="tour-k"></div><h2 class="tour-t"></h2><p class="tour-x"></p>
+          <div class="tour-act"><a class="btn line tour-go" href="#/">${m("arrow")}<span></span></a></div>
+          <div class="tour-nav"><button class="btn line tour-prev">\uC774\uC804</button><div class="tour-dots"></div><button class="btn pri tour-next">\uB2E4\uC74C</button></div>
+        </div>
+      </div>`,document.body.appendChild(A),A.addEventListener("click",l=>{if(l.target.closest(".tour-close")||l.target.classList.contains("tour-dim")||l.target.closest(".tour-go"))return Le();l.target.closest(".tour-prev")&&I>0&&(I--,nt()),l.target.closest(".tour-next")&&(I=I<ot.length-1?I+1:0,nt());let o=l.target.closest(".tour-dots button");o&&(I=+o.dataset.i,nt())}),document.addEventListener("keydown",l=>{if(A.classList.contains("open")&&(l.key==="Escape"&&Le(),l.key==="ArrowRight"&&I<ot.length-1&&(I++,nt()),l.key==="ArrowLeft"&&I>0&&(I--,nt()),l.key==="Tab")){let o=[...A.querySelectorAll("a[href],button")].filter(i=>!i.disabled&&i.offsetParent!==null);if(o.length){let i=o[0],c=o[o.length-1];l.shiftKey&&document.activeElement===i?(l.preventDefault(),c.focus()):!l.shiftKey&&document.activeElement===c&&(l.preventDefault(),i.focus())}}});let e=null;A.addEventListener("touchstart",l=>{e=l.touches[0].clientX},{passive:!0}),A.addEventListener("touchend",l=>{if(e===null)return;let o=l.changedTouches[0].clientX-e;e=null,o<-50&&I<ot.length-1?(I++,nt()):o>50&&I>0&&(I--,nt())})}document.querySelector(".tour-chip")?.remove();try{localStorage.setItem("gm-tour-seen","1")}catch{}I=0,A.classList.add("open");let s=document.getElementById("main"),a=document.getElementById("hd");s&&(s.inert=!0),a&&(a.inert=!0),nt(),setTimeout(()=>A.querySelector(".tour-next")?.focus(),50)}function Ze(t){let s=!1;try{s=localStorage.getItem("gm-tour-seen")==="1"}catch{}if(s||document.querySelector(".tour-chip"))return;let a=document.createElement("div");a.className="tour-chip",a.innerHTML=`<span>\uCC98\uC74C \uC624\uC168\uB098\uC694? \uC0AC\uC5C5 \uC804\uCCB4\uB97C <b>3\uBD84</b>\uC5D0 \uB458\uB7EC\uBCF4\uC138\uC694</span><button class="btn pri" data-tour>\uB458\uB7EC\uBCF4\uAE30</button><button class="tour-chip-x" aria-label="\uC548\uB0B4 \uB2EB\uAE30">${m("close")}</button>`,document.body.appendChild(a),a.addEventListener("click",e=>{if(e.target.closest(".tour-chip-x")){try{localStorage.setItem("gm-tour-seen","1")}catch{}a.remove()}})}var yt="",J=null,Jt=!1,Xt=null,Se=null,X=[],Qe="gm-ask-v1",xa=["\uACF5\uC2E4\uC0C1\uAC00 10\uD638\uB294 \uC5B4\uB5BB\uAC8C \uC138\uB098\uC694?","\uD655\uC815 \uAD6C\uC5ED\uACC4 \uBA74\uC801\uACFC \uAD8C\uC7A5 \uAE30\uC900\uC740?","\uC0AC\uC804\uCEE8\uC124\uD305\uC740 \uBA87 \uBC88, \uC5B8\uC81C\uAE4C\uC9C0 \uBC1B\uB098\uC694?","\uAE40\uD574\uC2DC\uAC00 \uBD80\uB2F4\uD560 \uC9C0\uBC29\uBE44\uB294 \uC5BC\uB9C8\uC778\uAC00\uC694?"],Ye=()=>{try{sessionStorage.setItem(Qe,JSON.stringify(X.filter(t=>t.done).slice(-12)))}catch{}},Me=()=>!!yt;function Je(t){let s=new URLSearchParams(location.search).get("ask");if(yt=s&&/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(s)?s:t?.meta?.ask_url||"",!/^https?:\/\//.test(yt))return yt="",!1;try{X=JSON.parse(sessionStorage.getItem(Qe)||"[]")}catch{X=[]}document.documentElement.classList.add("has-ask"),document.body.insertAdjacentHTML("beforeend",`
+  <button class="askfab no-print" id="askFab" type="button" aria-label="AI \uB3C4\uC6B0\uBBF8\uC5D0\uAC8C \uBB3B\uAE30">${m("spark")}<span>AI<span class="askfab-w"> \uB3C4\uC6B0\uBBF8</span></span></button>
+  <div class="ask" id="ask" role="dialog" aria-label="AI \uB3C4\uC6B0\uBBF8" aria-modal="true">
+    <div class="ask-dim" data-ask-close></div>
+    <section class="ask-box">
+      <header class="ask-hd">
+        <span class="ask-ic">${m("spark")}</span>
+        <div class="ask-tt"><b>AI \uB3C4\uC6B0\uBBF8</b><small>\uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uC6D0\uBB38\uACFC \uC774 \uB204\uB9AC\uC9D1 \uC790\uB8CC\uB85C\uB9CC \uB2F5\uD569\uB2C8\uB2E4</small></div>
+        <button class="ibtn" type="button" data-ask-new>\uC0C8 \uB300\uD654</button>
+        <button class="ibtn" type="button" data-ask-close aria-label="\uB2EB\uAE30">${m("close")}</button>
+      </header>
+      <div class="ask-log" id="askLog" aria-live="polite"></div>
+      <form class="ask-in" id="askForm">
+        <textarea id="askQ" rows="1" maxlength="500" placeholder="\uAD81\uAE08\uD55C \uAC83\uC744 \uBB3C\uC5B4\uBCF4\uC138\uC694" aria-label="\uC9C8\uBB38"></textarea>
+        <button type="submit" class="ask-send" id="askSend" aria-label="\uBCF4\uB0B4\uAE30">${m("arrow")}</button>
+      </form>
+      <p class="ask-note">AI \uB2F5\uBCC0\uC740 \uD2C0\uB9B4 \uC218 \uC788\uC2B5\uB2C8\uB2E4. \uC911\uC694\uD55C \uB0B4\uC6A9\uC740 \uADFC\uAC70\uB85C \uBD99\uC740 \uC6D0\uBB38\uC73C\uB85C \uAF2D \uD655\uC778\uD558\uC138\uC694.</p>
+    </section>
+  </div>`),J=p("#ask"),p("#askFab").addEventListener("click",()=>ee());let a=scrollY;addEventListener("scroll",()=>{let o=scrollY,i=o-a;Math.abs(i)<6||(p("#askFab").classList.toggle("tuck",i>0&&o>240),a=o)},{passive:!0}),J.addEventListener("click",o=>{if(o.target.closest("[data-ask-close]")){Ee();return}if(o.target.closest("[data-ask-new]")){Jt&&Xt?.abort(),X=[],Ye(),xt(),p("#askQ").focus();return}let i=o.target.closest("[data-ask-ex]");if(i){te(i.dataset.askEx);return}let c=o.target.closest("[data-ask-copy]");if(c){let r=X[+c.dataset.askCopy];r&&ft(La(r),c,"\uB2F5\uC744 \uBCF5\uC0AC\uD588\uC2B5\uB2C8\uB2E4");return}o.target.closest('a[href^="#/"]')&&innerWidth<900&&Ee()});let e=p("#askQ");e.addEventListener("input",()=>{e.style.height="auto",e.style.height=Math.min(e.scrollHeight,140)+"px"});let l=!1;return e.addEventListener("compositionstart",()=>{l=!0}),e.addEventListener("compositionend",()=>{setTimeout(()=>{l=!1},0)}),e.addEventListener("keydown",o=>{o.key==="Enter"&&!o.shiftKey&&!o.isComposing&&!l&&o.keyCode!==229&&(o.preventDefault(),te(e.value))}),p("#askForm").addEventListener("submit",o=>{o.preventDefault(),te(e.value)}),J.addEventListener("keydown",o=>{if(o.key==="Escape"&&(o.stopPropagation(),Ee()),o.key==="Tab"){let i=L("button,a[href],textarea",J).filter(c=>c.offsetParent!==null&&!c.disabled);if(!i.length)return;o.shiftKey&&document.activeElement===i[0]?(o.preventDefault(),i.at(-1).focus()):!o.shiftKey&&document.activeElement===i.at(-1)&&(o.preventDefault(),i[0].focus())}}),xt(),!0}function ee(t){J&&(J.classList.contains("open")||(Se=document.activeElement,J.classList.add("open"),document.documentElement.classList.add("ask-open")),xt(),setTimeout(()=>p("#askQ").focus(),30),t&&te(t))}function Ee(){J?.classList.contains("open")&&(J.classList.remove("open"),document.documentElement.classList.remove("ask-open"),Se?.focus?.(),Se=null)}function wa(t,s){let a=s?.[t-1];if(!a)return"";let e=Array.isArray(a.page)?a.page[0]:a.page;return a.kind==="guide"&&e?`<button class="cite" data-doc="guide91" data-page="${e}" title="${n(a.label)}">${t}</button>`:a.route?`<a class="cite" href="#/${st(a.route)}" title="${n(a.label)}">${t}</a>`:`<span class="cite">${t}</span>`}function ka(t,s){let a="",e=!1;for(let l of n(t).split(`
+`)){let o=l.trim();if(!o){e&&(a+="</ul>",e=!1);continue}let i=/^[-•·*]\s+/.test(o),c=o.replace(/^[-•·*]\s+/,"").replace(/^#+\s*/,"").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\[(\d{1,2})\]/g,(r,v)=>wa(+v,s));i?(e||(a+="<ul>",e=!0),a+=`<li>${c}</li>`):(e&&(a+="</ul>",e=!1),a+=`<p>${c}</p>`)}return a+(e?"</ul>":"")}var La=t=>`\uC9C8\uBB38: ${t.q}
+
+${t.a.replace(/\[(\d{1,2})\]/g,"").trim()}
+
+\uADFC\uAC70: ${Xe(t).map(s=>s.label).join(" / ")}`;function Xe(t){let s=t.src||[],a=[...new Set([...(t.a||"").matchAll(/\[(\d{1,2})\]/g)].map(e=>+e[1]))].filter(e=>s[e-1]);return a.length?a.map(e=>({...s[e-1],n:e})):s.slice(0,3).map((e,l)=>({...e,n:l+1}))}function Ea(t){let s=new Set,a=Xe(t).map(e=>{let l=Array.isArray(e.page)?e.page[0]:e.page,o=e.kind==="guide"?`g${l}`:`s${e.route}|${e.label}`;if(s.has(o))return"";s.add(o);let i=e.kind==="guide"?`\uC6D0\uBB38 ${l}\uCABD`:e.label.replace(/^(자주 묻는 질문|요건 점검|사업 소개|계획 구상|용어|원도심 지표|현장|회의·결정·기록|일정·할 일) · /,"$1: ");return e.kind==="guide"&&l?`<button class="src" title="${n(i)}" data-doc="guide91" data-page="${l}"><i>${e.n}</i>${m("file")}<span class="srcl">${n(i)}</span></button>`:e.url?`<a class="src" title="${n(i)} (\uC0C8 \uCC3D)" href="${W(e.url)}" target="_blank" rel="noopener"><i>${e.n}</i>${m("ext")}<span class="srcl">${n(i)}</span></a>`:e.route?`<a class="src" title="${n(i)}" href="#/${st(e.route)}"><i>${e.n}</i><span class="srcl">${n(i)}</span></a>`:""}).join("");return a?`<div class="ask-src"><small>\uADFC\uAC70</small>${a}</div>`:""}function xt(){let t=p("#askLog");if(t){if(!X.length){t.innerHTML=`<div class="ask-empty">
+      <p><b>RE:CORE \uC0AC\uC5C5\uACFC \uAE40\uD574 \uC6D0\uB3C4\uC2EC\uC5D0 \uB300\uD574 \uBB3C\uC5B4\uBCF4\uC138\uC694.</b><br>\uAC00\uC774\uB4DC\uB77C\uC778(\uC548) 91\uCABD \uC6D0\uBB38\uACFC \uC774 \uB204\uB9AC\uC9D1\uC5D0 \uC815\uB9AC\uD55C \uC790\uB8CC\uC5D0\uC11C \uCC3E\uC544 \uB2F5\uD558\uACE0, \uADFC\uAC70 \uCABD\uC218\uB97C \uBD99\uC5EC \uB4DC\uB9BD\uB2C8\uB2E4.</p>
+      <div class="ask-ex">${xa.map(s=>`<button type="button" data-ask-ex="${n(s)}">${n(s)}</button>`).join("")}</div>
+      <p class="ask-small">\uAC00\uACA9\xB7\uC18C\uC720\uC790 \uC758\uD5A5\xB7\uAC1C\uC778\uC815\uBCF4\uB294 \uC774 \uB204\uB9AC\uC9D1\uC5D0 \uC2E3\uC9C0 \uC54A\uC544 \uB2F5\uD558\uC9C0 \uC54A\uC2B5\uB2C8\uB2E4.</p></div>`;return}t.innerHTML=X.map((s,a)=>`
+    <div class="ask-q"><p>${n(s.q)}</p></div>
+    <div class="ask-a${s.err?" err":""}">
+      ${s.err&&!s.a?`<p>${n(s.err)}</p>`:s.a?ka(s.a,s.src):'<p class="ask-wait"><span></span><span></span><span></span> \uC790\uB8CC\uB97C \uCC3E\uC544 \uB2F5\uC744 \uC4F0\uB294 \uC911\uC785\uB2C8\uB2E4</p>'}
+      ${s.err&&s.a?`<p class="ask-errline">${n(s.err)}</p>`:""}
+      ${s.done&&s.a&&s.fin&&!s.err?Ea(s)+`<div class="ask-act"><button type="button" class="copy" data-ask-copy="${a}">${m("copy")}\uB2F5 \uBCF5\uC0AC</button></div>`:""}
+    </div>`).join(""),t.scrollTop=t.scrollHeight}}var Rt=0,Sa=()=>{Rt||(Rt=setTimeout(()=>{Rt=0,xt()},60))};async function te(t){let s=String(t||"").trim().slice(0,500);if(!s||Jt||!yt)return;let a=p("#askQ");a.value="",a.style.height="auto";let e=X.filter(o=>o.done&&o.fin&&o.a&&!o.err).slice(-2).map(o=>({q:o.q,a:o.a.slice(0,600)})),l={q:s,a:"",src:[],done:!1};X.push(l),Jt=!0,p("#askSend").disabled=!0,xt(),Xt=new AbortController;try{let o=await fetch(`${yt}/ask`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({q:s,history:e}),signal:Xt.signal});if(!o.ok||!o.body){let v=await o.json().catch(()=>({}));throw new Error(v.error||"\uB2F5\uC744 \uBC1B\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC7A0\uC2DC \uB4A4 \uB2E4\uC2DC \uBB3C\uC5B4 \uC8FC\uC138\uC694.")}let i=o.body.getReader(),c=new TextDecoder,r="";for(;;){let{value:v,done:h}=await i.read();if(h)break;r+=c.decode(v,{stream:!0});let x;for(;(x=r.indexOf(`
+
+`))>=0;){let w=r.slice(0,x);r=r.slice(x+2);let E=/^event: (.+)$/m.exec(w)?.[1],g=null;try{g=JSON.parse(/^data: (.*)$/m.exec(w)?.[1]||"null")}catch{}E==="sources"?l.src=g||[]:E==="delta"?l.a+=g?.t||"":E==="content_block_delta"&&g?.delta?.type==="text_delta"?l.a+=g.delta.text||"":E==="reset"?l.a=g?.t||"":E==="error"?l.err=g?.msg||(g?.error?.type==="overloaded_error"?"\uC9C0\uAE08 AI \uC774\uC6A9\uC774 \uBAB0\uB824 \uC788\uC2B5\uB2C8\uB2E4. \uC7A0\uC2DC \uB4A4 \uB2E4\uC2DC \uBB3C\uC5B4 \uC8FC\uC138\uC694.":"\uB2F5\uC744 \uB9CC\uB4DC\uB294 \uC911 \uBB38\uC81C\uAC00 \uC0DD\uACBC\uC2B5\uB2C8\uB2E4. \uC7A0\uC2DC \uB4A4 \uB2E4\uC2DC \uBB3C\uC5B4 \uC8FC\uC138\uC694."):E==="done"&&(l.fin=!0,g?.stop==="max_tokens"&&(l.err="\uB2F5\uC774 \uAE38\uC5B4 \uC911\uAC04\uC5D0\uC11C \uB04A\uACBC\uC2B5\uB2C8\uB2E4. \uC9C8\uBB38\uC744 \uB098\uB220 \uB2E4\uC2DC \uBB3C\uC5B4 \uC8FC\uC138\uC694.")),Sa()}}!l.a&&!l.err?l.err="\uB2F5\uC744 \uBC1B\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC7A0\uC2DC \uB4A4 \uB2E4\uC2DC \uBB3C\uC5B4 \uC8FC\uC138\uC694.":!l.fin&&!l.err&&(l.err="\uC5F0\uACB0\uC774 \uB04A\uACA8 \uB2F5\uC774 \uC911\uAC04\uC5D0\uC11C \uBA48\uCDC4\uC2B5\uB2C8\uB2E4. \uB2E4\uC2DC \uBB3C\uC5B4 \uC8FC\uC138\uC694.")}catch(o){l.err=o.name==="AbortError"?"\uC9C8\uBB38\uC744 \uBA48\uCDC4\uC2B5\uB2C8\uB2E4.":/Failed to fetch|NetworkError|Load failed/i.test(o.message)?"\uC5F0\uACB0\uC774 \uB04A\uACBC\uC2B5\uB2C8\uB2E4. \uC778\uD130\uB137 \uC5F0\uACB0\uC744 \uD655\uC778\uD558\uACE0 \uB2E4\uC2DC \uBB3C\uC5B4 \uC8FC\uC138\uC694.":o.message}finally{l.done=!0,Jt=!1,Xt=null;let o=p("#askSend");o&&(o.disabled=!1),clearTimeout(Rt),Rt=0,xt(),Ye()}}var It=[{label:"\uC0AC\uC5C5 \uC18C\uAC1C",route:"guide",icon:"book",items:[["\uD55C\uB208\uC5D0 \uC694\uC57D","guide","sum"],["\uC9C0\uC6D0 \uADDC\uBAA8","guide","money"],["\uC2E0\uCCAD \uC694\uAC74","guide","req"],["\uC120\uC815 \uBC29\uC2DD","guide","eval"],["\uCD94\uC9C4 \uCCB4\uACC4","guide","actors"],["\uC77C\uC815\xB7\uC11C\uB958","guide","sched"],["\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38","guide","faq"],["\uC6A9\uC5B4 \uD480\uC774","guide","terms"]]},{label:"\uAE40\uD574 \uC6D0\uB3C4\uC2EC",route:"sites",icon:"map",items:[["\uB300\uC0C1\uC9C0 \uC9C0\uB3C4","sites","map"],["\uAD6C\uC5ED\uACC4 \uBE44\uAD50","sites","zones"],["\uB300\uC0C1\uC9C0 13\uACF3","sites","cards"],["\uBD09\uB9AC\uB2E8\uAE38 10\uB144","history",""],["\uD604\uC7A5 \uBAA9\uC18C\uB9AC","field","voice"],["\uC1E0\uD1F4 \uC694\uAC74","field","decline"],["\uC6D0\uB3C4\uC2EC \uC9C0\uD45C","field","ind"]]},{label:"\uCD94\uC9C4 \uD604\uD669",route:"check",icon:"list",items:[["\uC694\uAC74 \uC810\uAC80\uD45C","check",""],["\uC8FC\uC694 \uD68C\uC758","log","meet"],["\uC8FC\uC694 \uACB0\uC815","log","dec"],["\uC9C4\uD589 \uAE30\uB85D","log","tl"]]},{label:"\uACC4\uD68D \uAD6C\uC0C1",route:"plan",icon:"bulb",items:[["\uC815\uD574\uC9C4 \uBC29\uD5A5","plan","dir"],["\uC0AC\uC5C5 \uAD6C\uC870","plan","struct"],["\uD575\uC2EC \uAC70\uC810","plan","hub"],["\uBB38\uD654 \uCF58\uD150\uCE20","plan","culture"],["\uAD6C\uC0C1\uB3C4","plan","mp"],["\uD568\uAED8 \uC815\uD560 \uAC83","plan","open"]]},{label:"\uC77C\uC815\xB7\uD560 \uC77C",route:"todo",icon:"cal",items:[["\uC77C\uC815 \uB2EC\uB825","todo","cal"],["\uC5ED\uD560\uBCC4 \uD560 \uC77C","todo","roles"],["\uC694\uCCAD \uC790\uB8CC","todo","req"]]},{label:"\uC790\uB8CC\uC2E4",route:"library",icon:"folder",items:[["\uC790\uB8CC \uBAA9\uB85D","library",""],["\uBD84\uC11D \uC9C0\uB3C4","field","tools"],["\uBCF4\uACE0\uC6A9 1\uC7A5","brief",""]]}],ts={guide:{group:0,label:"\uC0AC\uC5C5 \uC18C\uAC1C"},sites:{group:1,label:"\uB300\uC0C1\uC9C0"},field:{group:1,label:"\uD604\uC7A5\xB7\uB370\uC774\uD130"},history:{group:1,label:"\uBD09\uB9AC\uB2E8\uAE38 10\uB144"},check:{group:2,label:"\uC694\uAC74 \uC810\uAC80\uD45C"},log:{group:2,label:"\uD68C\uC758\xB7\uACB0\uC815\xB7\uAE30\uB85D"},plan:{group:3,label:"\uACC4\uD68D \uAD6C\uC0C1"},todo:{group:4,label:"\uC77C\uC815\xB7\uD560 \uC77C"},library:{group:5,label:"\uC790\uB8CC \uBAA9\uB85D"},brief:{group:5,label:"\uBCF4\uACE0\uC6A9 1\uC7A5"}},lt=(t,s)=>`#/${t}${s?"/"+s:""}`,es='<svg viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="13" fill="#22406A"/><circle cx="24" cy="24" r="17.5" fill="none" stroke="#fff" stroke-opacity=".18" stroke-width="1.2"/><path d="M8 32c3.9-9.6 9.2-14.4 16-14.4S36.1 22.4 40 32" fill="#4F8468"/><path d="M6 32.6h36" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><rect x="19.6" y="24.4" width="8.8" height="8.2" rx="1.2" fill="#B85C35"/><rect x="22.6" y="27.4" width="2.8" height="5.2" fill="#F6E7DE"/><circle cx="35" cy="13" r="3.2" fill="#F4D58D"/></svg>';function ss(){return`
+  <div class="util" role="navigation" aria-label="\uBC14\uB85C\uAC00\uAE30">
+    <div class="wrap">
+      <span class="util-l">2027 \uAC70\uC810\uD2B9\uD654 \uC6D0\uB3C4\uC2EC <b>RE:CORE</b> \uD504\uB85C\uC81D\uD2B8 \xB7 \uAE40\uD574 \uC6D0\uB3C4\uC2EC \uC0AC\uC5C5 \uC548\uB0B4</span>
+      <span class="util-r">
+        <a href="#/guide/faq">\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38</a><a href="#/library">\uC790\uB8CC\uC2E4</a><a href="#/brief">\uBCF4\uACE0\uC6A9 1\uC7A5</a><button type="button" data-tour>3\uBD84 \uB458\uB7EC\uBCF4\uAE30</button>
+      </span>
+    </div>
+  </div>
+  <header class="hd" id="hd"><div class="wrap">
+    <a class="brand" href="#/" aria-label="\uAE40\uD574 \uC6D0\uB3C4\uC2EC RE:CORE \uCC98\uC74C\uC73C\uB85C">${es}<span><b>\uAE40\uD574 \uC6D0\uB3C4\uC2EC <em>RE:CORE</em></b><small>\uB2E4\uC2DC \uCC44\uC6B0\uACE0, \uB2E4\uC2DC \uC0B4\uC544\uB098\uB294 \uC6D0\uB3C4\uC2EC</small></span></a>
+    <nav class="gnb" aria-label="\uC8FC\uC694 \uBA54\uB274">
+      ${It.map((t,s)=>`<a href="${lt(t.route)}" data-g="${s}">${n(t.label)}</a>`).join("")}
+      <div class="mega" aria-hidden="true"><div class="mega-in">
+        ${It.map(t=>`<ul>${t.items.map(([s,a,e])=>`<li><a href="${lt(a,e)}" tabindex="-1">${n(s)}</a></li>`).join("")}</ul>`).join("")}
+      </div></div>
+    </nav>
+    <div class="hd-act">
+      <button class="ibtn askbtn" id="openAsk" aria-label="AI \uB3C4\uC6B0\uBBF8\uC5D0\uAC8C \uBB3B\uAE30">${m("spark")}<span class="lbl">AI \uC9C8\uBB38</span></button>
+      <button class="ibtn" id="openSearch" aria-label="\uCC3E\uAE30">${m("search")}<span class="lbl">\uCC3E\uAE30</span><kbd>/</kbd></button>
+      <button class="ibtn allmenu" id="openMenu" aria-label="\uC804\uCCB4\uBA54\uB274 \uC5F4\uAE30">${m("menu")}<span class="lbl">\uC804\uCCB4\uBA54\uB274</span></button>
+    </div>
+  </div></header>`}function as(){return`<div class="drawer" id="drawer" aria-hidden="true"><div class="dim" data-close></div>
+    <div class="pane sitemap" role="dialog" aria-label="\uC804\uCCB4\uBA54\uB274">
+      <div class="sm-top"><b>\uC804\uCCB4\uBA54\uB274</b><button class="ibtn" data-close aria-label="\uB2EB\uAE30">${m("close")}</button></div>
+      <a class="sm-home" href="#/">${m("home")} \uCC98\uC74C \uD654\uBA74</a>
+      <div class="sm-grid">
+        ${It.map(t=>`<section><h3><a href="${lt(t.route)}">${m(t.icon)}${n(t.label)}</a></h3><ul>${t.items.map(([s,a,e])=>`<li><a href="${lt(a,e)}">${n(s)}</a></li>`).join("")}</ul></section>`).join("")}
+      </div>
+      <button class="btn line sm-tour" data-tour>${m("bulb")}3\uBD84 \uB458\uB7EC\uBCF4\uAE30</button>
+    </div></div>`}function is(t){let s=[["\uAD6D\uD1A0\uAD50\uD1B5\uBD80","https://www.molit.go.kr"],["\uBB38\uD654\uCCB4\uC721\uAD00\uAD11\uBD80","https://www.mcst.go.kr"],["\uC911\uC18C\uBCA4\uCC98\uAE30\uC5C5\uBD80","https://www.mss.go.kr"],["\uC8FC\uD0DD\uB3C4\uC2DC\uBCF4\uC99D\uACF5\uC0AC","https://www.khug.or.kr"],["\uACBD\uC0C1\uB0A8\uB3C4","https://www.gyeongnam.go.kr"],["\uAE40\uD574\uC2DC","https://www.gimhae.go.kr"]];return`<footer class="ft">
+    <div class="ft-links"><div class="wrap">
+      ${It.map(a=>`<a href="${lt(a.route)}">${n(a.label)}</a>`).join("")}
+      <span class="sep"></span><span class="cap" style="color:#C9D3E2">\uAD00\uB828 \uAE30\uAD00</span>
+      ${s.map(([a,e])=>`<a href="${e}" target="_blank" rel="noopener">${a}</a>`).join("")}
+    </div></div>
+    <div class="wrap ft-main">
+      <div class="ft-brand">${es}<div><b>\uAE40\uD574 \uC6D0\uB3C4\uC2EC RE:CORE</b><span>2027 \uAC70\uC810\uD2B9\uD654 \uC6D0\uB3C4\uC2EC \uC2DC\uBC94\uC0AC\uC5C5 \xB7 \uAE40\uD574\uC2DC \uCD94\uC9C4</span></div></div>
+      <div class="ft-text">
+        <p>\uC774 \uB204\uB9AC\uC9D1\uC740 \uAE40\uD574 \uC6D0\uB3C4\uC2EC RE:CORE \uC0AC\uC5C5 \uCD94\uC9C4\uC744 \uC9C0\uC6D0\uD558\uAE30 \uC704\uD574 \uC815\uB9AC\xB7\uC6B4\uC601\uD558\uB294 \uC0AC\uC5C5 \uC548\uB0B4 \uB204\uB9AC\uC9D1\uC785\uB2C8\uB2E4(\uAE40\uD574\uC2DC \uACF5\uC2DD \uB204\uB9AC\uC9D1 \uC544\uB2D8). \uC218\uCE58\uB9C8\uB2E4 \uCD9C\uCC98\uB97C \uB2EC\uC558\uACE0 \uD655\uC778\uB418\uC9C0 \uC54A\uC740 \uB0B4\uC6A9\uC740 \u2018\uD655\uC778 \uD544\uC694\u2019\uB85C \uD45C\uC2DC\uD588\uC2B5\uB2C8\uB2E4.</p>
+        <p class="ft-meta">${[t.meta?.asof&&`\uC790\uB8CC \uAE30\uC900 ${t.meta.asof}`,(window.__BUILT||t.meta?.built)&&`\uD654\uBA74 \uAC31\uC2E0 ${window.__BUILT||t.meta.built}`,t.meta?.maker].filter(Boolean).map(n).join(" \xB7 ")}</p>
+      </div>
+    </div>
+  </footer>`}var qt=null;function ns(t,s,a){let e=ts[s];if(!e)return;let l=It[e.group],o=l.items,i=o.filter(([,u,f])=>u===s&&f).map(([,,u])=>u),c=i.map(u=>t.querySelector("#s-"+u)).filter(Boolean),r=t.querySelector(".page-hero .crumb");if(r){let u=c.length&&e.label!==l.label?`<i>\u203A</i><a href="${lt(s)}">${n(e.label)}</a>`:"";r.innerHTML=`<a href="#/">${m("home")}<span class="sr">\uCC98\uC74C</span></a><i>\u203A</i><a href="${lt(l.route)}">${n(l.label)}</a>${u}<i>\u203A</i><b class="crumb-now">${n(e.label)}</b>`}let v=t.querySelector(".page-hero");if(!v)return;let h=`<button type="button" data-pt="print">${m("print")}<span>\uC778\uC1C4</span></button><button type="button" data-pt="link">${m("link")}<span>\uC8FC\uC18C \uBCF5\uC0AC</span></button>`,x=u=>{let f=u.target.closest("[data-pt]");f&&(f.dataset.pt==="print"?(H("\uC778\uC1C4\uD560 \uD654\uBA74\uC744 \uC900\uBE44\uD558\uB294 \uC911\uC785\uB2C8\uB2E4\u2026"),He().then(()=>window.print())):ft(location.href,null,"\uC774 \uD654\uBA74 \uC8FC\uC18C\uB97C \uBCF5\uC0AC\uD588\uC2B5\uB2C8\uB2E4. \uBA54\uC2E0\uC800\xB7\uBA54\uC77C\uC5D0 \uBD99\uC5EC \uB123\uC73C\uC138\uC694"))};if(r&&s!=="brief"){let u=document.createElement("div");u.className="ptools no-print",u.innerHTML=h,u.addEventListener("click",x),v.querySelector(".wrap")?.appendChild(u)}let w=document.createElement("section");w.className="pinfo";let E=window.__BUILT||a.meta?.built;w.innerHTML=`<div class="wrap"><div class="pinfo-in">
+    <ul>
+      <li><b>\uC790\uB8CC \uAE30\uC900\uC77C</b><span>${n(a.meta?.asof||"")}${E?` \xB7 \uD654\uBA74 \uAC31\uC2E0 ${n(E)}`:""}</span></li>
+      <li><b>\uC815\uB9AC</b><span>${n(String(a.meta?.maker||"").replace(/^정리·제작:\s*/,""))}</span></li>
+      <li><b>\uD45C\uAE30 \uC6D0\uCE59</b><span>\uC218\uCE58\uB9C8\uB2E4 \uCD9C\uCC98 \xB7 \uBBF8\uD655\uC778\uC740 \u2018\uD655\uC778 \uD544\uC694\u2019</span></li>
+    </ul>
+    <div class="pinfo-act no-print">${h}<button type="button" data-pt="top">${m("up")}<span>\uB9E8 \uC704\uB85C</span></button></div>
+  </div></div>`,w.addEventListener("click",u=>{if(u.target.closest('[data-pt="top"]')){window.scrollTo({top:0,behavior:"smooth"});return}x(u)}),s!=="brief"&&t.appendChild(w);let g=document.createElement("nav");g.className="subnav",g.setAttribute("aria-label",`${l.label} \uD558\uC704 \uBA54\uB274`),g.innerHTML=`<div class="wrap"><div class="subnav-in">${o.map(([u,f,b])=>`<a href="${lt(f,b)}" data-r="${f}" data-s="${b}" class="${f===s&&!b?"on":""}">${n(u)}</a>`).join("")}</div></div>`,v.after(g);let T=a.page_summary?.[s];if(T?.length){let u=document.createElement("section");u.className="keysum",u.innerHTML=`<div class="wrap"><div class="keysum-in rv"><div class="keysum-h">${m("bulb")}<b>\uC774 \uD654\uBA74 \uD575\uC2EC</b></div><ol>${T.map(f=>`<li>${n(f)}</li>`).join("")}</ol></div></div>`,g.after(u)}qt?.disconnect();let k=r?.querySelector(".crumb-now"),d=u=>{L(".subnav a",g).forEach(b=>b.classList.toggle("on",b.dataset.r===s&&(b.dataset.s===u||!u&&!b.dataset.s)));let f=o.find(([,b,j])=>b===s&&j===u);k&&f&&(k.textContent=f[0])};c.length&&(d(i[0]),qt=new IntersectionObserver(u=>{let f=u.filter(R=>R.isIntersecting).sort((R,_)=>R.boundingClientRect.top-_.boundingClientRect.top);if(!f[0])return;let b=f[0].target.id.slice(2);d(b);let j=g.querySelector(`a[data-s="${b}"][data-r="${s}"]`),y=g.querySelector(".subnav-in");if(j&&y&&y.scrollWidth>y.clientWidth){let R=j.getBoundingClientRect(),_=y.getBoundingClientRect();y.scrollTo({left:y.scrollLeft+R.left-_.left-(y.clientWidth-R.width)/2,behavior:"smooth"})}},{rootMargin:"-140px 0px -55% 0px"}),c.forEach(u=>qt.observe(u)))}function os(){qt?.disconnect(),qt=null}function ls(){let t=p(".gnb");if(!t)return;let s=null,a=l=>{s=l,t.classList.add("shut"),t.contains(document.activeElement)&&document.activeElement.blur()},e=()=>{s=null,t.classList.remove("shut")};t.addEventListener("click",l=>{let o=l.target.closest("a");o&&a(o)}),t.addEventListener("mouseleave",e),t.addEventListener("mouseover",l=>{let o=l.target.closest(".gnb > a");o&&o!==s&&t.classList.contains("shut")&&e()}),document.addEventListener("keydown",l=>{l.key==="Tab"?e():l.key==="Escape"&&t.matches(":hover, :focus-within")&&a(null)}),document.addEventListener("touchstart",l=>{t.contains(l.target)||e()},{passive:!0})}function cs(t){let s=ts[t];L(".gnb > a").forEach(a=>a.classList.toggle("on",!!(s&&+a.dataset.g===s.group)))}var rs=[{id:"",label:"\uCC98\uC74C",page:re,icon:"home",desc:"\uD55C\uB208\uC5D0 \uBCF4\uAE30"},{id:"guide",label:"\uC0AC\uC5C5 \uC18C\uAC1C",page:de,icon:"book",desc:"\uAD6D\uD1A0\uBD80 \uAC00\uC774\uB4DC\uB77C\uC778(\uC548) \uC27D\uAC8C \uBCF4\uAE30"},{id:"check",label:"\uC2E0\uCCAD \uC694\uAC74 \uC810\uAC80",page:pe,icon:"list",desc:"\uAE40\uD574\uAC00 \uCC44\uC6B4 \uAC83\xB7\uB0A8\uC740 \uAC83"},{id:"sites",label:"\uB300\uC0C1\uC9C0",page:ve,icon:"map",desc:"\uC9C0\uB3C4\xB713\uACF3\xB7\uAD6C\uC5ED\uACC4"},{id:"history",label:"\uBD09\uB9AC\uB2E8\uAE38 10\uB144",page:ke,icon:"clock",desc:"\uADF8\uB54C\xB7\uC9C0\uAE08\xB7\uB2E4\uC74C"},{id:"plan",label:"\uACC4\uD68D \uAD6C\uC0C1",page:me,icon:"bulb",desc:"\uAC70\uC810\xB7\uC6A9\uB3C4\xB7\uCF58\uD150\uCE20"},{id:"field",label:"\uD604\uC7A5\xB7\uB370\uC774\uD130",page:he,icon:"chart",desc:"\uC8FC\uBBFC \uBAA9\uC18C\uB9AC\xB7\uC218\uCE58"},{id:"log",label:"\uD68C\uC758\xB7\uACB0\uC815\xB7\uAE30\uB85D",page:fe,icon:"clock",desc:"\uC5B8\uC81C \uBB34\uC5C7\uC744 \uC815\uD588\uB098"},{id:"todo",label:"\uC77C\uC815\xB7\uD560 \uC77C",page:ge,icon:"cal",desc:"\uC77C\uC815\xB7\uB204\uAC00 \uBB34\uC5C7\uC744"},{id:"library",label:"\uC790\uB8CC\uC2E4",page:be,icon:"folder",desc:"\uC0B0\uCD9C\uBB3C\xB7\uC6D0\uBB38 \uB0B4\uB824\uBC1B\uAE30"}],Ma=[{id:"brief",page:$e,label:"\uBCF4\uACE0\uC6A9 1\uC7A5"}];try{history.scrollRestoration="manual"}catch{}var ja=new URLSearchParams(location.search);(ja.get("motion")==="off"||matchMedia("(prefers-reduced-motion: reduce)").matches)&&document.documentElement.classList.add("nomo");var F=null;function Ta(){document.body.innerHTML=`
+  <a class="sr skip" id="skip" href="#main">\uBCF8\uBB38 \uBC14\uB85C\uAC00\uAE30</a>
+  ${ss()}
+  <main id="main" tabindex="-1"></main>
+  <div id="ftSlot"></div>
+  ${as()}
+  <div class="sch" id="sch" role="dialog" aria-label="\uCC3E\uAE30"><div class="box">
+    <input id="schIn" type="search" placeholder="\uBB34\uC5C7\uC774\uB4E0 \uCC3E\uC544\uBCF4\uC138\uC694 \u2014 \uC608: \uACF5\uC2E4 10\uD638\uB294 \uC5B4\uB5BB\uAC8C \uC138\uB098\uC694, \uAD8C\uC6D0, 10/15" autocomplete="off">
+    <div class="res" id="schRes"></div>
+  </div></div>
+  <div class="lb" id="lb" role="dialog" aria-label="\uADF8\uB9BC \uD06C\uAC8C \uBCF4\uAE30"><img alt=""><div class="cap"></div><button aria-label="\uB2EB\uAE30">\xD7</button></div>
+  <button class="totop no-print" id="totop" type="button" aria-label="\uB9E8 \uC704\uB85C">${m("up")}<span>TOP</span></button>`}var Ht=null,ds=0,ps=t=>{t.style.display==="none"&&(t.style.display=""),t.matches(".acc:not(.open)")&&(t.classList.add("open"),t.querySelector(":scope>button")?.setAttribute("aria-expanded","true"))};async function se(){let t=++ds,s=location.hash.replace(/^#\/?/,"").split(/[/?]/)[0]||"",a=rs.find(v=>v.id===s)||Ma.find(v=>v.id===s)||rs[0],e=location.hash.split("/")[2]||"",l=p("#main"),o=l.querySelector(".page");if(Ht&&a===Ht&&o&&e&&!/^\d+$/.test(e)){let v=o.querySelector("#s-"+CSS.escape(e));if(v){ps(v),ae(),window.scrollTo({top:Math.max(0,v.getBoundingClientRect().top+scrollY-128),behavior:document.documentElement.classList.contains("nomo")?"instant":"smooth"});return}}if(Ht?.page?.unmount)try{Ht.page.unmount()}catch{}os(),Ht=a;let i=document.createElement("div");i.className="page";let c;try{c=a.page.render(F,e)}catch(v){console.error("\uD654\uBA74 \uADF8\uB9AC\uAE30 \uC624\uB958",v),c='<section class="sec"><div class="wrap" style="text-align:center">\uC774 \uD654\uBA74 \uC790\uB8CC\uB97C \uADF8\uB9AC\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C\uACE0\uCE68\uD558\uAC70\uB098 \uB2E4\uB978 \uBA54\uB274\uB97C \uB20C\uB7EC \uC8FC\uC138\uC694.</div></section>'}if(i.innerHTML=c,Re(l.firstElementChild),l.replaceChildren(i),document.title=`${a.id?a.label+" | ":""}\uAE40\uD574 \uC6D0\uB3C4\uC2EC RE:CORE`,cs(a.id),ae(),a.id&&ns(i,a.id,F),window.scrollTo({top:0,behavior:"instant"}),Lt(i),oe(i),a.page.mount)try{await a.page.mount(i,F,e)}catch(v){console.error("\uD654\uBA74 \uC900\uBE44 \uC624\uB958",v)}if(t!==ds)return;Lt(i),oe(i);let r=e&&!/^\d+$/.test(e)?i.querySelector("#s-"+CSS.escape(e)):null;r&&ps(r),r&&requestAnimationFrame(()=>{let v=r.getBoundingClientRect().top+scrollY-128;window.scrollTo({top:Math.max(0,v),behavior:"instant"})});try{sessionStorage.setItem("gm-last",a.id)}catch{}}var Te=null;function ze(t,s){Te=document.activeElement,t.setAttribute("aria-modal","true"),p("#main").inert=!0,p("#hd").inert=!0,s?.focus()}function Ae(){p("#main").inert=!1,p("#hd").inert=!1;let t=Te;Te=null,t?.focus?.()}function Ca(){let t=p("#drawer");t.classList.add("open"),t.setAttribute("aria-hidden","false"),ze(t,t.querySelector("a"))}function ae(){let t=p("#drawer");t?.classList.contains("open")&&(t.classList.remove("open"),t.setAttribute("aria-hidden","true"),Ae())}var Ce=[];function za(){Ce=[];let t=(e,l,o,i)=>Ce.push({route:e,title:l,text:String(o||""),kind:i,hay:(l+" "+o).toLowerCase()}),s=F;for(let e of s.requirements||[])t("check",e.title,`${e.rule} ${e.now} ${e.next||""}`,"\uC694\uAC74 \uC810\uAC80");(s.faq||[]).forEach((e,l)=>t(`guide/faq-${l}`,e.q,e.a,"\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38")),(s.terms||[]).forEach((e,l)=>t(`guide/term-${l}`,e.term,e.def,"\uC6A9\uC5B4 \uD480\uC774"));for(let e of s.sites||[])t(`sites/${e.id}`,`${e.no}\uBC88 ${e.jibun}`,`${e.type||""} ${e.use||""} ${e.note||""}`,"\uB300\uC0C1\uC9C0");for(let e of s.timeline||[])t("log",`${e.date} ${e.title}`,e.summary,"\uC9C4\uD589 \uAE30\uB85D");for(let e of s.decisions||[])t("log",e.title,`${e.why||""} ${e.state||""}`,"\uACB0\uC815 \uC0AC\uD56D");for(let e of s.meetings||[])t("log",`${e.date} ${e.title}`,[...e.points||[],...e.decided||[]].join(" "),"\uC8FC\uC694 \uD68C\uC758");for(let e of s.todos||[])t("todo",e.title,`${e.who||""} ${e.due||""} ${e.detail||""}`,"\uD560 \uC77C");for(let e of s.schedule||[])t("todo",`${e.date} ${e.title}`,e.detail,"\uC77C\uC815");for(let e of s.library||[])t("library",e.title,`${e.desc||""} ${e.kind||""}`,"\uC790\uB8CC\uC2E4");let a=s.guideline||{};for(let e of a.requirements||[])t("guide/req",e.k,`${e.kind||""} ${e.v||""} ${e.memo||""}`,"\uAC00\uC774\uB4DC\uB77C\uC778");for(let e of a.rules||[])t("guide/money",e.k,`${e.tag||""} ${e.v||""}`,"\uAC00\uC774\uB4DC\uB77C\uC778");for(let e of[...a.eval_pf||[],...a.eval_molit||[],...a.eval_mcst||[],...a.eval_bonus||[]])t("guide/eval",e.item,`${e.group||""} ${e.score_label||""}`,"\uD3C9\uAC00 \uD56D\uBAA9");for(let e of a.documents||[])t("guide/sched",e.name,e.note,"\uC81C\uCD9C \uC11C\uB958")}function us(){let t=p("#sch");t.classList.add("open");let s=p("#schIn");s.value="",gs(""),ze(t,null),setTimeout(()=>s.focus(),20)}function Ot(){let t=p("#sch");t.classList.contains("open")&&(t.classList.remove("open"),Ae())}var wt=0,Aa=/(으로써|으로|에서|까지|부터|에게|하고|이나|이랑|처럼|보다|인가요|하나요|되나요|있나요|없나요|할까요|일까요|인지|는지|은지|나요|까요|해요|이에요|예요|입니다|은|는|이|가|을|를|에|의|로|와|과|도|만|요)$/,vs=new Set(["\uC5B4\uB5BB\uAC8C","\uBB34\uC5C7","\uBB50","\uBB54\uAC00","\uC5B8\uC81C","\uC5B4\uB514","\uC5BC\uB9C8","\uC5BC\uB9C8\uB098","\uBA87","\uC65C","\uB204\uAC00","\uB204\uAD6C","\uC788","\uD558","\uB418","\uC218","\uAC83","\uC880","\uADF8","\uC774","\uC800","\uC54C\uB824","\uC54C\uB824\uC918","\uAD81\uAE08","\uD574","\uD574\uC918","\uBCF4\uC5EC\uC918","\uC815\uB9AC"]);function _a(t){let s=[];for(let a of t.toLowerCase().split(/[^0-9a-z가-힣㎡%.\-]+/)){if(!a||vs.has(a))continue;let e=a.match(Aa),l=e&&a.length-e[0].length>=2?a.slice(0,-e[0].length):a;vs.has(l)||s.push(l)}return s}var fs=t=>{let s=t.replace(/\s+/g,""),a=new Set;for(let e=0;e<s.length-1;e++)a.add(s.slice(e,e+2));return a};function Ra(t,s,a){let e=0,l=t.title.toLowerCase(),o=t.hay;for(let i of s)l.includes(i)?e+=3+Math.min(i.length,4)*.5:o.includes(i)&&(e+=1+Math.min(i.length,4)*.2);if(a.size){let i=fs(l),c=0;for(let r of a)i.has(r)&&c++;e+=c/a.size*4}return(t.kind==="\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38"||t.kind==="\uC6A9\uC5B4 \uD480\uC774")&&(e*=1.15),e}function gs(t){let s=p("#schRes");if(t=t.trim(),!t){s.innerHTML='<div class="empty">\uB0B1\uB9D0\uC774\uB098 \uC9C8\uBB38\uC744 \uADF8\uB300\uB85C \uC801\uC5B4 \uBCF4\uC138\uC694.<br>\uC608: <b>\uACF5\uC2E4 10\uD638\uB294 \uC5B4\uB5BB\uAC8C \uC138\uB098\uC694</b> \xB7 <b>\uB9E4\uC785\uBE44 \uC0C1\uD55C</b> \xB7 <b>10/15</b> \xB7 <b>15-2</b></div>';return}let a=_a(t),e=fs(t.toLowerCase()),l=a.filter(k=>!/(나요|까요|가요|세요|해요)$/.test(k));if(!a.length&&e.size<1){s.innerHTML='<div class="empty">\uC870\uAE08 \uB354 \uAD6C\uCCB4\uC801\uC73C\uB85C \uC801\uC5B4 \uC8FC\uC138\uC694.</div>';return}let o=Ce.map(k=>({x:k,s:Ra(k,a,e),hit:l.some(d=>k.hay.includes(d))})).filter(k=>k.s>=1.2);l.length&&o.some(k=>k.hit)&&(o=o.filter(k=>k.hit)),o.sort((k,d)=>d.s-k.s);let i=o.slice(0,30);if(!i.length){s.innerHTML=(Me()&&t.length>=2?`<button type="button" class="askrow" data-ask-q="${n(t)}">${m("spark")}<span>AI \uB3C4\uC6B0\uBBF8\uC5D0\uAC8C <b>\u2018${n(t.length>40?t.slice(0,40)+"\u2026":t)}\u2019</b> \uBB3C\uC5B4\uBCF4\uAE30</span></button>`:"")+`<div class="empty">\u2018${n(t)}\u2019\uC5D0 \uB9DE\uB294 \uB0B4\uC6A9\uC774 \uC5C6\uC2B5\uB2C8\uB2E4. \uB2E4\uB978 \uB0B1\uB9D0\uB85C \uCC3E\uAC70\uB098 AI \uB3C4\uC6B0\uBBF8\uC5D0\uAC8C \uBB3C\uC5B4\uBCF4\uC138\uC694.</div>`;return}let c=a.filter(k=>k.length>=2||/\d/.test(k)).sort((k,d)=>d.length-k.length).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")),r=c.length?new RegExp(`(${c.join("|")})`,"gi"):null,v=k=>(k=k.length>150?k.slice(0,150)+"\u2026":k,r?k.split(r).map((d,u)=>u%2?`<mark>${n(d)}</mark>`:n(d)).join(""):n(k)),h=i[0],x=/[?？]|(나요|까요|인가|어떻게|무엇|얼마|언제|누가|몇)/.test(t),w=l.length>0&&l.every(k=>h.x.hay.includes(k))&&(h.x.kind!=="\uC6A9\uC5B4 \uD480\uC774"||l.some(k=>h.x.title.toLowerCase().includes(k))),E=h&&w&&(h.x.kind==="\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38"||h.x.kind==="\uC6A9\uC5B4 \uD480\uC774")&&(x||h.s>=6)?`<div class="ans"><small>${h.x.kind==="\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38"?"\uAC00\uC7A5 \uAC00\uAE4C\uC6B4 \uB2F5":"\uC6A9\uC5B4 \uD480\uC774"}</small><b>${n(h.x.title)}</b><p>${n(h.x.text)}</p><a href="#/${st(h.x.route)}" data-close-sch>${h.x.kind==="\uC790\uC8FC \uBB3B\uB294 \uC9C8\uBB38"?"\uC9C8\uBB38 \uBAA8\uC74C\uC5D0\uC11C \uBCF4\uAE30":"\uC6A9\uC5B4 \uD480\uC774\uC5D0\uC11C \uBCF4\uAE30"} \u2192</a></div>`:"",g=E?i.slice(1):i;wt=E?1:0;let T=Me()&&t.length>=2?`<button type="button" class="askrow" data-ask-q="${n(t)}">${m("spark")}<span>AI \uB3C4\uC6B0\uBBF8\uC5D0\uAC8C <b>\u2018${n(t.length>40?t.slice(0,40)+"\u2026":t)}\u2019</b> \uBB3C\uC5B4\uBCF4\uAE30</span></button>`:"";s.innerHTML=T+E+`<div class="hint">${E?"\uADF8 \uBC16\uC5D0 ":""}\uCC3E\uC740 \uACF3 ${o.length-(E?1:0)}\uAC1C${o.length>30?"(\uC704 30\uAC1C\uB9CC \uD45C\uC2DC)":""} \xB7 \uC704\uC544\uB798 \uD654\uC0B4\uD45C\uB85C \uACE0\uB974\uACE0 Enter</div>`+g.map((k,d)=>`<a href="#/${st(k.x.route)}" class="${d===0?"on":""}"><small>${n(k.x.kind)}</small><b>${v(k.x.title)}</b><span>${v(k.x.text)}</span></a>`).join("")}var G=null;function je(t){let s=(F.terms||[]).find(c=>c.term===t.dataset.term);if(!s)return;Ft(),G=document.createElement("div"),G.className="tip",G.innerHTML=`<b>${n(s.term)}</b>${n(s.def)}`,document.body.appendChild(G);let a=t.getBoundingClientRect(),e=G.offsetWidth,l=G.offsetHeight,o=Math.min(Math.max(8,a.left+a.width/2-e/2),innerWidth-e-8),i=a.top-l-10;i<70&&(i=a.bottom+10),G.style.left=o+"px",G.style.top=i+"px"}function Ft(){G?.remove(),G=null}async function qa(t,s){let a=(F.docs||[]).find(l=>l.id===t);if(!a){H("\uC6D0\uBB38 \uD30C\uC77C\uC744 \uCC3E\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4");return}let e=window.open("","_blank");if(e)try{e.document.title="\uC6D0\uBB38 \uC5EC\uB294 \uC911\u2026",e.document.body.innerHTML='<p style="font:16px sans-serif;padding:24px">\uC6D0\uBB38\uC744 \uC5EC\uB294 \uC911\uC785\uB2C8\uB2E4\u2026</p>'}catch{}H(s?`\uC6D0\uBB38 ${s}\uCABD\uC744 \uC5EC\uB294 \uC911\uC785\uB2C8\uB2E4\u2026`:"\uC6D0\uBB38\uC744 \uC5EC\uB294 \uC911\uC785\uB2C8\uB2E4\u2026");try{let l=await et(a.path);if(window.__ASSET||(l=new URL(l,location.href).href),e&&!e.closed){e.location.replace(l+(s?`#page=${s}`:""));return}let o=document.createElement("a");o.href=l,o.download=`${a.title||"document"}.pdf`,document.body.appendChild(o),o.click(),o.remove(),H(s?`\uB0B4\uB824\uBC1B\uC558\uC2B5\uB2C8\uB2E4 \u2014 ${s}\uCABD\uC744 \uBCF4\uC138\uC694`:"\uB0B4\uB824\uBC1B\uC558\uC2B5\uB2C8\uB2E4")}catch{try{e?.close()}catch{}H("\uC6D0\uBB38\uC744 \uC5F4\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4")}}function ms(t,s){let a=p("#lb");a.querySelector("img").src=t,a.querySelector("img").alt=s||"",a.querySelector(".cap").textContent=s||"",a.classList.add("open"),ze(a,a.querySelector("button"))}function hs(){let t=p("#lb");t.classList.contains("open")&&(t.classList.remove("open"),Ae())}function Ia(){window.addEventListener("hashchange",se),window.addEventListener("beforeprint",()=>le()),window.addEventListener("scroll",()=>{p("#hd").classList.toggle("scrolled",scrollY>40),p("#totop")?.classList.toggle("show",scrollY>700)},{passive:!0}),p("#totop")?.addEventListener("click",()=>{window.scrollTo({top:0,behavior:document.documentElement.classList.contains("nomo")?"instant":"smooth"}),p("#main")?.focus({preventScroll:!0})}),p("#openMenu").addEventListener("click",Ca),p("#drawer").addEventListener("click",t=>{(t.target.closest("[data-close]")||t.target.closest("a,[data-tour]"))&&ae()}),p("#openSearch").addEventListener("click",us),p("#sch").addEventListener("click",t=>{t.target.id==="sch"&&Ot(),t.target.closest(".res a")&&Ot();let s=t.target.closest("[data-ask-q]");if(s){let a=s.dataset.askQ;Ot(),ee(a)}}),p("#schIn").addEventListener("input",t=>gs(t.target.value)),p("#schIn").addEventListener("keydown",t=>{let s=L("#schRes a");s.length&&((t.key==="ArrowDown"||t.key==="ArrowUp")&&(t.preventDefault(),wt=(wt+(t.key==="ArrowDown"?1:-1)+s.length)%s.length,s.forEach((a,e)=>a.classList.toggle("on",e===wt)),s[wt].scrollIntoView({block:"nearest"})),t.key==="Enter"&&(t.preventDefault(),s[wt]?.click()))}),document.addEventListener("keydown",t=>{if(t.key==="Escape"&&(Ot(),ae(),hs(),Ft()),(t.key==="Enter"||t.key===" ")&&t.target.matches?.("img.zoomable")&&(t.preventDefault(),ms(t.target.dataset.full||t.target.currentSrc||t.target.src,t.target.alt)),t.key==="Tab"){let s=[p("#sch"),p("#drawer"),p("#lb")].find(a=>a.classList.contains("open"));if(s){let a=[...s.querySelectorAll("a[href],button,input")].filter(e=>e.offsetParent!==null);if(a.length){let e=a[0],l=a[a.length-1];t.shiftKey&&document.activeElement===e?(t.preventDefault(),l.focus()):!t.shiftKey&&document.activeElement===l&&(t.preventDefault(),e.focus())}}}(t.key==="/"||t.key==="k"&&(t.metaKey||t.ctrlKey))&&!/INPUT|TEXTAREA/.test(document.activeElement?.tagName)&&(t.preventDefault(),us())}),p("#lb").addEventListener("click",hs),p("#skip").addEventListener("click",t=>{t.preventDefault(),p("#main").focus()}),document.addEventListener("click",t=>{let s=t.target.closest("[data-copy]");if(s){t.preventDefault(),t.stopPropagation(),ft(s.dataset.copy,s);return}let a=t.target.closest("[data-doc]");if(a){t.preventDefault(),t.stopPropagation(),qa(a.dataset.doc,a.dataset.page);return}let e=t.target.closest("img.zoomable");if(e){ms(e.dataset.full||e.currentSrc||e.src,e.alt);return}if(t.target.closest("[data-tour]")){t.preventDefault(),Ve(F);return}t.target.closest("[data-close-sch]")&&Ot();let l=t.target.closest(".acc>button");if(l){let o=l.parentElement;o.classList.toggle("open"),l.setAttribute("aria-expanded",o.classList.contains("open"));return}}),document.addEventListener("click",t=>{if(t.defaultPrevented||t.button!==0||t.metaKey||t.ctrlKey||t.shiftKey||t.altKey)return;let s=t.target.closest('a[href^="#/"]');s&&s.getAttribute("href")===location.hash&&(t.preventDefault(),se())}),document.addEventListener("mouseover",t=>{let s=t.target.closest(".term");s&&je(s)}),document.addEventListener("mouseout",t=>{t.target.closest(".term")&&Ft()}),document.addEventListener("focusin",t=>{let s=t.target.closest(".term");s&&je(s)}),document.addEventListener("focusout",Ft),document.addEventListener("touchstart",t=>{let s=t.target.closest(".term");s&&(je(s),setTimeout(Ft,3500))},{passive:!0})}async function Ha(){let t=document.getElementById("site-data")?.textContent;Ta(),ls();try{t?F=JSON.parse(t):F=await(await fetch("data/site.json",{cache:"no-cache"})).json()}catch{p("#main").innerHTML='<div class="wrap" style="padding:80px 0;text-align:center">\uC790\uB8CC\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4. \uC0C8\uB85C\uACE0\uCE68\uD574 \uC8FC\uC138\uC694.</div>';return}p("#ftSlot").outerHTML=is(F),Je(F)&&p("#openAsk")?.addEventListener("click",()=>ee()),Ie(F.imgmeta),za(),Ia(),await se(),setTimeout(()=>Ze(F),600)}window.__GM={get data(){return F},route:se};Ha();function Oa(){let t=navigator.connection;if(!(t&&(t.saveData||/2g/.test(t.effectiveType||""))))for(let[s,a]of[["vendor/maplibre-gl-4.7.1/maplibre-gl.js","script"],["vendor/maplibre-gl-4.7.1/maplibre-gl.css","style"]]){let e=document.createElement("link");e.rel="prefetch",e.href=s,e.as=a,document.head.appendChild(e)}}(window.requestIdleCallback||(t=>setTimeout(t,3e3)))(()=>setTimeout(Oa,2500),{timeout:8e3});if(document.querySelector('meta[name="gm-sw"]')&&"serviceWorker"in navigator){let t=()=>navigator.serviceWorker.register("sw.js").catch(()=>{});document.readyState==="complete"?setTimeout(t,1500):addEventListener("load",()=>setTimeout(t,1500))}})();

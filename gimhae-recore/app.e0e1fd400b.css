@@ -861,13 +861,14 @@ body:has(.tour-chip) .totop{bottom:96px}
 .nomo .hf-stage img{transition:none}
 .hf-year{position:absolute;left:22px;bottom:14px;font-size:72px;font-weight:800;line-height:1;color:#fff;letter-spacing:-.03em;text-shadow:0 3px 18px rgba(0,0,0,.55);font-variant-numeric:tabular-nums}
 .hf-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#0f1722;color:#d7deea;flex-wrap:wrap}
-.hf-play{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;font:inherit;font-size:14px;cursor:pointer}
+.hf-play{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;font:inherit;font-size:14px;cursor:pointer}
 .hf-play svg{width:16px;height:16px}
 .hf-dots{display:flex;gap:4px;flex-wrap:wrap}
-.hf-dots button{width:22px;height:22px;padding:0;border:0;background:transparent;cursor:pointer;position:relative}
-.hf-dots button::after{content:"";position:absolute;inset:8px;border-radius:50%;background:rgba(255,255,255,.35)}
-.hf-dots button.on::after{inset:6px;background:var(--gold)}
-@media (pointer:coarse){.hf-dots{gap:0}.hf-dots button{width:27px;height:27px}.hf-dots button::after{inset:10px}.hf-dots button.on::after{inset:8px}}
+.hf-nav{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer;flex:none}
+.hf-dots button{width:28px;height:40px;padding:0;border:0;background:transparent;cursor:pointer;position:relative}
+.hf-dots button::after{content:"";position:absolute;inset:16px 10px;border-radius:50%;background:rgba(255,255,255,.35)}
+.hf-dots button.on::after{inset:14px 8px;background:var(--gold)}
+@media (max-width:640px){.hf-dots{display:none}.hf-bar{justify-content:flex-start}}
 .hf-cap{margin-left:auto;font-size:13.5px;color:#aeb8c8}
 .hist-nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;max-width:1100px;margin:22px auto 0}
 .hn{display:flex;flex-direction:column;gap:4px;padding:18px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;text-align:center}
@@ -923,7 +924,7 @@ body:has(.tour-chip) .totop{bottom:96px}
 .hist-playbtn{width:52px;height:52px;border-radius:50%;border:0;background:var(--navy);color:#fff;font-size:20px;cursor:pointer;flex:none;box-shadow:0 6px 16px rgba(34,64,106,.25)}
 .hist-yr{display:flex;align-items:center;gap:12px;flex:1;min-width:220px}
 .hist-yr b{font-size:34px;font-weight:800;color:var(--navy);min-width:4.6ch;font-variant-numeric:tabular-nums}
-.hist-yr input{flex:1;accent-color:var(--clay);height:28px}
+.hist-yr input{flex:1;accent-color:var(--clay);height:40px}
 .hist-cnt{display:flex;gap:14px;flex-wrap:wrap;font-size:15px;color:var(--ink2)}
 .hist-cnt b{font-size:20px;color:var(--ink)}
 .hist-cnt small{color:var(--muted);font-size:13.5px}
@@ -977,7 +978,7 @@ body:has(.tour-chip) .totop{bottom:96px}
 .hy ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
 .hy li b{display:block;font-size:15.5px;margin-top:4px;line-height:1.4}
 .hy li p{margin:2px 0;font-size:14px;color:var(--ink2);line-height:1.5}
-.hy li a{font-size:13.5px;color:var(--navy);display:inline-flex;align-items:center;gap:3px}
+.hy li a{font-size:13.5px;color:var(--navy);display:inline-flex;align-items:center;gap:3px;min-height:40px}
 .hy li a svg{width:12px;height:12px}
 .hy li.none{font-size:14px;color:var(--muted)}
 /* 다음 10년 */
