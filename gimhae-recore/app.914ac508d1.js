@@ -87,7 +87,7 @@
           <li><b>13\uACF3</b>\uAE40\uD574\uC2DC \uC6B0\uC120\uC21C\uC704 \uB300\uC0C1\uC9C0(\uB9E4\uB9E4 8 \xB7 \uC784\uB300 5)</li>
           <li><b>${(C.area||0).toLocaleString("ko-KR")}\u33A1</b>\uD655\uC815 \uAD6C\uC5ED\uACC4(10/11) \u2014 13\uACF3\xB7\uBD09\uD669\uC608\uC220\uADF9\uC7A5 \uD3EC\uD568, \uAD8C\uC7A5 15\uB9CC\u33A1\uBCF4\uB2E4 \uB113\uC74C</li>
           <li><b>\uD575\uC2EC \uAC70\uC810</b>5\uBC88 3\uCE35 \uAC74\uBB3C + 10\uBC88 \uC8FC\uCC28 \uD6C4\uBCF4 \uBD80\uC9C0</li>
-          <li><b>${(C.shops||0).toLocaleString("ko-KR")}\uACF3</b>\uD655\uC815 \uAD6C\uC5ED \uC548 \uC810\uD3EC \xB7 20\uB144 \uC774\uC0C1 \uB178\uD6C4\uAC74\uCD95\uBB3C ${C.old20??"\u2014"}%</li>
+          <li><b>${(C.shops||0).toLocaleString("ko-KR")}\uACF3</b>\uD655\uC815 \uAD6C\uC5ED \uC548 \uC810\uD3EC \xB7 20\uB144 \uC774\uC0C1 \uB178\uD6C4\uAC74\uCD95\uBB3C ${C.old20_reg??C.old20??"\u2014"}%(\uAC74\uCD95\uBB3C\uB300\uC7A5)</li>
         </ul>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px"><a class="btn pri" href="#/sites">${u("map")}\uC9C0\uB3C4\uC5D0\uC11C \uBCF4\uAE30</a><a class="btn line" href="#/sites/zones">\uD655\uC815 \uAD6C\uC5ED\uACC4 \uBCF4\uAE30</a></div>
         <p class="cap" style="margin-top:12px">\uADF8\uB9BC: \uAE40\uD574\uC2DC \uC81C\uACF5 \uC704\uCE58\uB3C4(10\uC6D4 8\uC77C)</p>
