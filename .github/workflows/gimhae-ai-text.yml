@@ -4,7 +4,7 @@ name: gimhae-ai-text
 on:
   push:
     branches: [main]
-    paths: ['gimhae-wondosim.html', 'data/gimhae-*', 'data/gimhae-*/**']
+    paths: ['gimhae-wondosim.html', 'data/gimhae-*', 'data/gimhae-*/**', '.github/workflows/gimhae-ai-text.yml', '.github/scripts/gimhae-ai-text.mjs']
   schedule:
     - cron: '17 */3 * * *'
   workflow_dispatch:
