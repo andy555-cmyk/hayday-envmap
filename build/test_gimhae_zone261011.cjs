@@ -62,10 +62,10 @@ assert.equal(Z.rone.overlapPct,10.7);assert.equal(Z.rone.oldOverlapPct,98.8);ass
 assert.equal(Z.gateLoad.list.reduce((x,g)=>x+g.stores,0),294);assert.equal(Z.tms.within1km,2);assert.deepEqual(Z.tms.nearest.slice(0,2).map(t=>t.distM),[401,955],'EPSG:5187 직선 최단거리');assert.equal(BT.records,BT.openNow+BT.closedAll+BT.otherStatus);
 const RV=Z.roadview;assert.equal(RV.jibun,81);assert.equal(Object.keys(RV.byJibun).length,81);assert.equal(RV.empty2025.length,7);assert.deepEqual(RV.lowConf2025,['봉황동 222-2']);assert.ok(!RV.empty2025.includes('봉황동 214-1'),'B33 판단 불가');assert.deepEqual(RV.empty2022and2025,['봉황동 118-16','봉황동 16-35']);
 assert.ok(Z.sites.every(t=>RV.byJibun[t.jibun]),'13 sites have roadview');assert.ok(!/evidence|010-|보증금/.test(JSON.stringify(RV)),'roadview public-safe');
-const FA=JSON.parse(html.match(/^const FACTS=(.*?);\s*$/m)[1]);assert.equal(FA.filter(f=>f.z==='261011').length,9);assert.ok(!/남실장|대표 제공|보증금|010-/.test(JSON.stringify(FA)),'cards public-safe');
+const FA=JSON.parse(html.match(/^const FACTS=(.*?);\s*$/m)[1]);assert.equal(FA.filter(f=>f.z==='261011').length,10);assert.ok(!/남실장|대표 제공|보증금|010-/.test(JSON.stringify(FA)),'cards public-safe');
 assert.ok(html.includes('<!--zk-rone-->')&&html.includes('<!--zk-l9-->'),'rone notes on original page');
 assert.ok(!/직접 측정치|수요가 빠졌다|민간 자율 회복|상권코드 A1705|실거래는 대한민국에 존재하지|제도적으로 존재하지 않는다/.test(html),'부동산원·실거래 단정 문장 제거');
 const AC=JSON.parse(fs.readFileSync(path.join(root,'build/ask_cards/gimhae-wondosim.json'),'utf8'));assert.equal(JSON.stringify(AC.cards),JSON.stringify(FA),'질문 카드 원본 = 화면 카드');
-const FX=JSON.parse(fs.readFileSync(path.join(root,'data/gimhae-zone-261011-facts.json'),'utf8')).facts;assert.equal(FX.length,22);assert.ok(!/남실장|대표 제공|보증금|권리금|010-|의향|체납|직접 측정|수요가 빠졌/.test(JSON.stringify(FX)),'누리집용 사실 묶음 공개 안전');
+const FX=JSON.parse(fs.readFileSync(path.join(root,'data/gimhae-zone-261011-facts.json'),'utf8')).facts;assert.equal(FX.length,24);assert.ok(!/남실장|대표 제공|보증금|권리금|010-|의향|체납|직접 측정|수요가 빠졌/.test(JSON.stringify(FX)),'누리집용 사실 묶음 공개 안전');
 console.log(JSON.stringify({total:a.total,known:a.known,old20:a.old20,oldPct:a.oldPct,counts:a.counts,foodRetail:a.foodRetail,foodRetailPct:a.foodRetailPct,residential:a.residential,neighborhood:a.neighborhood,candidateEdge:a.candidateEdge,industries:a.industries}));
 console.log('PASS: confirmed zone 923동 · 840 known · 770 old · 91.7% · 294 stores · 13 sites inside · source hash · 빈 점포 후보 130(원래 규칙 30) · 인허가 439건 · 상권 겹침 10.7% · 로드뷰 81지번 · 카드 9');

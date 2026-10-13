@@ -55,6 +55,12 @@ card('roadview', '공실', '과거 로드뷰에서 1층 앞이 비어 보인 곳
      f"2025년 3월 사진에서 1층 앞이 비어 보인 지번 {len(rv['empty2025'])}곳({' · '.join(j + ('(확신 낮음)' if j in rv.get('lowConf2025', []) else '') for j in rv['empty2025'])}) · 그중 2022년 3월에도 비어 보인 곳 {len(rv['empty2022and2025'])}곳({' · '.join(rv['empty2022and2025'])})",
      f"시 13곳 + 전수조사 1차 A·B, 지번 {rv['jibun']}곳. 최신 사진 기준 영업 중 {rv['latest'].get('영업 중', 0)} · 비어 보임 {rv['latest'].get('비어 보임', 0)} · 주거·창고 {rv['latest'].get('주거·창고', 0)} · 판단 불가 {rv['latest'].get('판단 불가', 0)}. 1차 판정 A 중 {len(rv['aOpen2025'])}곳({' · '.join(rv['aOpen2025'])})은 2025년 3월 영업 중이었다." + (f" {'·'.join(rv['partial'])}은 2019·2022년엔 가운데 칸만 닫히고 옆 칸은 영업했다." if rv.get('partial') else ''),
      '지번 단위 · 길에서 본 1층', rv['source'], '최신 대부분 2025-03', rv['caveat'] + '. 2026.1.1 이전 공실 증빙의 보조 자료로만 쓴다.')
+if Z.get('energy'):
+    en = Z['energy']
+    card('energy', '공실', '구역 비주거 건물의 전기 사용량은?',
+         f"조회 {en['queried']}지번 중 자료 {en['withData']}곳 · 월평균 중간값 {n(en['medianMonthlyKwh'])}kWh(가운데 절반 {n(en['q1'])}~{n(en['q3'])}) · 월 100kWh 이하 {en['le100']}곳, 300 이하 {en['le300']}곳",
+         f"{en['period']} {en['months']}개월. 가이드라인 공실 증빙 ①「수도·전기 사용량이 기준 이하」에 쓰는 자료다.", ZONE + ' · 비주거 지번 합계', en['source'], en['period'],
+         en['caveat'] + '. 지번별 값은 공개하지 않는다.')
 card('license', '공실', '인허가로 본 개업·폐업 흐름은?',
      f"{first_flip}년부터 폐업이 개업보다 많다(2024 개업 {op(2024)}·폐업 {cl(2024)} / 2025 {op(2025)}·{cl(2025)} / 2026.10.13까지 {op(2026)}·{cl(2026)}) · 2022년 이후 폐업했고 같은 주소에 지금 영업 신고가 없는 곳 {len(ld['signals'])}곳",
      f"구역 안 인허가 기록 {n(bt['records'])}건({bt['years'][0]}~2026) = 지금 영업 {n(bt['openNow'])} · 폐업 {n(bt['closedAll'])} · 취소·말소 등 {bt['otherStatus']}. {bt['definition']}. 2010년 뒤 개업이 가장 많았던 해 {bt['peakOpenSince2010']['year']}년({bt['peakOpenSince2010']['n']}건).",
@@ -76,6 +82,11 @@ card('rone', '공실', '확정 구역계의 공실률은?',
      f"구역만의 공식 공실률은 없다. 부동산원 「{ro['market']}」 소규모상가 공실률 {ro['latest']['smallVacancyPct']}%({ro['latest']['quarter']})는 이 상권과 구역이 {ro['overlapPct']}%만 겹쳐 참고값이다",
      f"이전 사업구역 51.8ha는 상권 도형과 {ro['oldOverlapPct']}% 겹쳐 그 상권 값을 지표로 썼다(그때도 상권 표본 건물 값). 확정 구역계 중 상권 안: 면적 약 {ro['overlapM2'] / 10000:.1f}ha · 등록점포 {ro['storesIn']}/{s['stores']}곳 · 건물 {ro['bldIn']}/{s['buildings']}동 · 시 13곳 중 {'·'.join(str(x) + '번' for x in ro['sitesIn'])}. 같은 상권 소규모상가 임대료 {n(ro['latest']['smallRentWonPerM2'])}원/㎡. 김해의 다른 표본 상권({' · '.join(o['name'] for o in ro['others'])})은 집합상가만 조사한다.",
      '부동산원 표본 상권 vs ' + ZONE, ro['source'], ro['latest']['quarter'], '공실률은 표본 건물 조사값이라 빈 점포 후보·전수조사 판정과 모집단이 달라 합하거나 환산하지 않는다. 상권 코드는 공식 통계표 기준 ' + ro['code'] + '.')
+if Z.get('sbizZone', {}).get('items'):
+    sz = Z['sbizZone']['items'][0]
+    card('sbizZone', '공실', '소상공인시장진흥공단 주요 상권과 구역은 겹치나?',
+         f"「{sz['name']}」 상권 영역과 구역의 {sz['zonePct']}%(약 {sz['overlapM2'] / 10000:.1f}ha)가 겹친다 — 그 상권 영역의 {sz['marketPct']}%가 구역 안",
+         Z['sbizZone']['note'] + '.', ZONE, Z['sbizZone']['source'], '2026-10-13', '상권 영역 경계는 소진공이 점포 밀집도로 그은 것이며 행정 구역이 아니다.')
 card('sites13', '대상지', '시 우선순위 13곳의 토지 규제는?',
      f"13곳 모두 역사문화환경보존지역·중점경관관리구역 · 도시계획도로 저촉 {', '.join(str(x) + '번' for x in lu['roadConflict'])} · 방화지구 {', '.join(str(x) + '번' for x in lu['fireDistrict'])}",
      '용도지역: ' + ' · '.join(f"{k} {v}곳" for k, v in lu['zoning'].items()) + f". 공시지가(2026.1) {n(min(t['officialPrice']['wonPerM2'] for t in Z['sites']))}~{n(max(t['officialPrice']['wonPerM2'] for t in Z['sites']))}원/㎡.",
