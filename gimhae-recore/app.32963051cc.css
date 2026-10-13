@@ -1,8 +1,8 @@
 /* 김해 원도심 RE:CORE 통합 안내 — 흰 바탕 · 큰 글자 · 가야 색(쪽빛·토기·고분 초록) */
-@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.317ff126ef.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.0ce1f5d96b.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.ae4fa33c99.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.50b189855c.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.a62a4faa59.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.d6f3f7e5ca.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.b9df318454.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.21585453d7.woff2) format("woff2")}
 @font-face{font-family:"PretendardAll";font-weight:100 900;font-display:swap;src:url(vendor/pretendard-1.3.9/woff2/Pretendard-Regular.woff2) format("woff2");unicode-range:U+1100-11FF,U+3130-318F,U+AC00-D7A3}
 
 :root{
@@ -830,4 +830,22 @@ body:has(.tour-chip) .totop{bottom:160px}
   .ask-log{padding:14px 14px 6px}
 }
 @media print{.askfab,.ask{display:none!important}}
+/* 휴대전화 손가락 조작 보완(10/13 코덱스 독립 점검) */
+@media (max-width:640px){
+  .askfab{transition:transform .25s var(--ease),opacity .25s,background .2s}
+  .askfab.tuck{transform:translateY(90px);opacity:0;pointer-events:none}
+  body:has(.tour-chip) .askfab{opacity:0;pointer-events:none}
+  .ask-hd .ibtn{height:40px}
+  .sm-grid li a{padding:10px 4px!important}
+  .ft-links a{display:inline-block;padding:9px 0}
+  .tour-chip .btn{min-height:44px}
+  .tour-chip-x{width:40px;height:40px}
+}
+@media (pointer:coarse){
+  .tour-dots{gap:0}
+  .tour-dots button{box-sizing:content-box;border:12px solid transparent;background-clip:padding-box}
+  .tour-dots button.on{border-radius:17px}
+  .mapwrap .maplibregl-ctrl-group button{width:40px;height:40px}
+  .pin::before{content:"";position:absolute;inset:-9px;border-radius:50%}   /* 보이는 30px 그대로, 누르는 영역 약 43px */
+}
 @media (prefers-reduced-motion:reduce){.ask-box{animation:none}.ask-wait span{animation:none;opacity:.6}}
