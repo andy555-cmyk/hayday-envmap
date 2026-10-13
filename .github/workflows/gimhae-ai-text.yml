@@ -1,0 +1,37 @@
+# 김해 원도심 RE:CORE 누리집 AI 도우미 — 환경분석맵 김해 화면이 바뀌면 본문 글을 data/ai-text-gimhae.json 으로 자동 갱신
+# AI 도우미 서버(gimhae-recore-ask)가 이 파일을 10분마다 읽음. 화면 파일은 건드리지 않음.
+name: gimhae-ai-text
+on:
+  push:
+    branches: [main]
+    paths: ['gimhae-wondosim.html', 'data/gimhae-*', 'data/gimhae-*/**']
+  schedule:
+    - cron: '17 */3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: gimhae-ai-text
+  cancel-in-progress: true
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: 화면 띄우기(저장소 사본)
+        run: (python3 -m http.server 8765 > /dev/null 2>&1 &) && sleep 2
+      - name: 본문 글 뽑기
+        run: CHROME="$(command -v google-chrome || command -v chromium-browser || command -v chromium)" node .github/scripts/gimhae-ai-text.mjs "http://127.0.0.1:8765/gimhae-wondosim.html?scope=zone" data/ai-text-gimhae.json
+      - name: 바뀌었으면 올리기
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ai-text-gimhae.json
+          if git diff --cached --quiet; then echo "바뀐 것 없음"; exit 0; fi
+          git commit -q -m "김해 AI 도우미용 환경분석맵 본문 글 자동 갱신"
+          for i in 1 2 3; do git pull --rebase -q origin main && git push -q origin HEAD:main && exit 0; sleep 5; done
+          exit 1
