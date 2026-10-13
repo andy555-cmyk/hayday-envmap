@@ -1,8 +1,8 @@
 /* 김해 원도심 RE:CORE 통합 안내 — 흰 바탕 · 큰 글자 · 가야 색(쪽빛·토기·고분 초록) */
-@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.0a45bec389.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.06fd749c54.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.36560a8332.woff2) format("woff2")}
-@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.300828348c.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:400;font-display:swap;src:url(fonts/Pretendard-Regular.8a2b285b0b.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:500;font-display:swap;src:url(fonts/Pretendard-Medium.734e7021bb.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:600;font-display:swap;src:url(fonts/Pretendard-SemiBold.521dd95102.woff2) format("woff2")}
+@font-face{font-family:"Pretendard";font-weight:700;font-display:swap;src:url(fonts/Pretendard-Bold.e22dcdd669.woff2) format("woff2")}
 @font-face{font-family:"PretendardAll";font-weight:100 900;font-display:swap;src:url(vendor/pretendard-1.3.9/woff2/Pretendard-Regular.woff2) format("woff2");unicode-range:U+1100-11FF,U+3130-318F,U+AC00-D7A3}
 
 :root{
@@ -946,8 +946,8 @@ body:has(.tour-chip) .totop{bottom:96px}
 .hist-reference>a{flex:0 0 220px}.hist-reference img{display:block;width:100%;max-height:180px;object-fit:contain;border-radius:8px}
 .hist-reference p{margin:8px 0;font-size:15px;line-height:1.7}.hist-reference b{font-size:17px}
 @media(max-width:640px){.hist-reference{gap:14px;padding:14px;align-items:flex-start}.hist-reference>a{flex-basis:105px}.hist-reference>div{min-width:0}.hist-reference p{font-size:13px}.hist-reference b{font-size:15px}.hist-reference .cap{font-size:12px}}
-.cmp{position:relative;aspect-ratio:1400/900;border-radius:18px;overflow:hidden;background:#0f1722;touch-action:pan-y;user-select:none;cursor:ew-resize}
-.cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.hist-cmp .cmp{position:relative;aspect-ratio:1400/900;border-radius:18px;overflow:hidden;background:#0f1722;touch-action:pan-y;user-select:none;cursor:ew-resize}
+.hist-cmp .cmp img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
 .cmp-a{position:absolute;inset:0;clip-path:inset(0 calc(100% - var(--x)) 0 0)}
 .cmp-h{position:absolute;top:0;bottom:0;left:var(--x);width:0;outline:none}
 .cmp-h::before{content:"";position:absolute;top:0;bottom:0;left:-1.5px;width:3px;background:#fff;box-shadow:0 0 8px rgba(0,0,0,.4)}
@@ -956,7 +956,7 @@ body:has(.tour-chip) .totop{bottom:96px}
 .cmp-h:focus-visible i{outline:3px solid var(--gold)}
 .cmp-t{position:absolute;top:14px;padding:6px 12px;border-radius:999px;background:rgba(15,23,34,.72);color:#fff;font-size:15px;font-weight:700}
 .cmp-t.l{left:14px}.cmp-t.r{right:14px;background:rgba(184,92,53,.9)}
-.cmp.hint{animation:cmpHint 2.2s ease-in-out}
+.hist-cmp .cmp.hint{animation:cmpHint 2.2s ease-in-out}
 @keyframes cmpHint{0%,100%{--x:50%}30%{--x:30%}65%{--x:70%}}
 .cmp-cap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:15px}
 .cmp-cap a{color:var(--navy);display:inline-flex;align-items:center;gap:4px}
@@ -1040,3 +1040,161 @@ html.hist-presenting .hist-sec .wrap,html.hist-presenting .hist-hero .wrap{width
 .hf-note{margin:14px 0 0;line-height:1.7}
 .hist-sub{margin:14px 0 6px;font-size:15px;font-weight:700;color:var(--ink2)}
 @media (max-width:640px){.hf-mini{width:96px!important;height:auto!important;right:8px;top:8px}.hf-where{left:8px;top:8px;max-width:calc(100% - 118px);font-size:13.5px}}
+
+/* 10/14 실화면 검수: 사진에는 사진만, 주소·날짜·조작은 독립된 줄 */
+.hf-location{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#0f1722;color:#fff}
+.hf-location .hf-where{position:static!important;flex:1;min-width:0;max-width:none;padding:0;border-radius:0!important;background:transparent;font-size:16px;line-height:1.55}
+.hf-where span,.hf-where em{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:break-word;text-wrap:pretty}
+.hf-location .hf-mini{position:static;width:76px!important;height:auto!important;flex:none;align-self:center;background:rgba(255,255,255,.05);backdrop-filter:none}
+.hf-dots button{width:auto;min-width:68px;min-height:44px;padding:0 9px;border:1px solid rgba(255,255,255,.22);border-radius:10px;color:#d7deea;font:inherit;font-size:13px;white-space:nowrap;flex:none}
+.hf-dots button::after{display:none}
+.hf-dots button.on{border-color:var(--gold);background:var(--gold);color:#2b2208;font-weight:700}
+.hf-dots button span{display:block;line-height:1.3}
+.cv-mobile-key{display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:12px;font-size:14px;line-height:1.6}
+.cv-mobile-events{margin-top:14px;font-size:14px;line-height:1.65}
+.cv-mobile-events summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--navy);font-weight:600}
+.cv-mobile-events ul{margin:6px 0 0;padding-left:20px}
+.cv-mobile-events li+li{margin-top:6px}
+/* 막대의 높이는 수치 비율 그대로. 연도 글자가 막대를 누르지 않게 별도 자리 확보 */
+.cv-trend>div{height:86px;gap:6px;align-items:flex-end}
+.cv-trend span{position:relative;height:76px;padding-bottom:22px;gap:0}
+.cv-trend span i{flex:none;height:var(--h);max-height:54px}
+.cv-trend span small{position:absolute;left:0;right:0;bottom:0;line-height:18px;text-align:center}
+
+/* 휴대전화: 실제 360/390/430폭에서 제목·숫자·설명을 끝까지 읽는 배치 */
+@media (max-width:640px){
+  body{line-height:1.75}
+  .hd .wrap{gap:8px}
+  .hd .brand{flex:1;min-width:0;gap:8px}
+  .hd .brand svg{width:34px;height:34px}
+  .hd .brand span{min-width:0;white-space:normal}
+  .hd .brand b{font-size:16px;white-space:normal;line-height:1.2;word-break:keep-all;overflow-wrap:normal}
+  .hd .brand b em{white-space:nowrap}
+  .hd-act{gap:4px;flex:none;margin-left:0}
+  .hd-act .ibtn{width:44px;min-width:44px;height:44px;padding:0;justify-content:center}
+  .hd-act .askbtn{width:64px;min-width:64px;flex-direction:column;gap:1px}
+  .hd-act .askbtn svg{width:16px;height:16px}
+  .hd-act .askbtn .lbl{display:inline;font-size:13px;line-height:1.2}
+  .subnav a{min-height:48px;padding:12px 12px 10px;font-size:15px;line-height:1.5}
+  .askfab{display:none!important}
+  .has-ask .totop{bottom:14px}
+  .page-hero p.lead,.sec-h p{line-height:1.85;text-wrap:pretty}
+  .sec-h h2,.card h3,.card h4,.org-card b,.flow b,.guide-card h3{word-break:keep-all;text-wrap:balance;overflow-wrap:break-word}
+  .grid>*,.board2>*,.card,.card .tx,.guide-card .tx,.site-card .tx,.lib-card .tx,.note>div,.todo>div,.dcard>div:not(.d){min-width:0}
+  .btn{white-space:normal;line-height:1.45;min-height:48px;padding:10px 16px;text-wrap:balance;max-width:100%}
+  .tag{height:auto;min-height:26px;max-width:100%;padding:3px 9px;white-space:normal;line-height:1.45;flex:none}
+  .copy,.chip,.seg button,.pinfo-act button{min-height:44px;line-height:1.35}
+  .src{min-height:40px;white-space:normal;overflow:visible;align-items:center;line-height:1.45;text-wrap:pretty}
+  .src .srcl{white-space:normal;overflow:visible;text-overflow:clip}
+  .board{padding:18px}
+  .board li a{grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:start;padding:14px 0}
+  .board li a>b{grid-column:1/-1;grid-row:2;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.6;text-wrap:pretty}
+  .board li a>.tag{justify-self:start}
+  .board li a>time{grid-column:2;grid-row:1;line-height:1.9}
+  .board .sched li a{grid-template-columns:58px minmax(0,1fr);align-items:start;gap:12px}
+  .board .dd{width:58px;min-height:62px;height:auto;gap:4px;padding:8px 0}
+  .board .dd b{font-size:16px;overflow:visible}
+  .board .sc-t{min-width:0}
+  .sc-t b,.sc-t small{white-space:normal!important;overflow:visible;text-overflow:clip;line-height:1.65;text-wrap:pretty}
+  .sc-t small{margin-top:5px}
+  .kb-v,.kpi .v{white-space:nowrap;overflow-wrap:normal;font-size:30px;line-height:1.25}
+  .kb-v small,.kpi .v small{font-size:17px}
+  .kb-k,.kb-s,.kpi .k,.kpi .s{text-wrap:balance;word-break:keep-all;line-height:1.65}
+  .kb{padding:18px 12px}
+  .kband-g{gap:12px}
+  #indGrid{grid-template-columns:1fr;gap:14px}
+  #indGrid .card{padding:18px!important}
+  #indGrid .card>div:nth-child(2){font-size:28px!important;line-height:1.4;white-space:nowrap;overflow-wrap:normal}
+  #indGrid .card>div:nth-child(3){line-height:1.7;text-wrap:pretty}
+  #cuList{grid-template-columns:1fr;gap:12px}
+  #cuList .cap{display:block;line-height:1.65}
+  #cuList>.card{flex-direction:row;padding:18px!important;gap:12px;align-items:flex-start}
+  .guide-card .im{width:76px;margin-left:12px}
+  .guide-card .tx{padding:14px}
+  .guide-card h3{font-size:18px;line-height:1.5;align-items:flex-start}
+  .guide-card h3 .arr{flex:none;margin-top:4px}
+  .acc>button{display:grid;grid-template-columns:auto minmax(0,1fr) 18px;gap:10px;padding:18px 16px;line-height:1.6;align-items:center}
+  .acc>button .chev{margin-left:0}
+  .acc .body .in{line-height:1.8}
+  .calnav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+  .calnav #calPrev{grid-column:1;grid-row:1}
+  .calnav #calNext{grid-column:2;grid-row:1}
+  .calnav>span{grid-column:1/-1;grid-row:2;text-align:center;line-height:1.5}
+  .calnav .copy{justify-content:center;white-space:nowrap;padding:8px 10px}
+  .todo{gap:12px;line-height:1.65}
+  .todo input{width:24px;height:24px;margin-top:2px}
+  .todo label{min-width:0}
+  .tbl-wrap{scrollbar-width:thin;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+  .tbl:not(.stack):has(tr>:nth-child(3)){min-width:620px}
+  .tbl:not(.stack):has(tr>:nth-child(4)){min-width:760px}
+  .tbl-wrap:has(>.tbl:not(.stack) tr>:nth-child(3))::before{content:"좌우로 밀어 표 전체 보기";display:block;position:sticky;left:0;max-width:calc(100vw - 34px);padding:10px 14px;font-size:14px;color:var(--muted);background:#fff;border-bottom:1px solid var(--line)}
+  .scroll-hint+.tbl-wrap::before{display:none!important}
+  .tbl th,.tbl td{line-height:1.6}
+  .tbl.stack td{white-space:normal}
+  .money{height:auto;min-height:70px}
+  .money div{min-height:70px;white-space:normal;line-height:1.5;text-wrap:balance;overflow:visible}
+  .maplegend{right:56px;max-width:none;white-space:normal;flex-wrap:wrap;gap:4px 10px;padding:8px 10px;overflow:visible;line-height:1.45}
+  .maplegend div{white-space:normal;min-width:0;line-height:1.45}
+  .maplegend div:last-child{display:flex}
+  .mapbase button{min-width:44px;min-height:44px;padding:0 10px}
+  .hist-hero .lead{margin-top:16px;line-height:1.85}
+  .hist-flip{margin-top:22px;border-radius:16px}
+  .hf-location{gap:10px;padding:12px}
+  .hf-location .hf-where{gap:8px;font-size:15px;line-height:1.55}
+  .hf-location .hf-where b{width:30px;height:30px;font-size:14px;align-self:flex-start}
+  .hf-location .hf-mini{width:64px!important}
+  .hf-bar{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;gap:8px;padding:12px}
+  .hf-play{grid-column:1;grid-row:1;justify-self:start;min-height:44px;height:auto;padding:8px 12px}
+  .hf-nav{min-width:44px;width:44px;height:44px}
+  .hf-nav[data-step="-1"]{grid-column:2;grid-row:1}
+  .hf-nav[data-step="1"]{grid-column:3;grid-row:1}
+  .hf-dots{grid-column:1/-1;grid-row:2;display:flex!important;flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding:2px 0 6px;gap:6px;scrollbar-width:thin;overscroll-behavior-x:contain}
+  .hf-cap{grid-column:1/-1;grid-row:3;margin:0;font-size:14px;line-height:1.55;text-wrap:pretty}
+  .hf-change{padding:2px 14px 14px;font-size:15px;line-height:1.75;text-wrap:pretty}
+  .hf-places{padding:4px 12px 12px;scrollbar-width:thin}
+  .hf-places button{min-height:44px}
+  .hn{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;align-items:start;padding:18px;text-align:left}
+  .hn>span{grid-row:1;font-size:16px;line-height:1.6;text-wrap:balance}
+  .hn b{grid-row:2;order:initial;font-size:34px;justify-content:flex-start;white-space:nowrap;line-height:1.3}
+  .hn b i{font-size:26px}
+  .hn b small{font-size:17px}
+  .hn em{display:block;grid-row:3;font-size:14px;line-height:1.65}
+  .hist-curve{padding:18px 12px 14px}
+  .cv-mobile-key{gap:5px 12px;font-size:14px}
+  .cv-mobile-events{font-size:14px}
+  .cv-trend{gap:10px}
+  .hist-ctrl{gap:12px;padding:14px}
+  .hist-yr{gap:8px;min-width:0;flex-basis:calc(100% - 64px)}
+  .hist-yr b{font-size:28px}
+  .hist-yr input{min-width:0;width:0;flex:1;min-height:44px}
+  .hist-cnt{flex-basis:100%;gap:6px 14px;line-height:1.65}
+  .hist-legend{gap:8px 14px;line-height:1.5}
+  .hist-tabs{scrollbar-width:thin}
+  .hist-tabs button,.hist-dates button{min-height:44px;line-height:1.4}
+  .cmp-cap{display:block;line-height:1.7}
+  .cmp-cap a{min-height:44px;white-space:normal}
+  .hist-reference{display:flex;flex-direction:column;gap:14px;padding:18px}
+  .hist-reference>a{flex:none;width:100%}
+  .hist-reference img{max-height:260px}
+  .hist-reference p{font-size:15px;line-height:1.8}
+  .hist-reference b{font-size:17px;line-height:1.6}
+  .hist-reference .cap{font-size:14px}
+  .hist-present-bar{width:calc(100% - 24px);justify-content:center;gap:6px;flex-wrap:wrap;border-radius:14px}
+  .hist-present-bar button{min-height:44px;height:auto}
+  .ft-brand{align-items:flex-start}
+  .ft-brand div{min-width:0}
+  .ft-brand b,.ft-brand span{white-space:normal;line-height:1.6}
+  .ft-meta{overflow-wrap:anywhere}
+  .tour-chip{gap:8px;padding-left:14px}
+  .tour-chip .btn{flex:none}
+  .tour-chip-x{flex:none;min-width:40px}
+}
+
+/* 가로로 든 휴대전화에서도 질문은 머리줄에서, 본문 위 떠 있는 단추는 숨김 */
+@media (max-width:900px){
+  .askfab,.totop{display:none!important}
+  .hd-act .ibtn,.hf-play,.hf-nav{min-width:44px;min-height:44px}
+  .tour-chip{position:static;left:auto;bottom:auto;transform:none;width:calc(100% - 32px);max-width:var(--wrap);margin:16px auto 24px;flex-wrap:wrap;border-radius:16px;padding:14px;animation:none}
+  .tour-chip .btn{min-height:44px}
+  .tour-chip-x{width:44px;height:44px;flex:none}
+}
