@@ -101,8 +101,8 @@ if Z.get('heritage'):
     hg = Z['heritage']
     card('heritage', '대상지', '확정 구역계는 국가유산(문화재) 규제를 받나?',
          f"모든 개발 금지가 아니다 — 구역의 {hg['unionPct']}%가 「{hg['name']}」({hg['designation']}, {hg['designatedDate'][:4]} 지정)의 세 공개 도형(지정구역·보호구역·현상변경 허용기준 구역) 중 하나와 겹치고, 그중 대부분은 기준 안에서 건축이 되는 허용기준 구역이다",
-         ' · '.join(f"{l['name']} {l['overlapPct']}%" for l in hg['layers']) + ' — 허용기준 구역별 ' + ' · '.join(f"{z_['name']} {z_['zonePct']}%" for z_ in hg['subZones']) + '.',
-         ZONE, hg['source'], '2026-10-13', hg['note'] + '. 구역별 높이·형태 기준 수치는 고시 원문으로 확인한다.')
+         ' · '.join(f"{l['name']} {l['overlapPct']}%" for l in hg['layers']) + ' — 허용기준 구역별 ' + ' · '.join(f"{z_['name']} {z_['zonePct']}%" + (f"({z_['rule']})" if z_.get('rule') else '') for z_ in hg['subZones']) + '.',
+         ZONE, hg['source'] + (f" · 허용기준 {hg['notice']['number']}({hg['notice']['date']})" if hg.get('notice') else ''), '2026-10-13', hg['note'] + '.')
 if Z.get('timeline'):
     tl = Z['timeline']; key = [tl['events'][i] for i in tl['key']]
     card('timeline', '연계', '봉리단길·원도심은 어떻게 변해 왔나?',

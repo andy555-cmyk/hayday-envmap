@@ -116,6 +116,17 @@ if r3:
                      'source': H['source'] + ' 공개 내려받기(' + H['sourceUrl'] + ', 2026-10-13) — 도형 면적 재계산(EPSG:5187)',
                      'note': '「현상변경 허용기준」 구역 안 건축·개발은 구역별 높이·형태 기준을 따르고, 기준을 넘으면 국가유산 현상변경 허가가 필요하다(구역별 수치는 고시 원문 확인). 2024-01 김해시가 건축행위 허용기준 조정안 의견청취를 공고함(최종 고시 확인 필요)'}
     assert 99 <= Z['heritage']['unionPct'] <= 100.0, Z['heritage']['unionPct']
+    r5 = load('L5_heritage_rules/result.json')   # 허용기준 고시 원문(문화재청고시 제2024-47호) — 구역별 높이
+    if r5:
+        rule = {z_['name']: z_ for z_ in r5['zones']}
+        for s_ in Z['heritage']['subZones']:
+            z_ = rule.get(s_['name'], {})
+            s_['flatM'], s_['pitchedM'] = z_.get('heightFlatM'), z_.get('heightPitchedM')
+            s_['rule'] = '평지붕 %sm·경사지붕 %sm 이하' % (z_['heightFlatM'], z_['heightPitchedM']) if z_.get('heightFlatM') else re.sub(r'^ㅇ\s*', '', (z_.get('rule') or '').split('\n')[0])
+        n_ = r5['notice']
+        Z['heritage']['notice'] = {'title': n_['title'], 'number': n_['number'], 'date': n_['date'], 'url': n_['url']}
+        Z['heritage']['note'] = ('현상변경 허용기준 구역 안은 구역별 높이 기준 안에서 건축할 수 있고, 기준을 넘거나 「공통사항 개별 검토」 대상이면 국가유산 현상변경 허가 절차를 거친다(' +
+                                 n_['number'] + ', ' + n_['date'] + ' — 2024-01 김해시 조정안 의견청취를 거친 최종 고시)')
     keep = lambda e: {k: e.get(k) for k in ('date', 'type', 'title', 'summary', 'source', 'url')}
     PICK = ['대상지 선정', '화려한 부활', '도로명', '협동조합 결성', '마중물사업 완료', '공영주차장', '지역관광개발', '빈 점포']
     ev = [keep(e) for e in r3['timeline']]
