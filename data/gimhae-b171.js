@@ -1,18 +1,21 @@
-/* B권역은 별도 계산 결과를 사용한다. 원본 D·D2·S 및 기존 분석은 변경하지 않는다. */
+/* 확정 구역계(2026-10-11)는 별도 계산 결과(data/gimhae-zone-261011.json)를 사용한다. 원본 D·D2·S 및 기존 분석은 변경하지 않는다.
+   파일 이름·id(b171, b-*, bs-*)는 9/30 B권역 때의 호환 이름이며 면적과 무관하다. 9/30 B권역 검토선은 비교선으로만 남긴다. */
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const num = v => Number(v).toLocaleString('ko-KR');
-  const areaLabel = () => (data.printedArea/10000).toFixed(1)+'ha';
+  const areaLabel = () => (data.area/10000).toFixed(1)+'ha';
+  const haLabel = m2 => (m2/10000).toFixed(1)+'ha';
   const fc = features => ({type:'FeatureCollection',features});
+  const NAME='확정 구역계';
   const switcher = document.createElement('div'); switcher.id='scope-switch';
-  switcher.innerHTML='<div class="scope-label">기존 지도에 B권역 함께 보기</div><div class="scope-buttons"><button id="scope-old" aria-pressed="true">전체 · B 함께 보기</button><button id="scope-b" disabled aria-pressed="false">B권역 불러오는 중</button></div><div id="scope-status" role="status"></div>';
+  switcher.innerHTML='<div class="scope-label">기존 지도에 확정 구역계(10/11) 함께 보기</div><div class="scope-buttons"><button id="scope-old" aria-pressed="true">전체 · 구역계 함께 보기</button><button id="scope-b" disabled aria-pressed="false">확정 구역계 불러오는 중</button></div><div id="scope-status" role="status"></div>';
   $('detail').prepend(switcher);
   const panel=document.createElement('section');panel.id='b-panel';$('detail').append(panel);
   const overview=document.createElement('section');overview.id='b-overview';switcher.after(overview);
   const caption=document.createElement('div');caption.id='b-map-caption';document.body.append(caption);
-  let data, buildings, stores, active=false, ready=false, mode='old', is3d=true, savedView, popup;
+  let ctx, data, buildings, stores, active=false, ready=false, mode='old', is3d=true, savedView, popup;
   const insights=window.GimhaeBInsights;
   let analysis, buildingRows=[], storeRows=[], buildingLimit=30, storeLimit=20;
   let visibility=new Map(), previousTitle=document.title;
@@ -24,6 +27,8 @@
   const ageLegend=[['#b32318','1975년 이전'],['#d9532b','1990년'],['#ef8f3c','2000년'],['#f3c37a','2010년'],['#efe7d9','2018년'],['#faf7f1','2024년 이후'],['#cfc9bf','연도 미확인']];
   const classColor=['match',['get','cl'],'shop','#ef6161','res','#ab8bed','non','#64a1cd','unk','#8a95a5','biz','#68ba93','#586776'];
   const labels={shop:'현장 확인 후보',res:'주거용 건물',non:'가게 대상 아님',unk:'용도 미확인',biz:'등록점포 연결',etc:'기타'};
+  const SITE_COLOR='#ff4d4d', PREV_B='#ffa36b', PREV_N1='#c9a7ff';
+  const roleLabel={거점:'거점',방문객:'방문객용 공간',창작:'개인 창작 공간 후보'};
   function addSource(id,features){map.addSource(id,{type:'geojson',data:features});}
   function addLayer(layer){ownIds.push(layer.id);map.addLayer(layer);}
   function setVisibility(id,on){if(map.getLayer(id))map.setLayoutProperty(id,'visibility',on?'visible':'none');}
@@ -38,19 +43,25 @@
   function frame(duration=0,closeup=false){
     if(!data)return;
     const coords=[...data.boundary.geometry.coordinates[0]];
-    // Start with the existing district AND B, never a detached B-only crop.
-    if(!closeup)ZP.features.filter(f=>['black','blue'].includes(f.properties.k)).forEach(f=>coords.push(...f.geometry.coordinates[0]));
+    // Start with the existing business district (blue) AND the confirmed boundary, never a detached crop.
+    // The 221ha black district made the 21.8ha zone a corner detail (2026-10-13), so it is no longer part of the first view.
+    if(!closeup)ZP.features.filter(f=>f.properties.k==='blue').forEach(f=>coords.push(...f.geometry.coordinates[0]));
     const xs=coords.map(p=>p[0]),ys=coords.map(p=>p[1]);
     const viewport=map.getContainer().getBoundingClientRect(),rect=$('detail').getBoundingClientRect();
     const mobile=innerWidth<=820, panelVisible=rect.width>0&&rect.height>0;
     // Padding is relative to the MAP, not the browser. Desktop already excludes the sidebar.
     const coveredLeft=!mobile&&panelVisible?Math.max(0,rect.right-viewport.left):0;
     const coveredBottom=mobile&&panelVisible?Math.max(0,viewport.bottom-Math.max(rect.top,viewport.top)):0;
-    const side=Math.max(28,(viewport.width-coveredLeft)*.12);
-    const visibleHeight=Math.max(120,viewport.height-coveredBottom);
+    // The overview legend sits on the map's lower left; keep the boundary clear of it on desktop.
+    const legend=$('lgd')?.getBoundingClientRect(),legendOn=!!(legend&&legend.width>0&&legend.height>0);
+    const legendLeft=!mobile&&legendOn?Math.max(0,legend.right-viewport.left-coveredLeft):0;
+    // On phones the legend sits at the top of the map: start the fit below it.
+    const legendTop=mobile&&legendOn?Math.max(0,Math.min(legend.bottom,viewport.bottom)-viewport.top):0;
+    const side=Math.max(28,(viewport.width-coveredLeft-legendLeft)*.12);
+    const visibleHeight=Math.max(120,viewport.height-coveredBottom-legendTop);
     const vertical=Math.max(28,visibleHeight*.12);
     map.fitBounds([[Math.min(...xs),Math.min(...ys)],[Math.max(...xs),Math.max(...ys)]],{
-      padding:{left:coveredLeft+side,right:side,top:vertical,bottom:coveredBottom+vertical},
+      padding:{left:coveredLeft+legendLeft+side,right:side,top:legendTop+vertical,bottom:coveredBottom+vertical},
       pitch:is3d?30:0,bearing:0,duration,maxZoom:17.4
     });
   }
@@ -59,9 +70,9 @@
     if(on===active)return;
     popup?.remove();
     if(on){savedView={center:map.getCenter(),zoom:map.getZoom(),pitch:map.getPitch(),bearing:map.getBearing(),padding:map.getPadding()};visibility=new Map();}
-    active=on;document.body.classList.toggle('b-active',on);document.body.dataset.analysisScope=on?'b171':'legacy';
+    active=on;document.body.classList.toggle('b-active',on);document.body.dataset.analysisScope=on?'zone261011':'legacy';
     $('scope-b').setAttribute('aria-pressed',String(on));$('scope-old').setAttribute('aria-pressed',String(!on));
-    if(on){isolate();renderLayers();document.title=`김해 B권역 ${areaLabel()} · 환경분석맵`;frame(0);}
+    if(on){isolate();renderLayers();document.title=`김해 ${NAME} ${areaLabel()} · 환경분석맵`;frame(0);}
     else {ownIds.forEach(id=>setVisibility(id,false));visibility.forEach((v,id)=>{if(map.getLayer(id))map.setLayoutProperty(id,'visibility',v);});document.title=previousTitle;if(savedView)map.jumpTo(savedView);showBoundary();frame(0);}
   }
   function showBoundary(){['bs-boundary-fill','bs-boundary-glow','bs-boundary-case','bs-boundary-line','bs-boundary-highlight'].forEach(id=>setVisibility(id,true));}
@@ -73,71 +84,118 @@
     setVisibility('bs-context-flat',!is3d);setVisibility('bs-context-3d',is3d);
     setVisibility('bs-stores',$('b-stores').checked);setVisibility('bs-roads',$('b-roads').checked);
     setVisibility('bs-review',$('b-review').checked);setVisibility('bs-compare',$('b-compare').checked);
-    setVisibility('bs-wifi',$('b-wifi').checked);
+    setVisibility('bs-prev-b156',$('b-prev').checked);setVisibility('bs-prev-n1',$('b-prev').checked);
+    setVisibility('bs-wifi',$('b-wifi').checked);setVisibility('bs-gates',$('b-gates').checked);setVisibility('bs-closed',$('b-closed').checked);setVisibility('bs-vanished',$('b-vanished').checked);
+    setVisibility('bs-sites',$('b-sites-on').checked);setVisibility('bs-sites-ring',$('b-sites-on').checked);
     renderSelection();
     renderStoreMap();
     const color=mode==='old'?colors:mode==='candidate'?classColor:['match',['get','pu'],'단독주택','#ab8bed','공동주택','#7487d8','제1종근린생활시설','#e8ab6d','제2종근린생활시설','#ee875e','숙박시설','#68bbc8','#8295a8'];
     map.setPaintProperty('bs-flat','fill-color',color);map.setPaintProperty('bs-3d','fill-extrusion-color',color);
     const legend=mode==='old'?ageLegend:mode==='candidate'?[['#ef6161','현장 확인 후보'],['#ab8bed','주거'],['#64a1cd','비점포'],['#8a95a5','용도 미확인'],['#68ba93','등록점포 연결']]:[['#ab8bed','단독주택'],['#7487d8','공동주택'],['#e8ab6d','제1종 근생'],['#ee875e','제2종 근생'],['#68bbc8','숙박'],['#8295a8','기타']];
     $('b-legend').innerHTML=legend.map(([c,t])=>`<span><i class="b-dot" style="background:${c}"></i>${t}</span>`).join('');
-    caption.innerHTML=`<b>지금 보고 있는 것 — ${mode==='old'?'노후도 (기존 지도와 같은 색)':mode==='candidate'?'현장 확인 후보':'건물 용도'}</b><div class="b-map-legend">${$('b-legend').innerHTML}</div><span>B권역 ${areaLabel()} · 건물 ${num(data.stats.buildings)}동 · 등록점포 ${num(data.stats.stores)}개</span><div id="b-map-selection"></div><div class="b-caption-note">민트 점선: B 검토 경계 · 파란선: 기존 사업구역<br>기존 구역과 주변 건물은 위치 참고 · B 집계와 별도</div>`;
+    const lines=['민트 선: 확정 구역계(10/11)'];
+    if($('b-sites-on').checked)lines.push('빨간 점: 시 우선순위 13곳');
+    if($('b-compare').checked)lines.push('파란 점선: 기존 사업구역 51.8ha');
+    if($('b-prev').checked)lines.push('주황 점선: 9/30 B권역 · 보라 점선: 10/8 ①안');
+    if($('b-closed').checked)lines.push('분홍 테두리: 인허가 폐업 신호');if($('b-vanished').checked)lines.push('회색 점: 상가정보에서 사라진 점포');
+    caption.innerHTML=`<b>지금 보고 있는 것 — ${mode==='old'?'노후도 (기존 지도와 같은 색)':mode==='candidate'?'현장 확인 후보':'건물 용도'}</b><div class="b-map-legend">${$('b-legend').innerHTML}</div><span>${NAME} ${areaLabel()} · 건물 ${num(data.stats.buildings)}동 · 등록점포 ${num(data.stats.stores)}개</span><div id="b-map-selection"></div><div class="b-caption-note">${lines.join(' · ')}<br>주변 건물은 위치 참고 · 구역 집계와 별도</div>`;
     renderSelectionNote();
   }
   const table=obj=>'<table>'+Object.entries(obj).map(([k,v])=>`<tr><td>${esc(k)}</td><td>${num(v)}</td></tr>`).join('')+'</table>';
+  const siteLine=s=>[s.type,roleLabel[s.role]||s.role,s.state].filter(Boolean).join(' · ');
+  function contextSection(){
+    const r=ctx.roads,g=ctx.gates,sd=ctx.storeDistance,bus300=ctx.bus.within300,busSum=bus300.reduce((n,b)=>n+b.daily,0);
+    const pop=Object.entries(ctx.population).map(([k,v])=>`${esc(k)} ${num(v.total)}명(65세 이상 ${v.agingPct}%)`).join(' · ');
+    return `<section id="b-context" class="b-reading"><h3>도로·교통·생활 기반 — 확정 구역계로 다시 계산</h3>
+      <article><span>01 · 구역 안 도로</span><strong>차량 도로 ${num(r.totalM)}m 중 소로(골목) ${r.sharePct['소로']}%</strong><p>대로 ${num(r.byTier['대로'])}m · 중로 ${num(r.byTier['중로'])}m · 소로 ${num(r.byTier['소로'])}m. 대로는 남서쪽 끝에서 김해대로가 경계에 닿을 뿐 구역 안을 지나지 않습니다.</p></article>
+      <article><span>02 · 진출입구</span><strong>${num(g.total)}곳 — 대로 ${g.byTier['대로']} · 중로 ${g.byTier['중로']} · 골목 ${g.byTier['소로']}</strong><p>경계선과 차량 도로가 만나는 점을 30m 안에서 하나로 묶은 수입니다.</p></article>
+      <article><span>03 · 점포에서 큰길까지</span><strong>등록점포 ${num(sd.n)}곳 중 ${num(sd.bands['100m 밖'])}곳이 대로·중로에서 100m 넘게 안쪽</strong><p>50m 안 ${num(sd.bands['50m 안'])} · 50~100m ${num(sd.bands['50~100m'])} · 100m 밖 ${num(sd.bands['100m 밖'])} · 중간값 ${num(sd.medianM)}m (직선거리)</p></article>
+      <article><span>04 · 경전철·버스</span><strong>${ctx.rail.map(t=>`${esc(t.name)}역 ${num(t.distM)}m`).join(' · ')}</strong><p>경계에서 역까지 직선거리 · 하루 승하차 ${ctx.rail.map(t=>`${esc(t.name)} ${num(t.daily)}명`).join(' · ')}. 버스 정류장은 구역 안 ${ctx.bus.inside.length}곳, 경계 300m 안 ${bus300.length}곳(일평균 이용 합 ${num(busSum)}명).</p></article>
+      <article><span>05 · 생활·안전 시설</span><strong>${Object.entries(ctx.safe).slice(0,3).map(([k,v])=>`${esc(k)} ${num(v)}`).join(' · ')}</strong><p>${Object.entries(ctx.safe).slice(3).map(([k,v])=>`${esc(k)} ${num(v)}`).join(' · ')||'그 밖 없음'} — 이 지도의 생활·안전 시설 자료 기준이며 실제보다 적게 잡혔을 수 있습니다.</p></article>
+      <article><span>06 · 인구 (법정동 전체 · 구역만의 값 아님)</span><strong>${pop}</strong><p>구역 안 건물은 대부분 봉황동(${num(data.stats.dongs['봉황동']||0)}동)입니다. 등록점포 주소의 행정동은 ${Object.entries(ctx.storeAdong).map(([k,v])=>`${esc(k)} ${num(v)}`).join(' · ')}곳입니다.</p></article>
+      <article><span>07 · 땅값 (참고)</span><strong>시 13곳 공시지가 ${num(Math.min(...data.sites.map(t=>t.officialPrice.wonPerM2)))}~${num(Math.max(...data.sites.map(t=>t.officialPrice.wonPerM2)))}원/㎡ (2026년 1월)</strong><p>실거래 ㎡당 중간값(${esc(data.landPrice.trades.period)}, 법정동 전체): ${data.landPrice.medians.map(m=>`${esc(m.dong)} ${esc(m.type)} ${num(Math.round(m.wonPerM2/10000))}만 원(${m.n}건)`).join(' · ')}. 지번 일부가 가려져 구역 안 거래만 따로 셀 수 없습니다.</p></article>
+      <div class="b-note">도로 = OpenStreetMap(${esc(ctx.osmFetched)} 받음, 등급은 도로 종류·차로 수로 환산 — 도시계획도로 지정 아님). 역·버스·생활시설·와이파이 = 이 지도의 기존 시 전체 자료를 확정 구역계 경계로 다시 셈. 인구 = 구역 건물이 있는 법정동 전체의 참고값(경계 안 인구 아님).</div></section>`;
+  }
+  function vacancySection(shopCount){
+    const v=data.vacancy,sb=v.sbiz,ld=v.localdata,yrs=Object.entries(ld.byYear).filter(([y])=>+y>=2019),mx=Math.max(...yrs.map(([,r])=>Math.max(r.open,r.close)),1);
+    const flip=yrs.filter(([,r])=>r.close>r.open).map(([y])=>y);
+    const inside=v.listings.items.filter(l=>l.zone==='구역 안'),near=v.listings.items.filter(l=>l.zone!=='구역 안');
+    const bars=yrs.map(([y,r])=>`<div class="b-yr"><span>${y}${y==='2026'?'*':''}</span><i class="o" style="width:${Math.round(r.open/mx*100)}%"></i><b>${r.open}</b><i class="c" style="width:${Math.round(r.close/mx*100)}%"></i><b>${r.close}</b></div>`).join('');
+    return `<section id="b-vacancy" class="b-reading"><h3>공실 신호 — 확정 구역계로 다시 모은 자료 (${esc(v.collected)})</h3>
+      <article><span>01 · 건물 기준 빈 점포 후보</span><strong>${num(shopCount)}동</strong><p>상업·준주거지역 건물 중 등록점포가 연결되지 않은 곳(이 지도의 기존 판정 방법). 구역 대부분이 주거지역이라 수가 적습니다.</p></article>
+      <article><span>02 · 인허가 폐업 신호</span><strong>${num(ld.signals.length)}곳 — 2022년 이후 폐업, 같은 주소에 지금 영업 신고 없음</strong><p>${esc(ld.industries.length)}개 업종(음식점·카페·미용·세탁 등) 인허가 기준. 구역 안 영업 중 신고 ${num(ld.insideOpen)}건 · 2022년 이후 폐업 ${num(ld.closedSince2022)}건. 조사 업종 밖 영업·미신고 영업은 빠집니다.</p><button id="b-closed-toggle">폐업 신호 ${num(ld.signals.length)}곳 지도에 표시</button></article>
+      <article><span>03 · 개업·폐업 흐름 (인허가, 구역 안)</span><strong>${flip.length?`${flip[0]}년부터 폐업이 개업보다 많음`:'개업이 폐업보다 많음'}</strong><div class="b-yrs"><div class="b-yr b-yr-head"><span></span><em>개업</em><em>폐업</em></div>${bars}</div><p>* 2026년은 10월 13일까지.</p></article>
+      <article><span>04 · 상가정보 분기 비교</span><strong>${esc(sb.compare)} ${num(sb.insideCompare)}곳 → ${esc(sb.latest)} ${num(sb.inside)}곳 · 사라짐 ${num(sb.vanished.length)} · 새로 생김 ${num(sb.newCount)}</strong><p>최신 공개분이 ${esc(sb.latest)}이며 다음 공개 예정은 ${esc(sb.next)}입니다. 사라진 점포는 폐업·이전 후보이고 확정이 아닙니다. 번호만 바뀐 ${num(sb.idReissued)}쌍은 뺐습니다${sb.vanishedDupRemoved?`(원자료에 두 줄로 들어간 같은 점포 ${sb.vanishedDupRemoved}건도 한 곳으로 셈)`:''}.</p><button id="b-vanished-toggle">사라진 점포 ${num(sb.vanished.length)}곳 지도에 표시</button></article>
+      <article><span>05 · 지금 나와 있는 매물 (${esc(v.collected)} 확인)</span><strong>구역 안 ${inside.length}건 · 경계 바로 밖 ${near.length}건</strong><p>${[...inside,...near].map(l=>`${esc(l.place)} — ${esc(l.kind)} ${esc(l.deal)}${l.areaM2?` 전용 ${num(l.areaM2)}㎡`:''} · ${esc(l.floor||'')} · 광고: ${esc(l.state)} (${esc(l.platform)})`).join('<br>')}<br>10/1에 본 자체 후보 광고 ${v.listings.old.length}건은 모두 숨김·삭제됨. ${esc(v.listings.limit)}.</p></article>
+      <article><span>06 · 빈집(주거)</span><strong>주소별 공개 목록 없음</strong><p>${esc(v.emptyHouse.note)}. 구역 안 빈집 수는 현장 조사로만 확인할 수 있습니다.</p></article>
+      <div class="b-note">모두 「현장에서 확인할 대상」이며 공실 확정 수가 아닙니다. 서로 다른 자료라 더하지 않습니다. 출처: ${esc(ld.source)} · ${esc(sb.source)} · 당근 부동산·네이버 부동산 공개 화면.</div><button id="b-vacancy-csv">공실 신호 목록 받기</button></section>`;
+  }
   function renderPanel(){
-    const s=data.stats, classes={};buildings.forEach(f=>{const k=f.properties.cl;classes[k]=(classes[k]||0)+1;});
+    const s=data.stats, r=data.relation, classes={};buildings.forEach(f=>{const k=f.properties.cl;classes[k]=(classes[k]||0)+1;});
     analysis=insights.summarize(buildings,stores);
-    overview.innerHTML=`<div class="b-overview-heading"><b><i></i>B권역 추가 검토</b><span>${areaLabel()}</span></div><p>기존 지도 위에 <b>민트 점선</b>으로 겹쳐 표시</p><div class="b-overview-stats"><span>건물 <b>${num(s.buildings)}동</b></span><span>등록점포 <b>${num(s.stores)}개</b></span><span>20년 이상 <b>${s.oldPct}%</b></span></div><p class="b-overview-note">도면 ${data.sourcePage}쪽 · ${num(data.printedArea)}㎡ 안 · 아래 기존 구역 통계와 별도</p><div class="b-overview-actions"><button id="b-together">전체 위치 보기</button><button id="b-closeup">B권역 확대·분석</button></div>`;
+    const nearest=data.sites.reduce((a,b)=>b.edgeM<a.edgeM?b:a);
+    overview.innerHTML=`<div class="b-overview-heading"><b><i></i>${NAME}</b><span>${areaLabel()}</span></div><p>2026-10-11 확정 · 기존 지도 위에 <b>민트 선</b>으로 겹쳐 표시</p><div class="b-overview-stats"><span>건물 <b>${num(s.buildings)}동</b></span><span>등록점포 <b>${num(s.stores)}개</b></span><span>20년 이상 <b>${s.oldPct}%</b></span></div><p class="b-overview-note">${num(data.area)}㎡ · 시 우선순위 13곳 모두 안 · 아래 기존 구역(51.8ha) 통계와 별도</p><div class="b-overview-actions"><button id="b-together">전체 위치 보기</button><button id="b-closeup">구역계 확대·분석</button></div>`;
     $('b-together').onclick=()=>frame(350);
     $('b-closeup').onclick=()=>{switchScope(true);frame(350,true);};
     const overviewInsight=document.createElement('p');overviewInsight.className='b-overview-note';overviewInsight.textContent=`안쪽 분석: 40년 이상 ${analysis.counts.old40}동 · 등록 업종 중 소매·음식 ${analysis.foodRetailPct}%`;overview.querySelector('.b-overview-actions').before(overviewInsight);
-    panel.innerHTML=`<div class="b-eyebrow">김해 원도심 · 분석 범위 B권역</div><h2>김해 원도심 — B권역</h2><p>기존 지도와 같은 건물·노후도 표현 · 집계는 B권역만</p>
-      <div class="b-note">${esc(data.source)}의 빨간 경계를 옮긴 검토선입니다. 도면 이미지를 지도에 옮겼으며, 측량 경계가 아닙니다. 경계 주변 건물은 포함 여부를 다시 확인해야 합니다.</div>
-      <div class="b-kpis"><div class="b-kpi"><strong>${num(s.buildings)}</strong><span>B권역 건물 · 동</span></div><div class="b-kpi"><strong>${num(s.stores)}</strong><span>등록점포 위치 · 개</span></div><div class="b-kpi"><strong>${s.oldPct}%</strong><span>연도 확인 건물 중 20년 이상</span></div><div class="b-kpi"><strong>${num(s.edgeInside)}</strong><span>포함 건물 중 경계 주변 · 동</span></div></div>
+    panel.innerHTML=`<div class="b-eyebrow">김해 원도심 · RE:CORE 대상지</div><h2>${NAME} ${areaLabel()}</h2><p>2026-10-11 확정 · 기존 지도와 같은 건물·노후도 표현 · 집계는 확정 구역계 안만</p>
+      <div class="b-note">${esc(data.source)}입니다. 면적 ${num(data.area)}㎡는 도형 계산값이며 지적(필지) 경계가 아닙니다. 지적 경계 자료를 받으면 다시 맞춥니다. 경계 주변 건물은 포함 여부를 다시 확인해야 합니다.</div>
+      <div class="b-kpis"><div class="b-kpi"><strong>${num(s.buildings)}</strong><span>구역 안 건물 · 동</span></div><div class="b-kpi"><strong>${num(s.stores)}</strong><span>등록점포 위치 · 개</span></div><div class="b-kpi"><strong>${s.oldPct}%</strong><span>연도 확인 건물 중 20년 이상</span></div><div class="b-kpi"><strong>${num(s.edgeInside)}</strong><span>포함 건물 중 경계 주변 · 동</span></div></div>
       <p>노후 비율: ${s.old20}동 ÷ 연도 확인 ${s.knownYear}동<br>연도 미확인 ${s.unknownYear}동은 비율 계산에서 제외 · 2026년 기준</p>
-      <nav class="b-jump" aria-label="B권역 분석 바로가기"><a href="#b-reading">핵심 분석</a><a href="#b-building-section">건물 찾기</a><a href="#b-store-section">상권 찾기</a><a href="#b-export-section">자료 받기</a></nav>
-      <section id="b-reading" class="b-reading"><h3>자료로 읽는 B권역</h3><article><span>01 · 건물 연도</span><strong>40년 이상 ${num(analysis.counts.old40)}동</strong><p>연도 확인 ${num(s.knownYear)}동 중 ${insights.pct(analysis.counts.old40,s.knownYear)}%. 오래된 정도를 보여주는 값이며, 안전등급은 아닙니다.</p></article><article><span>02 · 등록 업종</span><strong>소매·음식 ${num(analysis.foodRetail)}개 · ${analysis.foodRetailPct}%</strong><p>등록점포 ${s.stores}개 기준. 매출·손님 수나 현재 영업 비율을 뜻하지 않습니다.</p></article><article><span>03 · 건물 쓰임</span><strong>주택 ${analysis.residential}동 · 근린생활시설 ${analysis.neighborhood}동</strong><p>근린생활시설은 가게·의원 등 생활에 필요한 시설입니다. 건물 전체의 주용도 기준이므로 가구 수나 점포 수와 다릅니다.</p></article><div class="b-note">검토 제안: 오래된 건물 상태·공실 여부·보행 불편을 현장에서 함께 확인. 이 자료만으로 철거·정비 대상을 확정하지 않습니다.</div><button id="b-brief">분석 요약 내려받기</button></section>
-      <details><summary>B권역 자료에 물어보기</summary><div class="b-controls" id="b-questions"><button>건물·점포</button><button>노후도</button><button>빈 점포</button><button>유동인구</button><button>인구·사업체</button><button>경계</button></div><p id="b-answer" role="status">항목을 누르면 B권역 자료만으로 답합니다. 기존 구역 수치와 섞지 않습니다.</p></details>
+      <div class="b-relation"><b>이전 범위와 달라진 점</b><span>10/8 ①안(14.6ha)보다 <b>${num(r.addedVsN1)}㎡</b> 넓음 — 봉황예술극장·봉황역 쪽 서남부와 남쪽 블록 추가</span><span>공모 권장 15만㎡보다 <b>${num(r.over150k)}㎡</b> 넓음 — 넓힌 사유는 계획서에서 설명</span><span>이 지도 기본 수치의 범위(기존 사업구역 51.8ha)와 겹치는 곳은 <b>약 ${haLabel(r.blueOverlap)}</b> — 아래 탭의 1,009동·영업 점포 등은 다른 범위의 값</span></div>
+      <nav class="b-jump" aria-label="확정 구역계 분석 바로가기"><a href="#b-reading">핵심 분석</a><a href="#b-sites">시 13곳</a><a href="#b-vacancy">공실 신호</a><a href="#b-context">도로·교통</a><a href="#b-building-section">건물 찾기</a><a href="#b-store-section">상권 찾기</a><a href="#b-export-section">자료 받기</a></nav>
+      <section id="b-reading" class="b-reading"><h3>자료로 읽는 확정 구역계</h3><article><span>01 · 건물 연도</span><strong>40년 이상 ${num(analysis.counts.old40)}동</strong><p>연도 확인 ${num(s.knownYear)}동 중 ${insights.pct(analysis.counts.old40,s.knownYear)}%. 오래된 정도를 보여주는 값이며, 안전등급은 아닙니다.</p></article><article><span>02 · 등록 업종</span><strong>소매·음식 ${num(analysis.foodRetail)}개 · ${analysis.foodRetailPct}%</strong><p>등록점포 ${s.stores}개 기준. 매출·손님 수나 현재 영업 비율을 뜻하지 않습니다.</p></article><article><span>03 · 건물 쓰임</span><strong>주택 ${analysis.residential}동 · 근린생활시설 ${analysis.neighborhood}동</strong><p>근린생활시설은 가게·의원 등 생활에 필요한 시설입니다. 건물 전체의 주용도 기준이므로 가구 수나 점포 수와 다릅니다.</p></article><div class="b-note">검토 제안: 오래된 건물 상태·공실 여부·보행 불편을 현장에서 함께 확인. 이 자료만으로 철거·정비 대상을 확정하지 않습니다.</div><button id="b-brief">분석 요약 내려받기</button></section>
+      <section id="b-sites"><h3>시 우선순위 대상지 13곳 — 모두 구역 안</h3>${data.landUseSummary?`<div class="b-note">토지이용 규제(토지이음 2026-10-13): 13곳 모두 <b>역사문화환경보존지역</b>(문화유산법)·<b>중점경관관리구역</b>에 들어 있어 리모델링·신축 때 허용기준·협의 필요 여부를 먼저 확인해야 합니다. 도시계획도로 저촉 ${data.landUseSummary.roadConflict.length}곳(${data.landUseSummary.roadConflict.join('·')}번), 방화지구 ${data.landUseSummary.fireDistrict.length}곳(${data.landUseSummary.fireDistrict.join('·')}번).</div>`:''}<p>번호 = 김해시 우선순위(2026-10-08 목록). 역할은 10/8 현장 미팅 — 거점 5·10, 개인 창작 13, 나머지는 방문객용 공간 방향만 정해짐. 경계까지 가장 가까운 곳은 ${nearest.rank}번(${num(nearest.edgeM)}m).</p><div id="b-site-list">${data.sites.map(t=>`<button class="b-result b-site" data-rank="${t.rank}"><span class="b-site-no">${t.rank}</span>${esc(t.jibun)}<small>${esc(siteLine(t))}${t.areaNote?'<br>'+esc(t.areaNote):''}${t.officialPrice?`<br>공시지가 ${esc(t.officialPrice.ym.slice(0,4))} ${num(t.officialPrice.wonPerM2)}원/㎡ · ${esc(t.officialPrice.land)} ${num(t.officialPrice.areaM2)}㎡(토지)`:''}${t.landUse?`<br>규제: ${esc([...t.landUse.zoning,...t.landUse.district,...t.landUse.road.filter(x=>x.includes('저촉')).map(x=>'도로 '+x)].join(' · '))}`:''}</small></button>`).join('')}</div><div class="b-note">지번 위치 점이며 필지 외곽선이 아닙니다. 공시지가는 국토교통부 토지이음 2026년 1월 개별공시지가(거래 가격 아님)입니다. 현재 공실·사용 가능 여부와 매입·임대 조건은 시와 현장에서 확인합니다.</div></section>
+      ${vacancySection(classes.shop||0)}
+      ${contextSection()}
+      <details><summary>확정 구역계 자료에 물어보기</summary><div class="b-controls" id="b-questions"><button>건물·점포</button><button>노후도</button><button>빈 점포</button><button>시 13곳</button><button>도로·교통</button><button>유동인구</button><button>인구·사업체</button><button>경계</button></div><p id="b-answer" role="status">항목을 누르면 확정 구역계 자료만으로 답합니다. 기존 구역 수치와 섞지 않습니다.</p></details>
       <h3>건물 색 · 지도 보기</h3><select id="b-mode" aria-label="건물 색상 구분"><option value="old">노후도 (기존 지도와 동일)</option><option value="use">건물 용도별</option><option value="candidate">빈 점포 현장 확인 후보</option></select>
-      <div id="b-legend" class="b-legend"></div><div class="b-controls"><button id="b-3d" aria-pressed="true">입체 건물</button><button id="b-fit">주변까지 넓게 보기</button><button id="b-focus">B권역만 확대</button></div>
-      <label><input id="b-stores" type="checkbox">등록점포 위치 표시 · 업종·검색 조건 반영</label><label><input id="b-roads" type="checkbox">B권역 안 도로 표시</label><label><input id="b-review" type="checkbox">경계 주변 건물 ${data.edgeBuildingIndices.length}동 확인</label><label><input id="b-compare" type="checkbox">기존 파란 경계와 비교</label><label><input id="b-wifi" type="checkbox">주변 와이파이 측정지점 참고</label>
-      <details><summary>건물 노후도 · 용도</summary>${table(s.bands)}<p>사용승인 연도 기준. 건물 상태·안전등급을 뜻하지 않습니다.</p>${table(s.uses)}</details>
+      <div id="b-legend" class="b-legend"></div><div class="b-controls"><button id="b-3d" aria-pressed="true">입체 건물</button><button id="b-fit">주변까지 넓게 보기</button><button id="b-focus">구역계만 확대</button></div>
+      <label><input id="b-sites-on" type="checkbox" checked>시 우선순위 13곳 위치 (빨간 점)</label><label><input id="b-closed" type="checkbox">인허가 폐업 신호 ${num(data.vacancy.localdata.signals.length)}곳 (분홍 테두리)</label><label><input id="b-vanished" type="checkbox">상가정보에서 사라진 점포 ${num(data.vacancy.sbiz.vanished.length)}곳 (회색)</label><label><input id="b-stores" type="checkbox">등록점포 위치 표시 · 업종·검색 조건 반영</label><label><input id="b-roads" type="checkbox">구역 안 차량 도로 (OSM 등급 환산)</label><label><input id="b-gates" type="checkbox">구역 진출입구 ${num(ctx.gates.total)}곳</label><label><input id="b-review" type="checkbox">경계 주변 건물 ${data.edgeBuildingIndices.length}동 확인</label><label><input id="b-compare" type="checkbox">기존 사업구역(51.8ha) 파란 경계와 비교</label><label><input id="b-prev" type="checkbox">이전 검토선과 비교 (9/30 B권역 15.6ha · 10/8 ①안 14.6ha)</label><label><input id="b-wifi" type="checkbox">주변 와이파이 측정지점 참고</label>
+      <details><summary>건물 노후도 · 용도</summary>${table(s.bands)}<p>사용승인 연도 기준. 건물 상태·안전등급을 뜻하지 않습니다.</p>${table(s.uses)}<p>법정동: ${Object.entries(s.dongs).map(([k,v])=>`${esc(k)} ${num(v)}동`).join(' · ')}</p></details>
       <details><summary>빈 점포 현장 확인 후보 ${num(classes.shop||0)}동</summary><div class="b-note">실제 공실로 확인한 수가 아닙니다. 기존 자료의 상업지역·연결 점포 0개 조건에 건물 용도 등을 대조한 현장 확인 후보입니다.</div>${table(Object.fromEntries(Object.entries(classes).map(([k,v])=>[labels[k],v])))}<p>상가 위치 ${s.stores}개와 건물별 연결 점포 수는 서로 다른 기준이므로 합계가 같지 않을 수 있습니다.</p></details>
-      <details><summary>상권 · 도로 · 유동 자료</summary>${table(s.industries)}<h3>경계 안으로 잘라 계산한 도로 길이</h3>${table(Object.fromEntries(Object.entries(s.roadLengths).map(([k,v])=>[k+' (m)',v])))}<p>도로 중심선 길이이며 보행거리나 도로 면적이 아닙니다.</p><div class="b-note">B권역 내부 와이파이 측정지점 ${s.wifiInside}곳. 사람 수가 0명이라는 뜻이 아닙니다. 주변 지점은 참고용으로만 표시하며 B권역 유동인구로 합산하지 않습니다.</div><p>기존 구역의 출입구·생활권·점포별 큰길 거리는 이 범위의 새 분석값으로 사용하지 않습니다.</p></details>
-      <details><summary>경계 근거 · 포함 기준</summary><p>자료: ${esc(data.source)} · 표기 ${num(data.printedArea)}㎡ / 지도에서 계산 ${num(data.computedArea)}㎡. 표기 면적에 맞춰 경계를 억지로 늘리거나 줄이지 않았습니다.</p><p>건물: 건물 내부 대표점이 경계 안에 있으면 포함.<br>점포: 등록된 위치가 경계 안에 있으면 포함.</p><p>경계선 양쪽 20m에 닿는 건물 ${data.edgeBuildingIndices.length}동(안 ${s.edgeInside}동 / 밖 ${data.edgeBuildingIndices.length-s.edgeInside}동)은 검토 목록으로 별도 관리. 20m는 확인용 폭이며 정확도 보증이 아닙니다.</p><p>기존 파란 범위·분석·주변 자료는 삭제하지 않았습니다. 위의 ‘전체 · B 함께 보기’ 버튼으로 돌아갑니다.</p><p>자료: 기존 환경분석맵 건물 자료 / 상가정보 2026년 6월 / 노후 계산 2026년. 위치·업종·영업 여부는 현장 확인 필요.</p></details>
-      <section id="b-building-section"><h3>현장 확인 · 건물 찾기</h3><p>조건을 누르면 같은 대상이 지도에 노란색으로 표시됩니다. 아래 대상끼리는 겹칠 수 있어 더해서 계산하지 않습니다.</p><div class="b-group-grid" id="b-groups">${Object.entries(insights.groups).map(([k,v])=>`<button data-group="${k}" aria-pressed="${k==='all'}">${v}<strong>${num(analysis.counts[k])}동</strong></button>`).join('')}</div><p>공실 후보 ${analysis.counts.candidate}동 중 ${analysis.candidateEdge}동은 경계 안쪽 확인 대상에도 해당합니다. 후보 수는 공실 수가 아닙니다.</p><label for="b-building-group">찾을 대상</label><select id="b-building-group">${Object.entries(insights.groups).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><input id="b-query" type="search" placeholder="건물명·도로명·건물번호·용도" aria-label="B권역 건물 검색"><label><input id="b-only-candidate" type="checkbox">공실 현장 확인 후보 조건 추가</label><label><input id="b-only-edge" type="checkbox">경계 주변으로 범위 변경 · 바깥 포함</label><div class="b-controls"><button id="b-clear">건물 조건 초기화</button><button id="b-filter-csv">현재 건물 목록 받기</button><button id="b-field-csv">현재 대상 현장 기록표</button></div><p id="b-results-status" role="status"></p><div id="b-results"></div><button id="b-more">건물 30동 더 보기</button></section>
-      <section id="b-store-section"><h3>상권 구성 · 등록점포 찾기</h3><p>막대를 누르면 해당 업종의 위치와 목록을 함께 봅니다. 비율은 B권역 등록점포 ${s.stores}개 기준입니다.</p><div id="b-industry-bars">${analysis.industries.map(([k,n])=>`<button class="b-industry" data-industry="${esc(k)}" aria-pressed="false"><span>${esc(k)}<b>${n}개 · ${insights.pct(n,s.stores)}%</b></span><i style="--bar-width:${insights.pct(n,s.stores)}%"></i></button>`).join('')}</div><label for="b-industry">업종 선택</label><select id="b-industry"><option value="">전체 업종</option>${analysis.industries.map(([k])=>`<option>${esc(k)}</option>`).join('')}</select><input id="b-store-query" type="search" placeholder="상호·주소·세부 업종 검색" aria-label="B권역 등록점포 검색"><div class="b-controls"><button id="b-store-clear">점포 조건 초기화</button><button id="b-store-filter-csv">현재 점포 목록 받기</button></div><p id="b-store-status" role="status"></p><div id="b-store-results"></div><button id="b-store-more">점포 20개 더 보기</button><div class="b-note">상가정보 2026년 6월 등록 위치입니다. 폐업·이전·실제 영업 여부는 현장에서 확인해야 합니다. 현장 방문 주소는 도로명 주소를 우선 확인하세요.</div></section>
-      <section id="b-export-section"><h3>검토 자료 내려받기</h3><div class="b-controls"><button id="b-csv">전체 건물 목록</button><button id="b-store-csv">전체 점포 목록</button><button id="b-edge-csv">경계 검토 목록</button><button id="b-geo">경계 파일</button><button id="b-shot">지도 그림</button></div><p id="b-export-status" role="status"></p><p>현장 기록표의 조사일·영업 상태·메모는 빈칸입니다. 내려받은 파일에 직접 기록하며, 사이트에는 저장되지 않습니다.</p><p>그림에는 B권역 표시·집계·주의 문구를 함께 넣습니다.</p></section>`;
+      <details><summary>상권 · 도로 · 유동 자료</summary>${table(s.industries)}<h3>경계 안으로 잘라 계산한 도로 길이</h3>${table(Object.fromEntries(Object.entries(ctx.roads.byTier).map(([k,v])=>[k+' (m)',v])))}<p>OpenStreetMap 차량 도로(${esc(ctx.osmFetched)} 받음)를 구역 경계로 잘라 잰 중심선 길이입니다. 보행거리·도로 면적이 아니며, 등급은 도로 종류·차로 수로 환산한 값이라 도시계획도로 지정과 다를 수 있습니다.</p><div class="b-note">구역 안 와이파이 측정지점 ${s.wifiInside}곳${data.wifiInside.length?`(${data.wifiInside.map(f=>esc(f.properties.n)).join('·')} — 경계 바로 안쪽, 역 이용객이 섞인 값)`:''}. 주변 지점은 참고용으로만 표시하며 구역 유동인구로 합산하지 않습니다.</div><p>기존 구역의 출입구·생활권·점포별 큰길 거리는 이 범위의 새 분석값으로 사용하지 않습니다.</p></details>
+      <details><summary>경계 근거 · 포함 기준</summary><p>경계: ${esc(data.source)} · ${esc(data.sourceNote)} · 블록 ${data.blocks}개 · 둘레 약 ${num(data.perimeterM)}m. 종합분석맵·사업 안내 누리집과 같은 경계 파일을 씁니다.</p><p>건물: 건물 내부 대표점이 경계 안에 있으면 포함.<br>점포: 등록된 위치가 경계 안에 있으면 포함.</p><p>경계선 양쪽 20m에 닿는 건물 ${data.edgeBuildingIndices.length}동(안 ${s.edgeInside}동 / 밖 ${data.edgeBuildingIndices.length-s.edgeInside}동)은 검토 목록으로 별도 관리. 경계가 도로 가운데를 따라가므로 길 건너 건물도 이 목록에 들어갑니다.</p><p>기존 파란 범위·9/30 B권역 검토선·분석·주변 자료는 삭제하지 않았습니다. 위의 ‘전체 · 구역계 함께 보기’ 버튼으로 돌아갑니다.</p><p>자료: 기존 환경분석맵 건물 자료(건축물대장 기반 10,065동) / 상가정보 2026년 6월 / 노후 계산 2026년. 같은 자료로 계산한 ENVMAP·종합분석맵 수치(923동·91.7%·294곳)와 일치. 위치·업종·영업 여부는 현장 확인 필요.</p></details>
+      <section id="b-building-section"><h3>현장 확인 · 건물 찾기</h3><p>조건을 누르면 같은 대상이 지도에 노란색으로 표시됩니다. 아래 대상끼리는 겹칠 수 있어 더해서 계산하지 않습니다.</p><div class="b-group-grid" id="b-groups">${Object.entries(insights.groups).map(([k,v])=>`<button data-group="${k}" aria-pressed="${k==='all'}">${v}<strong>${num(analysis.counts[k])}동</strong></button>`).join('')}</div><p>공실 후보 ${analysis.counts.candidate}동 중 ${analysis.candidateEdge}동은 경계 안쪽 확인 대상에도 해당합니다. 후보 수는 공실 수가 아닙니다.</p><label for="b-building-group">찾을 대상</label><select id="b-building-group">${Object.entries(insights.groups).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select><input id="b-query" type="search" placeholder="건물명·도로명·건물번호·용도" aria-label="확정 구역계 건물 검색"><label><input id="b-only-candidate" type="checkbox">공실 현장 확인 후보 조건 추가</label><label><input id="b-only-edge" type="checkbox">경계 주변으로 범위 변경 · 바깥 포함</label><div class="b-controls"><button id="b-clear">건물 조건 초기화</button><button id="b-filter-csv">현재 건물 목록 받기</button><button id="b-field-csv">현재 대상 현장 기록표</button></div><p id="b-results-status" role="status"></p><div id="b-results"></div><button id="b-more">건물 30동 더 보기</button></section>
+      <section id="b-store-section"><h3>상권 구성 · 등록점포 찾기</h3><p>막대를 누르면 해당 업종의 위치와 목록을 함께 봅니다. 비율은 구역 안 등록점포 ${s.stores}개 기준입니다.</p><div id="b-industry-bars">${analysis.industries.map(([k,n])=>`<button class="b-industry" data-industry="${esc(k)}" aria-pressed="false"><span>${esc(k)}<b>${n}개 · ${insights.pct(n,s.stores)}%</b></span><i style="--bar-width:${insights.pct(n,s.stores)}%"></i></button>`).join('')}</div><label for="b-industry">업종 선택</label><select id="b-industry"><option value="">전체 업종</option>${analysis.industries.map(([k])=>`<option>${esc(k)}</option>`).join('')}</select><input id="b-store-query" type="search" placeholder="상호·주소·세부 업종 검색" aria-label="확정 구역계 등록점포 검색"><div class="b-controls"><button id="b-store-clear">점포 조건 초기화</button><button id="b-store-filter-csv">현재 점포 목록 받기</button></div><p id="b-store-status" role="status"></p><div id="b-store-results"></div><button id="b-store-more">점포 20개 더 보기</button><div class="b-note">상가정보 2026년 6월 등록 위치입니다. 폐업·이전·실제 영업 여부는 현장에서 확인해야 합니다. 현장 방문 주소는 도로명 주소를 우선 확인하세요.</div></section>
+      <section id="b-export-section"><h3>검토 자료 내려받기</h3><div class="b-controls"><button id="b-csv">전체 건물 목록</button><button id="b-store-csv">전체 점포 목록</button><button id="b-edge-csv">경계 검토 목록</button><button id="b-site-csv">시 13곳 목록</button><button id="b-geo">경계 파일</button><button id="b-shot">지도 그림</button></div><p id="b-export-status" role="status"></p><p>현장 기록표의 조사일·영업 상태·메모는 빈칸입니다. 내려받은 파일에 직접 기록하며, 사이트에는 저장되지 않습니다.</p><p>그림에는 확정 구역계 표시·집계·주의 문구를 함께 넣습니다.</p></section>`;
     $('b-mode').onchange=e=>{mode=e.target.value;renderLayers();};
     $('b-3d').onclick=()=>{is3d=!is3d;$('b-3d').setAttribute('aria-pressed',String(is3d));renderLayers();frame(350);};
     $('b-fit').onclick=()=>frame(350);
     $('b-focus').onclick=()=>frame(350,true);
     const answers={
-      '건물·점포':`B권역에 포함된 건물 ${s.buildings}동, 등록점포 위치 ${s.stores}개입니다. 등록점포는 현재 영업 여부를 현장에서 확인한 수가 아닙니다.`,
-      '노후도':`2026년 기준 20년 이상 ${s.old20}동입니다. 연도가 확인된 ${s.knownYear}동 중 ${s.oldPct}%이며, 연도 미확인 ${s.unknownYear}동은 비율에서 제외했습니다.`,
-      '빈 점포':`실제 공실 수와 공실률은 아직 확인되지 않았습니다. 상업지역·등록점포 미연결·용도 조건으로 좁힌 현장 확인 후보는 ${classes.shop||0}동입니다.`,
-      '유동인구':`B권역 안의 와이파이 측정지점은 ${s.wifiInside}곳입니다. 유동인구가 0명이라는 뜻이 아닙니다. 주변 측정값으로 B권역 사람 수를 계산하지 않았습니다.`,
-      '인구·사업체':'B권역 경계와 정확히 일치하는 인구·사업체 변화 자료는 확보되지 않았습니다. 기존 사업구역의 행정동·상권 수치는 주변 참고용이며, 면적 비율로 나눠 B권역 수치로 바꾸지 않습니다.',
-      '경계':`${data.sourcePage}쪽 빨간 경계 표기는 ${num(data.printedArea)}㎡이고, 이미지에서 옮긴 선의 계산 면적은 ${num(data.computedArea)}㎡입니다. 공식 좌표 경계가 아니며 주변 ${data.edgeBuildingIndices.length}동은 포함 여부 재확인이 필요합니다.`
+      '건물·점포':`확정 구역계에 포함된 건물 ${s.buildings}동, 등록점포 위치 ${s.stores}개입니다. 등록점포는 현재 영업 여부를 현장에서 확인한 수가 아닙니다.`,
+      '노후도':`2026년 기준 20년 이상 ${s.old20}동입니다. 연도가 확인된 ${s.knownYear}동 중 ${s.oldPct}%로 노후건축물 요건(50% 이상)을 넘습니다. 연도 미확인 ${s.unknownYear}동은 비율에서 제외했습니다.`,
+      '빈 점포':`실제 공실 수와 공실률은 아직 확인되지 않았습니다. 확정 구역계로 다시 모은 신호는 ① 건물 기준 빈 점포 후보 ${classes.shop||0}동 ② 인허가 폐업 신호 ${data.vacancy.localdata.signals.length}곳(2022년 이후 폐업, 같은 주소 영업 신고 없음) ③ 상가정보 ${data.vacancy.sbiz.compare}→${data.vacancy.sbiz.latest} 사이 사라진 점포 ${data.vacancy.sbiz.vanished.length}곳 ④ 지금 공개 매물 구역 안 ${data.vacancy.listings.items.filter(l=>l.zone==='구역 안').length}건입니다. 서로 다른 자료라 더하지 않으며 모두 현장 확인 대상입니다.`,
+      '시 13곳':`김해시 우선순위 대상지 13곳(2026-10-08 목록)은 모두 확정 구역계 안에 있고, 모두 역사문화환경보존지역·중점경관관리구역입니다. 거점 후보는 5번(봉황동 15-2)과 10번(봉황동 23-3), 개인 창작 공간 후보는 13번입니다. 경계에서 가장 가까운 곳은 ${nearest.rank}번으로 약 ${num(nearest.edgeM)}m 안쪽입니다.`,
+      '유동인구':`구역 안 와이파이 측정지점은 ${s.wifiInside}곳${data.wifiInside.length?`(${data.wifiInside.map(f=>f.properties.n).join('·')})`:''}이며 경계 바로 안쪽의 역 앞 지점입니다. 경계 300m 안 측정지점은 ${ctx.wifiNear.length}곳(${ctx.wifiNear.map(w=>`${w.name} 하루 ${num(w.daily)}`).join(' · ')})입니다. 이 값으로 구역 전체의 사람 수를 계산하지 않았습니다.`,
+      '도로·교통':`구역 안 차량 도로 ${num(ctx.roads.totalM)}m 중 대로 ${num(ctx.roads.byTier['대로'])}m · 중로 ${num(ctx.roads.byTier['중로'])}m · 소로 ${num(ctx.roads.byTier['소로'])}m입니다. 진출입구 ${ctx.gates.total}곳 중 대로 ${ctx.gates.byTier['대로']}곳. 가장 가까운 경전철역은 ${ctx.rail[0].name}역(경계에서 ${num(ctx.rail[0].distM)}m, 하루 승하차 ${num(ctx.rail[0].daily)}명)입니다.`,
+      '인구·사업체':`확정 구역계와 정확히 일치하는 인구·사업체 변화 자료는 확보되지 않았습니다. 구역 안 건물의 법정동은 ${Object.entries(s.dongs).map(([k,v])=>`${k} ${v}동`).join('·')}입니다. 쇠퇴 요건의 인구·사업체는 행정동 통계라 구역만의 값이 아니며, 면적 비율로 나눠 구역 수치로 바꾸지 않습니다.`,
+      '경계':`2026-10-11 확정선을 도로 중심선으로 나뉜 블록 ${data.blocks}개로 맞춘 도형이며 계산 면적은 ${num(data.area)}㎡입니다. 지적 경계가 아니며 주변 ${data.edgeBuildingIndices.length}동은 포함 여부 재확인이 필요합니다.`
     };
     $('b-questions').onclick=e=>{const key=e.target.textContent;if(answers[key])$('b-answer').textContent=answers[key];};
-    ['b-stores','b-roads','b-review','b-compare','b-wifi'].forEach(id=>$(id).onchange=renderLayers);
+    ['b-stores','b-roads','b-gates','b-review','b-compare','b-prev','b-wifi','b-sites-on','b-closed','b-vanished'].forEach(id=>$(id).onchange=renderLayers);
     ['b-query','b-only-candidate','b-only-edge','b-building-group'].forEach(id=>$(id).addEventListener('input',()=>{buildingLimit=30;renderResults();}));
     $('b-groups').onclick=e=>{const key=e.target.closest('[data-group]')?.dataset.group;if(!key)return;$('b-building-group').value=key;$('b-only-candidate').checked=false;$('b-only-edge').checked=false;$('b-query').value='';buildingLimit=30;renderResults();};
     $('b-clear').onclick=()=>{$('b-building-group').value='all';$('b-query').value='';$('b-only-candidate').checked=false;$('b-only-edge').checked=false;buildingLimit=30;renderResults();};
     $('b-more').onclick=()=>{buildingLimit+=30;renderResults();};
-    $('b-filter-csv').onclick=()=>exportBuildings(buildingRows,'B권역_조건선택_건물');
-    $('b-field-csv').onclick=()=>downloadCSV([['원본번호','건물명','주소','용도','사용승인연도','선정조건','B권역포함','경계확인','조사일','영업상태(현장확인)','공실층_호수(현장확인)','건물상태_보행불편','사진번호','메모'],...buildingRows.map(({properties:p})=>[p.bidx,p.nm,[p.d,p.rn,p.bn].filter(Boolean).join(' '),p.pu,p.yr||'',buildingCondition(),p.inside===false?'아니오':'예',p.edge?'필요':'','','','','','',''])],'B권역_현장기록표');
+    $('b-filter-csv').onclick=()=>exportBuildings(buildingRows,'확정구역계_조건선택_건물');
+    $('b-field-csv').onclick=()=>downloadCSV([['원본번호','건물명','주소','용도','사용승인연도','선정조건','구역포함','경계확인','조사일','영업상태(현장확인)','공실층_호수(현장확인)','건물상태_보행불편','사진번호','메모'],...buildingRows.map(({properties:p})=>[p.bidx,p.nm,[p.d,p.rn,p.bn].filter(Boolean).join(' '),p.pu,p.yr||'',buildingCondition(),p.inside===false?'아니오':'예',p.edge?'필요':'','','','','','',''])],'확정구역계_현장기록표');
     ['b-industry','b-store-query'].forEach(id=>$(id).addEventListener('input',()=>{storeLimit=20;renderStores();}));
     $('b-industry-bars').onclick=e=>{const button=e.target.closest('[data-industry]');if(!button)return;$('b-industry').value=button.dataset.industry;storeLimit=20;renderStores();};
     $('b-store-clear').onclick=()=>{$('b-industry').value='';$('b-store-query').value='';storeLimit=20;renderStores();};
     $('b-store-more').onclick=()=>{storeLimit+=20;renderStores();};
-    $('b-store-filter-csv').onclick=()=>exportStores(storeRows,'B권역_조건선택_등록점포');
+    $('b-store-filter-csv').onclick=()=>exportStores(storeRows,'확정구역계_조건선택_등록점포');
+    $('b-site-list').onclick=e=>{const b=e.target.closest('[data-rank]');if(!b)return;const t=data.sites.find(x=>String(x.rank)===b.dataset.rank);if(!t)return;if(!active)switchScope(true);$('b-sites-on').checked=true;renderLayers();map.easeTo({center:t.lnglat,zoom:18.3,duration:400});showSite(t.lnglat,t);};
     $('b-brief').onclick=exportBrief;
-    $('b-csv').onclick=()=>exportBuildings(buildings,'B권역_건물');
-    $('b-edge-csv').onclick=()=>exportBuildings(reviewBuildings(),'B권역_경계주변검토');
-    $('b-store-csv').onclick=()=>exportStores(stores,'B권역_등록점포');
-    $('b-geo').onclick=()=>download(JSON.stringify({...data.boundary,properties:{...data.boundary.properties,source:data.source,status:'이미지에서 옮긴 검토용 임시 경계',printedArea:data.printedArea,computedArea:data.computedArea}},null,2),'B권역_검토경계.geojson','application/geo+json');
+    $('b-csv').onclick=()=>exportBuildings(buildings,'확정구역계_건물');
+    $('b-edge-csv').onclick=()=>exportBuildings(reviewBuildings(),'확정구역계_경계주변검토');
+    $('b-store-csv').onclick=()=>exportStores(stores,'확정구역계_등록점포');
+    $('b-site-csv').onclick=()=>downloadCSV([['시순위','지번','구입유형','역할(10/8 미팅)','시 자료 상태','면적·층(대장)','개별공시지가_원/㎡(2026.01)','지목','토지면적_㎡','용도지역·지구','도시계획도로','다른 법령 지역·지구','경관 등(시행령 9조)','경도','위도','경계까지(m)','조사일','현장상태(직접기입)','메모'],...data.sites.map(t=>[t.rank,t.jibun,t.type,roleLabel[t.role]||t.role,t.state,t.areaNote,t.officialPrice?.wonPerM2??'',t.officialPrice?.land??'',t.officialPrice?.areaM2??'',[...(t.landUse?.zoning||[]),...(t.landUse?.district||[])].join(' / '),(t.landUse?.road||[]).join(' / '),(t.landUse?.other||[]).join(' / '),(t.landUse?.article9||[]).join(' / '),t.lnglat[0],t.lnglat[1],t.edgeM,'','',''])],'확정구역계_시우선순위13곳');
+    $('b-vacancy-csv').onclick=()=>{const v=data.vacancy;downloadCSV([['구분','이름·상호','업종','주소','기준일','경도','위도','출처','현장상태(직접기입)','메모'],...v.localdata.signals.map(x=>['인허가 폐업 신호',x.names.join(' / '),x.kinds.join(' / '),x.address,'폐업 '+x.closed,x.lnglat[0],x.lnglat[1],v.localdata.source,'','']),...v.sbiz.vanished.map(x=>['상가정보 사라짐('+v.sbiz.compare+'→'+v.sbiz.latest+')',x.name,x.kind,x.address+(x.floor?' '+x.floor+'층':''),v.sbiz.latest,x.lnglat[0],x.lnglat[1],v.sbiz.source,'','']),...v.listings.items.map(x=>['현재 매물('+x.zone+')',x.kind+' '+x.deal,'',x.place,'확인 '+x.checked,x.lnglat?.[0]??'',x.lnglat?.[1]??'',x.platform+' '+x.url,'',''])],'확정구역계_공실신호');};
+    $('b-closed-toggle').onclick=()=>{$('b-closed').checked=true;if(!active)switchScope(true);renderLayers();frame(350,true);};
+    $('b-vanished-toggle').onclick=()=>{$('b-vanished').checked=true;if(!active)switchScope(true);renderLayers();frame(350,true);};
+    $('b-geo').onclick=()=>download(JSON.stringify({...data.boundary,properties:{...data.boundary.properties,source:data.source,note:data.sourceNote,status:'도로 블록으로 맞춘 확정 구역계 · 지적 경계 아님',confirmed:data.confirmed,area_m2:data.area,blocks:data.blocks}},null,2),'김해_확정구역계_261011.geojson','application/geo+json');
     $('b-shot').onclick=shot;
     renderResults();
     renderStores();
@@ -147,7 +205,7 @@
     const group=$('b-building-group').value;
     buildingRows=insights.filterBuildings($('b-only-edge').checked?reviewBuildings():buildings,{group,candidate:$('b-only-candidate').checked,query:$('b-query').value});
     const outside=buildingRows.filter(f=>f.properties.inside===false).length;
-    $('b-results-status').textContent=`${buildingCondition()} · ${num(buildingRows.length)}동 중 ${Math.min(buildingLimit,buildingRows.length)}동 표시${outside?` · B권역 밖 ${outside}동 포함`:''}${buildingRows.length?'':' · 조건을 바꾸거나 초기화해 주세요.'}`;
+    $('b-results-status').textContent=`${buildingCondition()} · ${num(buildingRows.length)}동 중 ${Math.min(buildingLimit,buildingRows.length)}동 표시${outside?` · 구역 밖 ${outside}동 포함`:''}${buildingRows.length?'':' · 조건을 바꾸거나 초기화해 주세요.'}`;
     $('b-results').replaceChildren(...buildingRows.slice(0,buildingLimit).map(f=>{const p=f.properties,b=document.createElement('button');b.className='b-result';b.innerHTML=`${esc(p.nm||[p.rn,p.bn].filter(Boolean).join(' ')||p.d||'이름 없는 건물')}<small>${esc([p.d,p.rn,p.bn].filter(Boolean).join(' '))}<br>${esc(p.pu||'용도 미확인')} · ${p.yr?esc(p.yr)+'년':'연도 미확인'}${p.edge?' · 경계 확인':''}${p.inside===false?' · 범위 밖':''}</small>`;b.onclick=()=>{const ring=f.geometry.type==='MultiPolygon'?f.geometry.coordinates[0][0]:f.geometry.coordinates[0];map.easeTo({center:ring[0],zoom:18.5,duration:400});showBuilding(ring[0],p);};return b;}));
     $('b-more').hidden=buildingLimit>=buildingRows.length;
     $('b-filter-csv').disabled=$('b-field-csv').disabled=!buildingRows.length;
@@ -183,15 +241,16 @@
     setVisibility('bs-stores',active&&$('b-stores').checked);
   }
   function showStore(ll,p){popup?.remove();popup=new maplibregl.Popup({maxWidth:'300px'}).setLngLat(ll).setHTML(`<div class="b-popup"><strong>${esc(p.nm||'상호 미확인')}</strong><p>${esc(p.L)} · ${esc(p.S||p.M||'')}</p><p>${esc(p.rd||p.ad||'주소 미확인')}</p><p>등록 위치 · 2026년 6월<br>현재 영업·이전 여부는 현장 확인 필요</p></div>`).addTo(map);}
+  function showSite(ll,t){popup?.remove();popup=new maplibregl.Popup({maxWidth:'300px',offset:10}).setLngLat(ll).setHTML(`<div class="b-popup"><strong>시 우선순위 ${esc(t.rank)} · ${esc(t.jibun)}</strong><p>${esc(t.type)} · ${esc(roleLabel[t.role]||t.role)}</p>${t.state?`<p>${esc(t.state)}</p>`:''}${t.areaNote?`<p>${esc(t.areaNote)}</p>`:''}${t.officialPrice?`<p>공시지가 2026 ${num(t.officialPrice.wonPerM2)}원/㎡ · ${esc(t.officialPrice.land)} ${num(t.officialPrice.areaM2)}㎡</p>`:''}${t.landUse?`<p>${esc([...t.landUse.zoning,...t.landUse.district,...t.landUse.road,...t.landUse.other.filter(x=>!x.startsWith('가축')),...t.landUse.article9].join(' · '))}</p>`:''}<p>김해시 목록 2026-10-08 · 지번 위치 점 · 경계에서 약 ${esc(t.edgeM)}m 안쪽<br>현재 공실·사용 가능 여부는 현장 확인 필요</p></div>`).addTo(map);}
   function exportStores(rows,name){downloadCSV([['원본번호','상호','주소','대분류','중분류','세부업종','등록층','경도','위도','자료기준','현재영업여부'],...rows.map(p=>[p.sid,p.nm,p.rd||p.ad,p.L,p.M,p.S,p.fl,p.lon,p.lat,'2026-06','현장 확인 필요'])],name);}
   function exportBrief(){
-    const a=analysis,s=data.stats;
-    download([`김해 B권역 ${areaLabel()} 분석 요약`,`범위: ${data.source} / 도면 ${num(data.printedArea)}㎡ / 계산 ${num(data.computedArea)}㎡`,`건물 ${a.total}동, 등록점포 ${stores.length}개`,`20년 이상 ${a.old20}동 / 연도 확인 ${a.known}동 = ${a.oldPct}% (2026년 기준)`,`40년 이상 ${a.counts.old40}동 / 연도 확인 ${a.known}동 = ${insights.pct(a.counts.old40,a.known)}%`,`연도 미확인 ${a.counts.unknown}동은 노후 비율에서 제외`,`주택 ${a.residential}동, 근린생활시설 ${a.neighborhood}동 (건물 주용도 기준)`,`소매·음식 ${a.foodRetail}개 / 등록점포 ${stores.length}개 = ${a.foodRetailPct}%`,'',...a.industries.map(([k,n])=>`${k}: ${n}개 (${insights.pct(n,stores.length)}%)`),'',`현장 공실 확인 후보 ${a.counts.candidate}동 (공실 확정 아님)`,`후보 중 경계 안쪽 확인 대상 ${a.candidateEdge}동 (중복 집계 주의)`,`B경계 안쪽 확인 대상 ${s.edgeInside}동 / 양쪽 20m 확인 대상 ${data.edgeBuildingIndices.length}동`,'','검토 제안: 오래된 건물 상태·공실 여부·보행 불편을 현장에서 함께 확인.','확인되지 않은 것: 실제 공실 수·공실률, 영업 여부, B권역에 맞는 인구·사업체 변화·유동인구.','건물 연도는 안전등급이 아니며, 등록점포는 현재 영업점 수가 아님.','경계는 도면 이미지에서 옮긴 검토선이며 측량 경계가 아님.','자료: 기존 환경분석맵 건물자료 / 상가정보 2026-06 / 연도 계산 2026.','위 수치는 B권역 전체 기준이며 화면 검색 조건과 무관.'].join('\n'),'김해_B권역_분석요약.txt','text/plain;charset=utf-8');
+    const a=analysis,s=data.stats,r=data.relation;
+    download([`김해 ${NAME} ${areaLabel()} 분석 요약 (2026-10-11 확정)`,`범위: ${data.source} / ${num(data.area)}㎡ / 블록 ${data.blocks}개 / 지적 경계 아님`,`10/8 ①안보다 ${num(r.addedVsN1)}㎡, 권장 15만㎡보다 ${num(r.over150k)}㎡ 넓음`,`건물 ${a.total}동, 등록점포 ${stores.length}개`,`20년 이상 ${a.old20}동 / 연도 확인 ${a.known}동 = ${a.oldPct}% (2026년 기준, 노후건축물 요건 50% 이상 충족)`,`40년 이상 ${a.counts.old40}동 / 연도 확인 ${a.known}동 = ${insights.pct(a.counts.old40,a.known)}%`,`연도 미확인 ${a.counts.unknown}동은 노후 비율에서 제외`,`주택 ${a.residential}동, 근린생활시설 ${a.neighborhood}동 (건물 주용도 기준)`,`소매·음식 ${a.foodRetail}개 / 등록점포 ${stores.length}개 = ${a.foodRetailPct}%`,'',...a.industries.map(([k,n])=>`${k}: ${n}개 (${insights.pct(n,stores.length)}%)`),'','시 우선순위 대상지 13곳 (2026-10-08 목록, 모두 구역 안)',...data.sites.map(t=>`${t.rank}. ${t.jibun} — ${siteLine(t)}`),'',`현장 공실 확인 후보 ${a.counts.candidate}동 (공실 확정 아님)`,`후보 중 경계 안쪽 확인 대상 ${a.candidateEdge}동 (중복 집계 주의)`,`경계 안쪽 확인 대상 ${s.edgeInside}동 / 양쪽 20m 확인 대상 ${data.edgeBuildingIndices.length}동`,'','검토 제안: 오래된 건물 상태·공실 여부·보행 불편을 현장에서 함께 확인.','확인되지 않은 것: 실제 공실 수·공실률, 영업 여부, 구역에 맞는 인구·사업체 변화·유동인구.','건물 연도는 안전등급이 아니며, 등록점포는 현재 영업점 수가 아님.','경계는 도로 블록으로 맞춘 도형이며 지적 경계가 아님. 지적 경계 자료를 받으면 다시 맞춤.','자료: 기존 환경분석맵 건물자료 / 상가정보 2026-06 / 연도 계산 2026 / 시 대상지 목록 2026-10-08.','위 수치는 확정 구역계 전체 기준이며 화면 검색 조건과 무관.'].join('\n'),'김해_확정구역계_분석요약.txt','text/plain;charset=utf-8');
   }
-  function showBuilding(ll,p){popup?.remove();popup=new maplibregl.Popup({maxWidth:'300px'}).setLngLat(ll).setHTML(`<div class="b-popup"><strong>${esc(p.nm||p.rn||p.bn||'건물 상세')}</strong><p>${esc(p.rn||p.d||'')} ${esc(p.bn||'')}</p><p>${esc(p.pu||'용도 미확인')} · ${p.yr?esc(p.yr)+'년':'연도 미확인'} · ${esc(p.fl||'?')}층</p><p>${esc(labels[p.cl]||'미분류')} · 연결점포 ${esc(p.sc||0)}개</p><p>${p.inside===false?'B권역 밖 · 참고용':'B권역 집계 포함'}${p.edge?' / 경계 주변: 포함 여부 확인 필요':''}</p><p>등록정보만으로 실제 영업·공실을 확정할 수 없습니다.</p></div>`).addTo(map);}
+  function showBuilding(ll,p){popup?.remove();popup=new maplibregl.Popup({maxWidth:'300px'}).setLngLat(ll).setHTML(`<div class="b-popup"><strong>${esc(p.nm||p.rn||p.bn||'건물 상세')}</strong><p>${esc(p.rn||p.d||'')} ${esc(p.bn||'')}</p><p>${esc(p.pu||'용도 미확인')} · ${p.yr?esc(p.yr)+'년':'연도 미확인'} · ${esc(p.fl||'?')}층</p><p>${esc(labels[p.cl]||'미분류')} · 연결점포 ${esc(p.sc||0)}개</p><p>${p.inside===false?'구역 밖 · 참고용':'확정 구역계 집계 포함'}${p.edge?' / 경계 주변: 포함 여부 확인 필요':''}</p><p>등록정보만으로 실제 영업·공실을 확정할 수 없습니다.</p></div>`).addTo(map);}
   function download(content,name,type){const url=URL.createObjectURL(content instanceof Blob?content:new Blob([content],{type}));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);$('b-export-status').textContent=name+' 내려받기를 요청했습니다.';}
-  function downloadCSV(rows,name){const cell=v=>{let s=String(v??'');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};download('\ufeff'+rows.map(r=>r.map(cell).join(',')).join('\r\n'),name+'.csv','text/csv;charset=utf-8');}
-  function exportBuildings(rows,name){downloadCSV([['원본번호','건물명','도로명','건물번호','법정동','용도','사용승인연도','층수','연결점포수','확인분류','B권역포함','경계주변확인'],...rows.map(f=>{const p=f.properties;return [p.bidx,p.nm,p.rn,p.bn,p.d,p.pu,p.yr||'',p.fl,p.sc,labels[p.cl],p.inside===false?'아니오':'예',p.edge?'필요':''];})],name);}
+  function downloadCSV(rows,name){const cell=v=>{let s=String(v??'');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};download('﻿'+rows.map(r=>r.map(cell).join(',')).join('\r\n'),name+'.csv','text/csv;charset=utf-8');}
+  function exportBuildings(rows,name){downloadCSV([['원본번호','건물명','도로명','건물번호','법정동','용도','사용승인연도','층수','연결점포수','확인분류','구역포함','경계주변확인'],...rows.map(f=>{const p=f.properties;return [p.bidx,p.nm,p.rn,p.bn,p.d,p.pu,p.yr||'',p.fl,p.sc,labels[p.cl],p.inside===false?'아니오':'예',p.edge?'필요':''];})],name);}
   function shot(){
     if(!active)return;
     if(map.isMoving()){map.once('moveend',shot);return;}
@@ -200,86 +259,114 @@
       const src=map.getCanvas(),c=document.createElement('canvas'),width=Math.max(960,src.width),height=Math.round(src.height*width/src.width),footer=285;
       c.width=width;c.height=height+footer;const ctx=c.getContext('2d');ctx.drawImage(src,0,0,width,height);
       ctx.fillStyle='#101923';ctx.fillRect(0,height,width,footer);ctx.fillStyle='#fff';ctx.font='bold 24px sans-serif';
-      ctx.fillText(`김해 B권역 ${areaLabel()} · 검토용`,24,height+34);ctx.font='18px sans-serif';
-      ctx.fillText(`B권역 전체: 건물 ${data.stats.buildings}동 / 등록점포 ${data.stats.stores}개 / 20년 이상 ${data.stats.oldPct}% (연도 확인 기준)`,24,height+64);
-      ctx.fillStyle='#ffb49f';ctx.fillText('이미지에서 옮긴 임시 경계 · 경계 주변 건물 포함 여부 확인 필요',24,height+93);
+      ctx.fillText(`김해 ${NAME} ${areaLabel()} · 2026-10-11 확정`,24,height+34);ctx.font='18px sans-serif';
+      ctx.fillText(`구역 전체: 건물 ${data.stats.buildings}동 / 등록점포 ${data.stats.stores}개 / 20년 이상 ${data.stats.oldPct}% (연도 확인 기준) / 시 우선순위 13곳 모두 안`,24,height+64,width-48);
+      ctx.fillStyle='#ffb49f';ctx.fillText(`도로 블록 ${data.blocks}개로 맞춘 도형 · 지적 경계 아님 · 경계 주변 건물 포함 여부 확인 필요`,24,height+93,width-48);
       ctx.font='15px sans-serif';let x=24,y=height+126;
       for(const item of $('b-legend').children){const label=item.textContent,w=ctx.measureText(label).width+38;if(x+w>width-24){x=24;y+=25;}ctx.fillStyle=item.querySelector('i').style.background;ctx.fillRect(x,y-12,12,12);ctx.fillStyle='#ecf2f9';ctx.fillText(label,x+18,y);x+=w;}
       ctx.fillStyle='#cad7e4';
-      const overlays=['민트 점선: B권역','파란선: 기존 사업구역'];if(buildingFiltered())overlays.push(`노란 건물: 조건 ${buildingRows.length}동`);if($('b-review').checked)overlays.push('노란 테두리: 경계 주변');if($('b-stores').checked)overlays.push(`민트 점: 등록 ${storeRows.length}개`);if($('b-roads').checked)overlays.push('주황선: 도로');if($('b-wifi').checked)overlays.push('회색 점: 와이파이');
+      const overlays=['민트 선: 확정 구역계'];if($('b-sites-on').checked)overlays.push('빨간 점: 시 우선순위 13곳');if($('b-compare').checked)overlays.push('파란 점선: 기존 사업구역');if($('b-prev').checked)overlays.push('주황 점선: 9/30 B권역 · 보라 점선: 10/8 ①안');if(buildingFiltered())overlays.push(`노란 건물: 조건 ${buildingRows.length}동`);if($('b-review').checked)overlays.push('노란 테두리: 경계 주변');if($('b-stores').checked)overlays.push(`민트 점: 등록 ${storeRows.length}개`);if($('b-roads').checked)overlays.push('노란선: 구역 안 도로(소로)');if($('b-gates').checked)overlays.push('흰 점: 진출입구');if($('b-wifi').checked)overlays.push('회색 점: 와이파이');if($('b-closed').checked)overlays.push('분홍 테두리: 인허가 폐업 신호');if($('b-vanished').checked)overlays.push('회색 점: 상가정보 사라짐');
       let overlayLine='',overlayY=height+175;
       for(const label of overlays){const next=overlayLine?overlayLine+' · '+label:label;if(ctx.measureText(next).width>width-48){ctx.fillText(overlayLine,24,overlayY);overlayY+=20;overlayLine=label;}else overlayLine=next;}
       ctx.fillText(overlayLine,24,overlayY);
       ctx.font='13px sans-serif';ctx.fillText(`건물 조건: ${buildingCondition()} / 점포: ${$('b-industry').value||'전체 업종'}${$('b-store-query').value.trim()?' · 검색 '+$('b-store-query').value.trim():''}`,24,height+225,width-48);
-      ctx.fillText(`자료: 기존 환경분석맵 / 상가정보 2026.06 / 구역계검토자료 ${data.sourcePage}쪽 · 2026년 기준`,24,height+247);
+      ctx.fillText('자료: 기존 환경분석맵 / 상가정보 2026.06 / 확정 구역계 2026-10-11 / 시 대상지 목록 2026-10-08 · 2026년 기준',24,height+247,width-48);
       const backgroundCredit=map.getLayoutProperty('sat','visibility')==='none'?'© OpenStreetMap contributors · openstreetmap.org/copyright':'Esri World Imagery';
       ctx.fillText('배경지도: '+backgroundCredit,24,height+270,width-48);
-      c.toBlob(blob=>{if(blob)download(blob,'김해_B권역_검토지도.png','image/png');else $('b-export-status').textContent='그림 저장 실패. 다시 시도해 주세요.';},'image/png');
+      c.toBlob(blob=>{if(blob)download(blob,'김해_확정구역계_검토지도.png','image/png');else $('b-export-status').textContent='그림 저장 실패. 다시 시도해 주세요.';},'image/png');
     }catch(e){$('b-export-status').textContent='그림 저장 실패: '+e.message;}});map.triggerRepaint();
+  }
+  // The base page's tables (노후 판정표·대상지 구역계 탭) are drawn once by ui(); add the confirmed zone on top without touching their data.
+  function annotateBase(){
+    const s=data.stats;
+    const rtab=$('rtab');
+    if(rtab&&!rtab.querySelector('.zone-row')){const row=document.createElement('tr');row.className='zone-row';row.innerHTML=`<td>${NAME} ${areaLabel()} (10/11)</td><td>${num(s.old20)}</td><td><b>${s.oldPct}%</b></td><td>${s.oldPct>=50?'충족':'미달'}</td>`;(rtab.tBodies[0]||rtab).firstElementChild.after(row);}
+    const zbox=$('zbox');
+    if(zbox&&!zbox.querySelector('.zone-confirmed')){
+      const comm=buildings.filter(f=>/상업|준주거/.test(f.properties.z||'')).length;
+      const shop=buildings.filter(f=>f.properties.ec===1&&f.properties.cl==='shop').length,res=buildings.filter(f=>f.properties.ec===1&&f.properties.cl==='res').length;
+      const box=document.createElement('div');box.className='zbox zone-confirmed';
+      box.innerHTML=`<div class="t">${NAME} (2026-10-11)</div><div class="s">${areaLabel()} · ${num(data.area)}㎡ · RE:CORE 대상지</div><table><tr><td>건물</td><td><b>${num(s.buildings)}</b>동</td></tr><tr><td>상업·준주거</td><td>${num(comm)}동</td></tr><tr><td>등록점포 위치</td><td>${num(s.stores)}개소</td></tr><tr><td>빈 점포 후보</td><td><b>${num(shop)}</b>동</td></tr><tr><td>주거용(빈집 조사)</td><td>${num(res)}동</td></tr><tr><td>20년 이상 노후</td><td><b>${s.oldPct}%</b></td></tr></table>`;
+      box.onclick=e=>{e.stopPropagation();showBoundary();frame(450,true);};
+      zbox.prepend(box);
+    }
+    const p2=$('p2');
+    if(p2&&!p2.querySelector('.zone-p2-note')){const note=document.createElement('div');note.className='note zone-p2-note';note.innerHTML=`<b>2026-10-11 RE:CORE 대상지 구역계 확정 — ${areaLabel()}(${num(data.area)}㎡)</b><br>지도의 <b>민트 선</b>. 시 우선순위 13곳을 모두 담고 봉황예술극장·봉황역 쪽까지 넓힌 범위입니다. 아래 상자 중 맨 위가 확정 구역계이고, 나머지 3종(도판 추출 구역계)은 이전 검토 범위입니다. 기존 사업구역(51.8ha)과 겹치는 곳은 약 ${haLabel(data.relation.blueOverlap)}입니다.`;p2.querySelector('h2').after(note);}
   }
   function initialize(){
     const edge=new Set(data.edgeBuildingIndices);
     buildings=data.buildingIndices.map(i=>({...D.bld.features[i],properties:{...D.bld.features[i].properties,bidx:i,inside:true,edge:edge.has(i)}}));
     stores=data.storeIndices.map(i=>({...D.store[i],sid:i}));
     const verify=buildings.filter(f=>f.properties.yr>0),old=verify.filter(f=>f.properties.yr<=2006);
-    if(buildings.length!==data.stats.buildings||stores.length!==data.stats.stores||verify.length!==data.stats.knownYear||old.length!==data.stats.old20)throw Error('원본 자료와 B권역 집계가 다릅니다. 표시 중단.');
+    if(buildings.length!==data.stats.buildings||stores.length!==data.stats.stores||verify.length!==data.stats.knownYear||old.length!==data.stats.old20)throw Error('원본 자료와 확정 구역계 집계가 다릅니다. 표시 중단.');
     renderPanel();
     const included=new Set(data.buildingIndices);
     addSource('bs-context',fc(D.bld.features.filter((_,i)=>!included.has(i))));
     addLayer({id:'bs-context-flat',type:'fill',source:'bs-context',paint:{'fill-color':colors,'fill-opacity':.55}});
     addLayer({id:'bs-context-3d',type:'fill-extrusion',source:'bs-context',paint:{'fill-extrusion-color':colors,'fill-extrusion-opacity':1,'fill-extrusion-height':['*',['max',['coalesce',['get','fl'],1],1],3.3]}});
-    addSource('bs-buildings',fc(buildings));addSource('bs-boundary',data.boundary);addSource('bs-review',fc(reviewBuildings()));addSource('bs-roads',data.roads);addSource('bs-wifi',WIFIPT);
+    addSource('bs-buildings',fc(buildings));addSource('bs-boundary',data.boundary);addSource('bs-review',fc(reviewBuildings()));addSource('bs-roads',ctx.roadLines);addSource('bs-gates',ctx.gates.points);addSource('bs-wifi',WIFIPT);
     addSource('bs-stores',fc(stores.map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[p.lon,p.lat]},properties:p}))));
     addSource('bs-compare',fc(ZP.features.filter(f=>f.properties.k==='blue')));
+    addSource('bs-prev-b156',data.compare.b156);addSource('bs-prev-n1',data.compare.n1);
+    addSource('bs-closed',fc(data.vacancy.localdata.signals.map((x,i)=>({type:'Feature',geometry:{type:'Point',coordinates:x.lnglat},properties:{i}}))));addSource('bs-vanished',fc(data.vacancy.sbiz.vanished.map((x,i)=>({type:'Feature',geometry:{type:'Point',coordinates:x.lnglat},properties:{i}}))));
+    addSource('bs-sites',fc(data.sites.map(t=>({type:'Feature',geometry:{type:'Point',coordinates:t.lnglat},properties:{rank:t.rank}}))));
     const hole=data.boundary.geometry.coordinates[0];addSource('bs-mask',{type:'Feature',geometry:{type:'Polygon',coordinates:[[[128.7,35.1],[129.1,35.1],[129.1,35.4],[128.7,35.4],[128.7,35.1]],hole.slice().reverse()]},properties:{}});
-    // Same outside dimming as the original map, with only the accepted B boundary cut out.
+    // Same outside dimming as the original map, with only the confirmed boundary cut out.
     addLayer({id:'bs-mask',type:'fill',source:'bs-mask',paint:{'fill-color':'#05070b','fill-opacity':.34}});
     addLayer({id:'bs-flat',type:'fill',source:'bs-buildings',paint:{'fill-color':colors,'fill-opacity':.88,'fill-outline-color':'#222d3b'}});
     addLayer({id:'bs-3d',type:'fill-extrusion',source:'bs-buildings',paint:{'fill-extrusion-color':colors,'fill-extrusion-opacity':.95,'fill-extrusion-height':['*',['max',['coalesce',['get','fl'],1],1],3.3]}});
     addLayer({id:'bs-compare',type:'line',source:'bs-compare',paint:{'line-color':'#64afff','line-width':2,'line-dasharray':[3,2]}});
+    addLayer({id:'bs-prev-b156',type:'line',source:'bs-prev-b156',paint:{'line-color':PREV_B,'line-width':2.5,'line-dasharray':[2,2]}});
+    addLayer({id:'bs-prev-n1',type:'line',source:'bs-prev-n1',paint:{'line-color':PREV_N1,'line-width':2.5,'line-dasharray':[1,2]}});
     // Shared emphasis in overview and detail: tint + halo + dark separation + mint edge.
-    // These are visual review boundaries, never survey lines or new building classifications.
+    // These are visual boundaries drawn from road-centreline blocks, never survey lines or new building classifications.
     addLayer({id:'bs-boundary-fill',type:'fill',source:'bs-boundary',paint:{'fill-color':'#52ffcb','fill-opacity':.16}});
     addLayer({id:'bs-boundary-glow',type:'line',source:'bs-boundary',paint:{'line-color':'#50ffca','line-width':30,'line-blur':9,'line-opacity':.85}});
     addLayer({id:'bs-boundary-case',type:'line',source:'bs-boundary',paint:{'line-color':'#032820','line-width':15,'line-opacity':1}});
     addLayer({id:'bs-boundary-line',type:'line',source:'bs-boundary',paint:{'line-color':'#59ffd1','line-width':8,'line-opacity':1}});
     addLayer({id:'bs-boundary-highlight',type:'line',source:'bs-boundary',paint:{'line-color':'#f1fff9','line-width':2.5,'line-dasharray':[3,2],'line-opacity':1}});
-    addLayer({id:'bs-roads',type:'line',source:'bs-roads',paint:{'line-color':'#ffcd74','line-width':3}});
+    addLayer({id:'bs-roads',type:'line',source:'bs-roads',paint:{'line-color':['match',['get','tier'],'대로','#ff5a3d','중로','#ffb84d','#ffcd74'],'line-width':['match',['get','tier'],'대로',5,'중로',4,2.5]}});
+    addLayer({id:'bs-gates',type:'circle',source:'bs-gates',paint:{'circle-color':['match',['get','tier'],'대로','#ff5a3d','중로','#ffb84d','#e8eef5'],'circle-radius':['match',['get','tier'],'대로',8,'중로',7,5],'circle-stroke-color':'#0b1118','circle-stroke-width':2}});
     addLayer({id:'bs-review',type:'line',source:'bs-review',paint:{'line-color':'#ffde47','line-width':2}});
     addSource('bs-selected',fc([]));
     addLayer({id:'bs-selected-flat',type:'fill',source:'bs-selected',paint:{'fill-color':'#ffdc72','fill-opacity':.95,'fill-outline-color':'#fff5cf'}});
     addLayer({id:'bs-selected-3d',type:'fill-extrusion',source:'bs-selected',paint:{'fill-extrusion-color':'#ffdc72','fill-extrusion-opacity':.95,'fill-extrusion-height':['+',['*',['max',['coalesce',['get','fl'],1],1],3.3],.5]}});
     addLayer({id:'bs-stores',type:'circle',source:'bs-stores',paint:{'circle-color':'#7de5ca','circle-radius':4,'circle-stroke-width':1,'circle-stroke-color':'#082d2b'}});
     addLayer({id:'bs-wifi',type:'circle',source:'bs-wifi',paint:{'circle-color':'#bfcede','circle-radius':6,'circle-stroke-color':'#fff','circle-stroke-width':1}});
+    addLayer({id:'bs-vanished',type:'circle',source:'bs-vanished',paint:{'circle-color':'#9aa6b4','circle-radius':6,'circle-stroke-color':'#1b232d','circle-stroke-width':1.5}});
+    addLayer({id:'bs-closed',type:'circle',source:'bs-closed',paint:{'circle-color':'rgba(255,90,209,.3)','circle-radius':8,'circle-stroke-color':'#ff5ad1','circle-stroke-width':3}});
+    addLayer({id:'bs-sites-ring',type:'circle',source:'bs-sites',paint:{'circle-color':'rgba(0,0,0,0)','circle-radius':['interpolate',['linear'],['zoom'],15,7,18,12],'circle-stroke-color':'#fff','circle-stroke-width':2}});
+    addLayer({id:'bs-sites',type:'circle',source:'bs-sites',paint:{'circle-color':SITE_COLOR,'circle-radius':['interpolate',['linear'],['zoom'],15,5,18,9],'circle-stroke-color':'#3a0505','circle-stroke-width':1}});
     ownIds.forEach(id=>setVisibility(id,false));
     // A focus action on the original map must not switch analysis scopes.
     const focusButton=document.createElement('button');focusButton.id='focus-b-area';focusButton.className='zf';
-    focusButton.textContent=`B권역 ${areaLabel()}`;
+    focusButton.textContent=`${NAME} ${areaLabel()}`;
     focusButton.onclick=()=>{popup?.remove();showBoundary();frame(450,true);};
-    $('focusbx').append(focusButton);
+    $('focusbx').prepend(focusButton);
     // The scope switch stays unscaled; offset the zoomed sticky navigation by its real height.
     new ResizeObserver(()=>panel.style.setProperty('--b-scope-height',switcher.getBoundingClientRect().height+'px')).observe(switcher);
-    ready=true;$('scope-b').disabled=false;$('scope-b').textContent='B권역 상세 분석';$('scope-b').onclick=()=>switchScope(true);$('scope-old').onclick=()=>{switchScope(false);frame(350);};
-    const label=document.createElement('div');label.className='b-location-label';label.innerHTML=`<b>B권역 <em>${areaLabel()}</em></b><span>도면 ${data.sourcePage}쪽 · 검토 경계</span>`;
+    ready=true;$('scope-b').disabled=false;$('scope-b').textContent='확정 구역계 상세 분석';$('scope-b').onclick=()=>switchScope(true);$('scope-old').onclick=()=>{switchScope(false);frame(350);};
+    const label=document.createElement('div');label.className='b-location-label';label.innerHTML=`<b>${NAME} <em>${areaLabel()}</em></b><span>2026-10-11 확정 · 시 13곳 포함</span>`;
     const ring=data.boundary.geometry.coordinates[0],anchor=ring.reduce((a,p)=>p[1]>a[1]?p:a,ring[0]);
     new maplibregl.Marker({element:label,anchor:'bottom',offset:[0,-10]}).setLngLat(anchor).addTo(map);
+    annotateBase();
     // Newly added legacy layers are hidden and remembered, without changing their data.
     let queued=false;map.on('styledata',()=>{if(active&&!queued){queued=true;queueMicrotask(()=>{queued=false;isolate();});}});
-    map.on('click',e=>{if(!active)return;const f=map.queryRenderedFeatures(e.point,{layers:['bs-stores','bs-selected-3d','bs-selected-flat','bs-review','bs-3d','bs-flat','bs-wifi']})[0];if(!f)return;const p=f.properties;if(f.layer.id==='bs-stores')showStore(e.lngLat,p);else if(f.layer.id==='bs-wifi'){popup?.remove();popup=new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="b-popup"><strong>${esc(p.n)}</strong><p>주변 참고 지점 · B권역 집계 제외</p></div>`).addTo(map);}else showBuilding(e.lngLat,p);});
-    document.body.dataset.bSourcePage=String(data.sourcePage);document.body.dataset.bArea=areaLabel();document.body.dataset.bBuildings=String(buildings.length);document.body.dataset.bStores=String(stores.length);document.body.dataset.bReady='true';
-    const detailRequested=new URLSearchParams(location.search).get('scope')==='b171';
-    if(detailRequested)switchScope(true);else{document.body.dataset.analysisScope='legacy';showBoundary();frame(0);}
+    map.on('click',e=>{if(!active)return;const f=map.queryRenderedFeatures(e.point,{layers:['bs-sites','bs-closed','bs-vanished','bs-stores','bs-selected-3d','bs-selected-flat','bs-review','bs-3d','bs-flat','bs-wifi']})[0];if(!f)return;const p=f.properties;if(f.layer.id==='bs-sites'){const t=data.sites.find(x=>x.rank===p.rank);if(t)showSite(t.lnglat,t);}else if(f.layer.id==='bs-closed'){const x=data.vacancy.localdata.signals[p.i];popup?.remove();popup=new maplibregl.Popup({maxWidth:'300px'}).setLngLat(x.lnglat).setHTML(`<div class="b-popup"><strong>인허가 폐업 신호</strong><p>${esc(x.address)}</p><p>${esc(x.names.join(' / '))} · ${esc(x.kinds.join(' / '))}<br>최근 폐업 ${esc(x.closed)}${x.records>1?` · 폐업 신고 ${x.records}건`:''}</p><p>같은 주소에 지금 영업 신고가 없음(조사 9개 업종) — 공실 확정 아님, 현장 확인 필요</p></div>`).addTo(map);}else if(f.layer.id==='bs-vanished'){const x=data.vacancy.sbiz.vanished[p.i];popup?.remove();popup=new maplibregl.Popup({maxWidth:'300px'}).setLngLat(x.lnglat).setHTML(`<div class="b-popup"><strong>${esc(x.name)}</strong><p>${esc(x.kind)} · ${esc(x.address)}${x.floor?' '+esc(x.floor)+'층':''}</p><p>상가정보 ${esc(data.vacancy.sbiz.compare)}에 있었고 ${esc(data.vacancy.sbiz.latest)}에 없음 — 폐업·이전 후보, 현장 확인 필요</p></div>`).addTo(map);}else if(f.layer.id==='bs-stores')showStore(e.lngLat,p);else if(f.layer.id==='bs-wifi'){popup?.remove();popup=new maplibregl.Popup().setLngLat(e.lngLat).setHTML(`<div class="b-popup"><strong>${esc(p.n)}</strong><p>측정지점 · 구역 유동인구로 합산하지 않음</p></div>`).addTo(map);}else showBuilding(e.lngLat,p);});
+    document.body.dataset.bSource='zone261011';document.body.dataset.bArea=areaLabel();document.body.dataset.bBuildings=String(buildings.length);document.body.dataset.bStores=String(stores.length);document.body.dataset.bReady='true';
+    const scope=new URLSearchParams(location.search).get('scope');
+    if(scope==='b171'||scope==='zone'){switchScope(true);frame(0,true);}else{document.body.dataset.analysisScope='legacy';showBoundary();frame(0);}
   }
-  window.GimhaeB={get active(){return active;},frame,shot};
-  fetch('data/gimhae-b171.json?v=page5-r1').then(r=>{if(!r.ok)throw Error('경계 자료를 불러오지 못했습니다');return r.json();}).then(async d=>{
-    data=d;
-    if(d.sourcePage!==5||d.printedArea!==156000)throw Error('새 경계 자료와 화면 버전이 다릅니다. 새로고침해 주세요.');
+  window.GimhaeB={get active(){return active;},get data(){return data;},frame,shot,open:()=>{switchScope(true);frame(350,true);}};
+  fetch('data/gimhae-zone-261011.json?v=r2').then(r=>{if(!r.ok)throw Error('경계 자료를 불러오지 못했습니다');return r.json();}).then(async d=>{
+    data=d;ctx=d.context;
+    if(d.version!=='2026-10-11-confirmed'||d.area!==217510||d.sites.length!==13||!ctx||!d.vacancy||!d.landPrice)throw Error('새 경계 자료와 화면 버전이 다릅니다. 새로고침해 주세요.');
     // Verify index data against the immutable embedded source before using it.
     const raw=new TextEncoder().encode($('dat').textContent);
     const digest=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',raw)),v=>v.toString(16).padStart(2,'0')).join('');
-    if(digest!==data.embeddedDataSHA256)throw Error('원본 자료가 변경되었습니다. B권역 재계산 필요.');
-    if(!data.buildingIndices.length||D.bld.features.length!==10065)throw Error('원본 건물 자료가 변경되었습니다. B권역 재계산 필요.');
+    if(digest!==data.embeddedDataSHA256)throw Error('원본 자료가 변경되었습니다. 확정 구역계 재계산 필요.');
+    if(!data.buildingIndices.length||D.bld.features.length!==10065)throw Error('원본 건물 자료가 변경되었습니다. 확정 구역계 재계산 필요.');
     const start=Date.now();await new Promise((resolve,reject)=>{const timer=setInterval(()=>{if(map.getLayer('bld-3d')&&window.__LATE){clearInterval(timer);resolve();}else if(Date.now()-start>45000){clearInterval(timer);reject(Error('지도 준비 시간을 초과했습니다. 새로고침해 주세요.'));}},150);});
     initialize();
-  }).catch(e=>{$('scope-status').textContent='B권역 표시 실패: '+e.message;$('scope-b').textContent='B권역 확인 필요';document.body.dataset.bReady='error';console.error(e);});
+  }).catch(e=>{$('scope-status').textContent='확정 구역계 표시 실패: '+e.message;$('scope-b').textContent='확정 구역계 확인 필요';document.body.dataset.bReady='error';console.error(e);});
 })();

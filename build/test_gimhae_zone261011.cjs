@@ -1,0 +1,40 @@
+// Confirmed zone (2026-10-11): derived analysis must match the counts the other rooms publish (923동·91.7%·294곳).
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const crypto=require('node:crypto');
+const root=path.join(__dirname,'..');
+const I=require('../data/gimhae-b-insights.js');
+const html=fs.readFileSync(path.join(root,'gimhae-wondosim.html'),'utf8');
+const rawText=html.match(/<script id="dat" type="application\/json">(.*?)<\/script>/s)[1];
+const D=JSON.parse(rawText);
+const Z=JSON.parse(fs.readFileSync(path.join(root,'data/gimhae-zone-261011.json')));
+assert.equal(crypto.createHash('sha256').update(rawText).digest('hex'),Z.embeddedDataSHA256,'zone counts were made from this page data');
+assert.equal(Z.version,'2026-10-11-confirmed');assert.equal(Z.area,217510);assert.equal(Z.blocks,26);
+const classify=vm.runInNewContext(html.slice(html.indexOf('const RESPU='),html.indexOf('D.bld.features.forEach(f=>{f.properties.cl=classify'))+'\nclassify;');
+const edges=new Set(Z.edgeBuildingIndices);
+const buildings=Z.buildingIndices.map(i=>({...D.bld.features[i],properties:{...D.bld.features[i].properties,cl:classify(D.bld.features[i].properties),bidx:i,inside:true,edge:edges.has(i)}}));
+const stores=Z.storeIndices.map(i=>({...D.store[i],sid:i}));
+const a=I.summarize(buildings,stores);
+assert.equal(a.total,923);assert.equal(a.known,840);assert.equal(a.old20,770);assert.equal(a.oldPct,91.7);
+assert.equal(stores.length,294);assert.equal(a.industries.reduce((n,[,v])=>n+v,0),294);
+assert.equal(a.counts.all,923);assert.equal(a.counts.unknown,83);assert.equal(a.counts.edge,Z.stats.edgeInside);
+assert.equal(new Set(Z.buildingIndices).size,923);
+for(const [group,n] of Object.entries(a.counts))assert.equal(I.filterBuildings(buildings,{group}).length,n);
+assert.equal(Z.sites.length,13);assert.ok(Z.sites.every(s=>s.inside),'all 13 city sites inside');
+assert.deepEqual(Z.sites.map(s=>s.rank),[1,2,3,4,5,6,7,8,9,10,11,12,13]);
+assert.ok(!/의향|매매 의사|생각해 봄|수도|연체|체납|보증금|억/.test(JSON.stringify(Z.sites)),'public-safe site wording');
+assert.equal(Math.min(...Z.sites.map(s=>s.edgeM)),10.1,'nearest site to edge (12번 7-12) matches the other rooms');
+// Re-collected vacancy signals (2026-10-13) — all inside, public-safe wording.
+function pip(q,r){let b=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const A=r[i],C=r[j];if(((A[1]>q[1])!==(C[1]>q[1]))&&(q[0]<(C[0]-A[0])*(q[1]-A[1])/(C[1]-A[1])+A[0]))b=!b;}return b;}
+const ring=Z.boundary.geometry.coordinates[0],V=Z.vacancy;
+assert.equal(V.localdata.signals.length,32);assert.equal(V.sbiz.vanished.length,22);assert.equal(V.sbiz.vanishedDupRemoved,1);
+assert.equal(new Set(V.sbiz.vanished.map(x=>x.name+'|'+x.address)).size,V.sbiz.vanished.length,'no duplicate vanished store');assert.equal(V.sbiz.latest,'2026-06');assert.equal(V.sbiz.inside,294);
+assert.ok(V.localdata.signals.every(x=>pip(x.lnglat,ring))&&V.sbiz.vanished.every(x=>pip(x.lnglat,ring)),'signals inside the confirmed zone');
+assert.ok(!/보증금|권리금|만 ?원|억/.test(JSON.stringify(V)),'no advertised prices on the public page');
+assert.ok(Z.sites.every(t=>t.officialPrice&&t.officialPrice.ym==='2026/01'&&t.officialPrice.wonPerM2>0),'13 official land prices');
+assert.equal(Z.sites.find(t=>t.rank===12).officialPrice.wonPerM2,1352000,'spot-checked on 토지이음 (봉황동 7-12)');
+assert.ok(Z.context.roads.totalM>0&&Z.context.gates.total>0&&Z.context.rail.length>0,'context recomputed');
+console.log(JSON.stringify({total:a.total,known:a.known,old20:a.old20,oldPct:a.oldPct,counts:a.counts,foodRetail:a.foodRetail,foodRetailPct:a.foodRetailPct,residential:a.residential,neighborhood:a.neighborhood,candidateEdge:a.candidateEdge,industries:a.industries}));
+console.log('PASS: confirmed zone 923동 · 840 known · 770 old · 91.7% · 294 stores · 13 sites inside · source hash');

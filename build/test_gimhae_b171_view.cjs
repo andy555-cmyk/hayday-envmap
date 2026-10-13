@@ -5,17 +5,18 @@ const vm = require('node:vm');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '../data/gimhae-b171.js'), 'utf8');
 const frameCode = source.slice(source.indexOf('  function frame('), source.indexOf('  function switchScope('));
-function check(name, width, viewport, panel, expectedLeft, expectedBottom) {
+function check(name, width, viewport, panel, expectedLeft, expectedBottom, legend = {width:0,height:0}, expectedTop = 0) {
   viewport.top = viewport.bottom - viewport.height;
   let actual;
   vm.runInNewContext(frameCode + '\nframe(0);', {
     data: { boundary: { geometry: { coordinates: [[[128.88,35.23],[128.89,35.24],[128.88,35.23]]] } } },
     innerWidth: width, is3d: true, ZP:{features:[]},
-    $: () => ({ getBoundingClientRect: () => panel }),
+    $: id => ({ getBoundingClientRect: () => id === 'lgd' ? legend : panel }),
     map: { getContainer: () => ({ getBoundingClientRect: () => viewport }), fitBounds: (_, options) => { actual = options; } }
   });
   assert.equal(actual.padding.left - actual.padding.right, expectedLeft, name + ' horizontal occlusion');
-  assert.equal(actual.padding.bottom - actual.padding.top, expectedBottom, name + ' vertical occlusion');
+  assert.equal(actual.padding.bottom - actual.padding.top, expectedBottom - expectedTop, name + ' vertical occlusion');
+  if (expectedTop) assert.equal(Math.round(actual.padding.top - Math.max(28, (viewport.height - expectedBottom - expectedTop) * .12)), expectedTop, name + ' legend clearance');
   assert.equal(actual.pitch, 30, name + ' legacy viewing angle');
   assert.ok(actual.padding.left + actual.padding.right < viewport.width);
   assert.ok(actual.padding.top + actual.padding.bottom < viewport.height);
@@ -26,6 +27,8 @@ check('wide desktop sidebar already excluded',1920,{left:460,bottom:1080,width:1
 check('sidebar overlays map',1280,{left:0,bottom:720,width:1280,height:664},{right:320,top:56,width:320,height:664},320,0);
 check('mobile bottom sheet',390,{left:0,bottom:844,width:390,height:796},{right:390,top:456,width:390,height:388},0,388);
 check('print hidden panel',1280,{left:0,bottom:720,width:1280,height:676},{right:0,top:0,width:0,height:0},0,0);
+check('desktop legend on the lower left',1440,{left:360,bottom:900,width:1080,height:844},{right:360,top:56,width:360,height:844},260,0,{left:374,right:620,top:538,bottom:886,width:246,height:348});
+check('phone legend at the top',390,{left:0,bottom:844,width:390,height:796},{right:390,top:456,width:390,height:388},0,388,{left:10,right:250,top:94,bottom:230,width:240,height:136},182);
 assert.ok(source.includes('const colors=MODES.old.p;'), 'Use the existing age palette');
 assert.ok(source.includes('!included.has(i)'), 'Context buildings exclude the B membership');
 console.log('shared age palette and disjoint context: PASS');
@@ -33,10 +36,10 @@ let bounds;
 const boundary={geometry:{coordinates:[[[2,2],[3,3],[2,2]]]}};
 const combinedContext={data:{boundary},ZP:{features:[{properties:{k:'blue'},geometry:{coordinates:[[[0,0],[4,4],[0,0]]]}},{properties:{k:'black'},geometry:{coordinates:[[[-1,-1],[5,5],[-1,-1]]]}}]},innerWidth:1280,is3d:true,$:()=>({getBoundingClientRect:()=>({right:320,top:56,width:320,height:664})}),map:{getContainer:()=>({getBoundingClientRect:()=>({left:320,top:56,bottom:720,width:960,height:664})}),fitBounds:(b)=>{bounds=b;}}};
 vm.runInNewContext(frameCode+'\nframe(0);',combinedContext);
-assert.deepEqual(JSON.parse(JSON.stringify(bounds)),[[-1,-1],[5,5]],'Together view includes original boundaries and B');
+assert.deepEqual(JSON.parse(JSON.stringify(bounds)),[[0,0],[4,4]],'Together view includes the business district (blue) and the confirmed zone');
 vm.runInNewContext(frameCode+'\nframe(0,true);',combinedContext);
 assert.deepEqual(JSON.parse(JSON.stringify(bounds)),[[2,2],[3,3]],'Explicit closeup fits B only');
-assert.ok(source.includes("get('scope')==='b171'"),'B detail is opt-in; original map is default');
+assert.ok(source.includes("scope==='b171'||scope==='zone'"),'Zone detail is opt-in (old b171 link kept); original map is default');
 assert.ok(source.includes("contextIds.has(layer.id)"),'Keep original boundaries and landmarks in B detail');
 console.log('combined extent, explicit closeup, default original view: PASS');
 const emphasisIds=['bs-boundary-fill','bs-boundary-glow','bs-boundary-case','bs-boundary-line','bs-boundary-highlight'];
@@ -47,15 +50,16 @@ assert.deepEqual(shown,emphasisIds,'All five emphasis layers persist in original
 for(const id of emphasisIds)assert.ok(source.includes("addLayer({id:'"+id+"'"),'Emphasis layer registered: '+id);
 assert.ok(source.includes("ownIds.forEach(id=>setVisibility(id,true));"),'Detail shows registered emphasis layers too');
 console.log('shared B emphasis in overview and detail: PASS');
-assert.ok(!/17\.1ha|4쪽|171,000/.test(source),'No stale page 4 copy in B UI or export');
-assert.ok(source.includes('data.sourcePage')&&source.includes('data.printedArea/10000'),'Source and area labels derive from data');
-assert.ok(source.includes('d.sourcePage!==5||d.printedArea!==156000'),'Fail closed for mixed old/new assets');
-assert.ok(fs.readFileSync(path.join(__dirname,'../gimhae-wondosim.html'),'utf8').includes('gimhae-b171.js?v=readability-r3'),'Reload uses revised script');
-console.log('page 5 provenance, area labels and cache version: PASS');
+assert.ok(!/17\.1ha|4쪽|171,000|도면 5쪽|156,000/.test(source),'No stale page 4/5 B copy in UI or export');
+assert.ok(!/남실장/.test(source),'No internal names on the public page');
+assert.ok(source.includes('data.area/10000')&&source.includes('data.source'),'Source and area labels derive from data');
+assert.ok(source.includes("d.version!=='2026-10-11-confirmed'||d.area!==217510"),'Fail closed for mixed old/new assets');
+assert.ok(fs.readFileSync(path.join(__dirname,'../gimhae-wondosim.html'),'utf8').includes('gimhae-b171.js?v=zone261011-r2'),'Reload uses revised script');
+console.log('confirmed-zone provenance, area labels and cache version: PASS');
 const css=fs.readFileSync(path.join(__dirname,'../data/gimhae-b171.css'),'utf8');
 assert.ok(!/#b-panel\s*\{[^}]*zoom\s*:\s*1\s*!important/.test(css),'B panel must inherit shared width-based zoom');
 assert.ok(css.includes('font:15px/1.65'),'B default text is readable without dragging');
-assert.ok(source.includes("$('focusbx').append(focusButton)"),'B area is available in original focus controls');
+assert.ok(source.includes("$('focusbx').prepend(focusButton)"),'Confirmed zone is first in original focus controls');
 assert.ok(source.includes("focusButton.onclick=()=>{popup?.remove();showBoundary();frame(450,true);}"),'B focus keeps current analysis scope');
 console.log('B focus control, shared zoom and enlarged default typography: PASS');
 assert.ok(source.includes("setVisibility('bs-mask',true)"),'Detail keeps its B-only outside mask visible');
