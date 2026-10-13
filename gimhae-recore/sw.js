@@ -1,8 +1,8 @@
-// 김해 원도심 RE:CORE — 다시 올 때 빠르게(자동 생성, 판 f66e561414)
+// 김해 원도심 RE:CORE — 다시 올 때 빠르게(자동 생성, 판 351ce4c707)
 // 첫 화면·자료: 늘 새로 받고(3초 넘게 걸리면 저장본), 화면 파일·글꼴·지도 도구: 저장본 우선, 그림: 저장본을 먼저 보이고 뒤에서 새로 받기
 // 원문(PDF 등)은 저장하지 않는다. 문제가 생기면 이 파일을 '스스로 지우기' 판으로 바꿔 올리면 된다(README).
-const V = 'f66e561414', CORE = 'gm-core-' + V, PAGE = 'gm-page', IMG = 'gm-img-v1';
-const PRE = ["app.d438f866c3.js","app.310a52651b.css","favicon.svg","fonts/Pretendard-Regular.b3a7e7f4cf.woff2","fonts/Pretendard-Medium.cc99e816dd.woff2","fonts/Pretendard-SemiBold.fd3c14528b.woff2","fonts/Pretendard-Bold.06e7971260.woff2"];
+const V = '351ce4c707', CORE = 'gm-core-' + V, PAGE = 'gm-page', IMG = 'gm-img-v1';
+const PRE = ["app.23e734a2c5.js","app.310a52651b.css","favicon.svg","fonts/Pretendard-Regular.b3a7e7f4cf.woff2","fonts/Pretendard-Medium.cc99e816dd.woff2","fonts/Pretendard-SemiBold.fd3c14528b.woff2","fonts/Pretendard-Bold.06e7971260.woff2"];
 self.addEventListener('install', (e) => { e.waitUntil((async () => {
   const c = await caches.open(CORE); await c.addAll(PRE);
   try { const p = await caches.open(PAGE); await p.add('./'); } catch {}
