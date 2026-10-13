@@ -14,7 +14,10 @@ assert.equal(crypto.createHash('sha256').update(rawText).digest('hex'),Z.embedde
 assert.equal(Z.version,'2026-10-11-confirmed');assert.equal(Z.area,217510);assert.equal(Z.blocks,26);
 const classify=vm.runInNewContext(html.slice(html.indexOf('const RESPU='),html.indexOf('D.bld.features.forEach(f=>{f.properties.cl=classify'))+'\nclassify;');
 const edges=new Set(Z.edgeBuildingIndices);
-const buildings=Z.buildingIndices.map(i=>({...D.bld.features[i],properties:{...D.bld.features[i].properties,cl:classify(D.bld.features[i].properties),bidx:i,inside:true,edge:edges.has(i)}}));
+// 구역 안 분류는 용도지역 무관(zone261011_base.py) — 같은 규칙을 이 페이지 classify 로 다시 계산해 대조한다(ec 를 1로 두면 상업·준주거 조건만 빠진다)
+const zoneCl=p=>p.sc>0?'biz':classify({...p,ec:1});
+for(const i of Z.buildingIndices){const p=D.bld.features[i].properties;if(p.sc===0)assert.equal(Z.emptyShop.cls[i],zoneCl(p),'zone class '+i);else assert.ok(!(i in Z.emptyShop.cls));}
+const buildings=Z.buildingIndices.map(i=>({...D.bld.features[i],properties:{...D.bld.features[i].properties,cl:zoneCl(D.bld.features[i].properties),bidx:i,inside:true,edge:edges.has(i)}}));
 const stores=Z.storeIndices.map(i=>({...D.store[i],sid:i}));
 const a=I.summarize(buildings,stores);
 assert.equal(a.total,923);assert.equal(a.known,840);assert.equal(a.old20,770);assert.equal(a.oldPct,91.7);
@@ -49,5 +52,20 @@ assert.equal(Z.vacancy.survey0919.total,35);assert.equal(Z.vacancy.survey0919.li
 assert.ok(!/소유|의향|보증금|만 ?원|억|kWh|남실장|010-/.test(JSON.stringify({s:Z.survey,v:Z.vacancy.survey0919})),'public-safe survey layers');
 assert.ok(!/대장 미확보/.test(JSON.stringify(Z.sites.filter(t=>t.ledger))),'stale ledger note removed');
 assert.ok(!/소유|의향|보증금|만 ?원|억|남실장|010-/.test(JSON.stringify({l:Z.ledger,f:Z.fieldVoice,s:Z.sites.map(t=>[t.ledger,t.floorsDetail,t.prevHub])})),'public-safe additions');
+// 원래 환경분석맵 분석을 확정 구역계로 다시 계산(2026-10-13 3차)
+assert.equal(a.counts.candidate,130);assert.equal(Z.emptyShop.any.shop,130);assert.equal(Z.emptyShop.orig.shop,Z.buildingIndices.filter(i=>classify(D.bld.features[i].properties)==='shop').length);assert.equal(Z.emptyShop.orig.shop,30);
+const zk=JSON.parse(html.match(/const ZK_SHOP=(\[[\d,]*\]);/)[1]);assert.deepEqual(zk,Z.emptyShop.shopIndices,'정비 시나리오 후보 = 구역 빈 점포 후보');
+const BT=Z.bizTimeline;assert.equal(BT.records,439);assert.equal(BT.open.reduce((x,y)=>x+y,0),439);assert.equal(BT.close.reduce((x,y)=>x+y,0),BT.closedAll);
+const yi=y=>BT.years.indexOf(y);assert.deepEqual([2024,2025,2026].map(y=>[BT.open[yi(y)],BT.close[yi(y)]]),[[16,21],[15,17],[13,15]]);assert.equal(BT.lifespan.within3yPct,35.2);
+for(const y of [2019,2020,2021,2022,2023,2024,2025,2026])assert.deepEqual([BT.open[yi(y)],BT.close[yi(y)]],[V.localdata.byYear[y].open,V.localdata.byYear[y].close],'same LOCALDATA year '+y);
+assert.equal(Z.rone.overlapPct,10.7);assert.equal(Z.rone.oldOverlapPct,98.8);assert.equal(Z.rone.storesIn,44);assert.equal(Z.rone.latest.smallVacancyPct,13.7);
+assert.equal(Z.gateLoad.list.reduce((x,g)=>x+g.stores,0),294);assert.equal(Z.tms.within1km,2);assert.deepEqual(Z.tms.nearest.slice(0,2).map(t=>t.distM),[401,955],'EPSG:5187 직선 최단거리');assert.equal(BT.records,BT.openNow+BT.closedAll+BT.otherStatus);
+const RV=Z.roadview;assert.equal(RV.jibun,81);assert.equal(Object.keys(RV.byJibun).length,81);assert.equal(RV.empty2025.length,7);assert.deepEqual(RV.lowConf2025,['봉황동 222-2']);assert.ok(!RV.empty2025.includes('봉황동 214-1'),'B33 판단 불가');assert.deepEqual(RV.empty2022and2025,['봉황동 118-16','봉황동 16-35']);
+assert.ok(Z.sites.every(t=>RV.byJibun[t.jibun]),'13 sites have roadview');assert.ok(!/evidence|010-|보증금/.test(JSON.stringify(RV)),'roadview public-safe');
+const FA=JSON.parse(html.match(/^const FACTS=(.*?);\s*$/m)[1]);assert.equal(FA.filter(f=>f.z==='261011').length,9);assert.ok(!/남실장|대표 제공|보증금|010-/.test(JSON.stringify(FA)),'cards public-safe');
+assert.ok(html.includes('<!--zk-rone-->')&&html.includes('<!--zk-l9-->'),'rone notes on original page');
+assert.ok(!/직접 측정치|수요가 빠졌다|민간 자율 회복|상권코드 A1705|실거래는 대한민국에 존재하지|제도적으로 존재하지 않는다/.test(html),'부동산원·실거래 단정 문장 제거');
+const AC=JSON.parse(fs.readFileSync(path.join(root,'build/ask_cards/gimhae-wondosim.json'),'utf8'));assert.equal(JSON.stringify(AC.cards),JSON.stringify(FA),'질문 카드 원본 = 화면 카드');
+const FX=JSON.parse(fs.readFileSync(path.join(root,'data/gimhae-zone-261011-facts.json'),'utf8')).facts;assert.equal(FX.length,22);assert.ok(!/남실장|대표 제공|보증금|권리금|010-|의향|체납|직접 측정|수요가 빠졌/.test(JSON.stringify(FX)),'누리집용 사실 묶음 공개 안전');
 console.log(JSON.stringify({total:a.total,known:a.known,old20:a.old20,oldPct:a.oldPct,counts:a.counts,foodRetail:a.foodRetail,foodRetailPct:a.foodRetailPct,residential:a.residential,neighborhood:a.neighborhood,candidateEdge:a.candidateEdge,industries:a.industries}));
-console.log('PASS: confirmed zone 923동 · 840 known · 770 old · 91.7% · 294 stores · 13 sites inside · source hash');
+console.log('PASS: confirmed zone 923동 · 840 known · 770 old · 91.7% · 294 stores · 13 sites inside · source hash · 빈 점포 후보 130(원래 규칙 30) · 인허가 439건 · 상권 겹침 10.7% · 로드뷰 81지번 · 카드 9');
