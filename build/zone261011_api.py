@@ -136,6 +136,49 @@ if r3:
                      'trend': {k: r3['trend'].get(k) for k in ('platform', 'keyword', 'range', 'normalization', 'annual', 'sourceUrl')},
                      'source': '언론 기사·김해시 보도·토지이음 고시·국가유산청 고시·네이버 데이터랩(공개 화면, 2026-10-13 수집)'}
 
+# 6. 토지이음 537지번(L2) — 지목·용도지역·다른 법령 지역·도로·공시지가 전수(집계와 규제 지번 점만 공개)
+r2 = load('L2_eum_537/result.json') if CX and CX.exists() else None
+partial2 = False
+if r2 is None and CX and (CX / 'L2_eum_537/partial.json').exists():
+    r2 = load('L2_eum_537/partial.json'); partial2 = True
+if r2:
+    import statistics as st_, math
+    rows2 = [r for r in r2['rows'] if r.get('jimok') or r.get('priceWonPerM2')]
+    rowsD = [r for r in rows2 if r.get('zoning') or r.get('jimok')]   # 토지이용계획 상세를 받은 지번(규제 비율의 분모) — 공시지가만 받은 3곳은 뺌
+    sv = {f['properties']['jibun']: f['geometry']['coordinates'] for f in Z['survey']['points']['features']}
+    has = lambda r, w: any(w in x for x in (r.get('other') or []) + (r.get('district') or []))
+    lines_ = [f['geometry']['coordinates'] for f in Z['context']['roadLines']['features'] if f['properties'].get('name') == '봉황대길']
+    kx, ky = 111320 * math.cos(math.radians(35.232)), 111320
+    def dl(pt):
+        best = 1e9
+        for a_, b_ in ((a, b) for ln in lines_ for a, b in zip(ln, ln[1:])):
+            ax, ay, bx, by, px, py = a_[0] * kx, a_[1] * ky, b_[0] * kx, b_[1] * ky, pt[0] * kx, pt[1] * ky
+            dx, dy = bx - ax, by - ay; tt = max(0, min(1, ((px - ax) * dx + (py - ay) * dy) / (dx * dx + dy * dy)))
+            best = min(best, math.hypot(px - ax - tt * dx, py - ay - tt * dy))
+        return best
+    price = [r['priceWonPerM2'] for r in rows2 if r.get('priceWonPerM2')]
+    band = [r['priceWonPerM2'] for r in rows2 if r.get('priceWonPerM2') and r['jibun'] in sv and dl(sv[r['jibun']]) <= 30]
+    off = [r['priceWonPerM2'] for r in rows2 if r.get('priceWonPerM2') and r['jibun'] in sv and dl(sv[r['jibun']]) > 30]
+    byDong = {}
+    for r in rows2:
+        if r.get('priceWonPerM2'): byDong.setdefault(r['jibun'].split()[0], []).append(r['priceWonPerM2'])
+    from collections import Counter
+    road = Counter('저촉' if any('저촉' in x for x in r.get('road') or []) else '접합만' if r.get('road') else '없음' for r in rowsD)
+    hazard = [r['jibun'] for r in rowsD if has(r, '자연재해위험개선지구')]
+    Z['landUse537'] = {'target': 537, 'done': len(rowsD), 'partial': partial2,
+                       'jimok': dict(Counter(r.get('jimok') for r in rowsD).most_common()),
+                       'zoning': dict(Counter(z for r in rowsD for z in (r.get('zoning') or []) if z != '도시지역').most_common()),
+                       'heritagePct': round(100 * sum(1 for r in rowsD if has(r, '역사문화환경보존지역')) / len(rowsD), 1),
+                       'landscapePct': round(100 * sum(1 for r in rowsD if has(r, '중점경관관리구역')) / len(rowsD), 1),
+                       'hazard': {'count': len(hazard), 'pct': round(100 * len(hazard) / len(rowsD), 1), 'name': '자연재해위험개선지구(2018-03-23 지정, 자연재해대책법)',
+                                  'points': {'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'properties': {'jibun': j}, 'geometry': {'type': 'Point', 'coordinates': sv[j]}} for j in hazard if j in sv]}},
+                       'road': dict(road),
+                       'price': {'n': len(price), 'median': round(st_.median(price)), 'q1': round(st_.quantiles(price, n=4)[0]), 'q3': round(st_.quantiles(price, n=4)[2]),
+                                 'min': min(price), 'max': max(price), 'band30': round(st_.median(band)) if band else None, 'bandN': len(band), 'off30': round(st_.median(off)) if off else None,
+                                 'byDong': {d: {'n': len(v), 'median': round(st_.median(v))} for d, v in byDong.items()}, 'ym': '2026/01'},
+                       'source': '국토교통부 토지이음 토지이용계획 열람(eum.go.kr, 공개 화면, 2026-10-13) — 확정 구역계 안 지번 전수',
+                       'caveat': '지번 단위 열람 결과 집계(규제 비율 분모 = 상세를 받은 지번, 공시지가 = 값을 받은 지번) · 7지번은 열람 실패 · 공시지가는 공적 기준 가격이며 매매 가격이 아님 · 「봉황대길 30m」는 구역 안 봉황대길 세 구간에서 지번 대표점까지 직선 · 규제 해석은 담당 부서 확인 필요'}
+
 # 4. 카카오맵 장소(L4) — 분류별 수와 상가정보 대조만(이름·주소는 싣지 않음)
 r4 = load('L4_kakao_place/result.json') if CX and CX.exists() else None
 if r4:

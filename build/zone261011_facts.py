@@ -109,6 +109,12 @@ if Z.get('timeline'):
          ' → '.join(f"{str(e['date'])[:7]} {e['title']}" for e in key[:8]),
          f"연표 {len(tl['events'])}건(기사·사업·고시). 검색 관심(네이버 데이터랩 「{tl['trend']['keyword']}」, 2018년 5월=100): " + ' · '.join(f"{a['year']} {round(a['value'])}" for a in tl['trend']['annual'] if a['value'] is not None) + '.',
          '김해 원도심(동상·회현·부원동)·봉황대길', tl['source'], '2026-10-13', '기사·보도 기준이며 명명자·최초 사용일은 확인 못함. 검색 관심은 상대값(사람 수 아님).')
+if Z.get('landUse537'):
+    L5 = Z['landUse537']; P5 = L5['price']
+    card('landUse537', '대상지', '구역 지번 전체의 토지 규제와 공시지가는?',
+         f"지번 {L5['done']}곳 열람: 역사문화환경보존지역 {L5['heritagePct']}% · 중점경관관리구역 {L5['landscapePct']}% · 자연재해위험개선지구 {L5['hazard']['count']}곳({L5['hazard']['pct']}%) · 공시지가 ㎡당 중간값 {n(P5['median'])}원",
+         f"도시계획도로 저촉 {L5['road'].get('저촉', 0)} · 접합만 {L5['road'].get('접합만', 0)} · 없음 {L5['road'].get('없음', 0)}. 공시지가({P5['ym']}) 가운데 절반 {n(P5['q1'])}~{n(P5['q3'])}원, 봉황대길 30m 안 {n(P5['band30'])}원 / 밖 {n(P5['off30'])}원. 자연재해위험개선지구는 배수·침수 이력 확인 근거.",
+         ZONE + f" · 지번 {L5['target']}곳 중 {L5['done']}곳 열람" + (' (일부 — 수집 중)' if L5['partial'] else ''), L5['source'], '2026-10-13', L5['caveat'] + '.')
 card('sites13', '대상지', '시 우선순위 13곳의 토지 규제는?',
      f"13곳 모두 역사문화환경보존지역·중점경관관리구역 · 도시계획도로 저촉 {', '.join(str(x) + '번' for x in lu['roadConflict'])} · 방화지구 {', '.join(str(x) + '번' for x in lu['fireDistrict'])}",
      '용도지역: ' + ' · '.join(f"{k} {v}곳" for k, v in lu['zoning'].items()) + f". 공시지가(2026.1) {n(min(t['officialPrice']['wonPerM2'] for t in Z['sites']))}~{n(max(t['officialPrice']['wonPerM2'] for t in Z['sites']))}원/㎡.",
