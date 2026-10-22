@@ -575,6 +575,8 @@ function scene(fast) {
   document.body.classList.toggle('clean', k === 'finale');
   document.body.classList.toggle('bnleft', k === 'earth');
   finale(k === 'finale' && !scene.hold, fast);
+  if (k === 'earth' && bi === 0) $('#panel').classList.remove('on');
+  else if (k === 'earth' && !scene.hold && !$('#panel').classList.contains('on')) { panel(STEPS[0]); beatItems(bi); }
   crumbs(); notes();
 }
 function crumbs() {
@@ -729,7 +731,8 @@ async function next() {
 }
 function prev() {
   if (siteOpen) { closeSite(); return; }
-  if (bi > 0) { bi--; beatItems(bi); scene(true); const st = STEPS[si]; if (st.beatCam) map.easeTo({ ...(st.beatCam[bi] || st.cam()), padding: pad(st), duration: 2200 * SLOW, easing: SINE }); return; }
+  if (bi > 0) { bi--; beatItems(bi); scene(true); const st = STEPS[si];
+    if (st.key === 'earth' && bi === 0) { map.easeTo({ ...st.cam(), padding: pad(st), duration: 2200 * SLOW, easing: SINE }); map.once('moveend', () => { if (si === 0 && bi === 0) spin(true); }); return; } if (st.beatCam) map.easeTo({ ...(st.beatCam[bi] || st.cam()), padding: pad(st), duration: 2200 * SLOW, easing: SINE }); return; }
   if (si > 0) go(si - 1, true);
 }
 function restart() { location.hash = ''; location.reload(); }
