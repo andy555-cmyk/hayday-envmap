@@ -8,15 +8,27 @@
     street: { layers: BASE + ',heat,gaps,flows', tip: '점포 밀도 · 점포 공백' },
     square: { layers: BASE + ',sites,flows', routes: 'site', tip: '대상부지 13곳 · 역→거점 걷는 길' },
   };
-  const DECK_UI = '#panel,#bignum,#timeline,#rv,#sitecard,#crumbs,#scale,#attr,#chapter,#evidence';
+  const DECK_UI = '#panel,#bignum,#timeline,#rv,#sitecard,#crumbs,#scale,#attr,#chapter,#evidence,#stepnav';
   const css = document.createElement('style');
   css.textContent = `#evidence{position:fixed;right:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*4.4);z-index:15;font:600 calc(var(--u,16px)*.95)/1 Pretendard,sans-serif;color:#fff;background:rgba(10,14,22,.72);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:.75em 1.2em;cursor:pointer;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .6s,border-color .3s}
 #evidence.on{opacity:1;pointer-events:auto}#evidence:hover,#evidence:focus-visible{border-color:#FF9A4A;outline:none}#evidence small{display:block;margin-top:.45em;font-weight:400;font-size:.78em;color:rgba(255,255,255,.62)}
 body.clean #evidence{display:none}
+#stepnav{position:fixed;left:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*2);z-index:15;display:flex;gap:8px;font:600 calc(var(--u,16px)*.9)/1 Pretendard,sans-serif;transition:opacity .4s}
+#stepnav button{color:#fff;background:rgba(10,14,22,.72);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:.7em 1.1em;cursor:pointer;font:inherit;backdrop-filter:blur(6px);transition:border-color .3s,opacity .3s}
+#stepnav button:hover,#stepnav button:focus-visible{border-color:#FF9A4A;outline:none}
+#stepnav button:disabled{opacity:.35;cursor:default}
+#stepnav .home{display:none}#stepnav.moved .home{display:block}
+body.flying #stepnav{opacity:.35}
 #evframe{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:60;background:transparent;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .8s ease .15s,visibility 0s linear 1s}
 body.ev-open #evframe{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .8s ease .15s,visibility 0s}
 body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;transition:opacity .35s ease!important}`;
   document.head.appendChild(css);
+
+  // 이전·다음·제자리 — 웹판은 화면 클릭으로 넘기지 않는다(지도를 끌고·확대해 둘러보게)
+  const nav = document.createElement('nav');
+  nav.id = 'stepnav'; nav.setAttribute('aria-label', '장면 넘기기');
+  nav.innerHTML = '<button type="button" class="prev" title="이전 (←)">‹ 이전</button><button type="button" class="home" title="이 장면의 처음 화면으로">↺ 제자리</button><button type="button" class="next" title="다음 (→)">다음 ›</button>';
+  document.body.appendChild(nav);
 
   const btn = document.createElement('button');
   btn.id = 'evidence'; btn.type = 'button';
@@ -59,9 +71,31 @@ body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;t
   }
 
   const giveBack = () => { if (!open && frame && document.activeElement === frame) { frame.blur(); window.focus(); } };
+  // 지도를 손으로 움직이면: 천천히 도는 카메라를 멈추고, 움직이기 전 화면을 기억해 「제자리」로 돌아갈 수 있게
+  let home = null, beatKey = '';
+  const beatNow = () => { const a = app(); return a ? a.si + ':' + a.bi : ''; };
+  const userMove = e => {
+    const a = app(), m = map(); if (!e.originalEvent || !a || !m || open) return;
+    if (!home) { const c = m.getCenter(); home = { center: [c.lng, c.lat], zoom: m.getZoom(), pitch: m.getPitch(), bearing: m.getBearing(), padding: m.getPadding() }; nav.classList.add('moved'); }
+    a.drift(false); a.spin(false);
+  };
+  const hookMap = () => { const m = map(); if (!m || hookMap.done) return; hookMap.done = true; ['dragstart', 'zoomstart', 'rotatestart', 'pitchstart'].forEach(ev => m.on(ev, userMove)); };
+  nav.addEventListener('click', e => {
+    e.stopPropagation();
+    const a = app(), m = map(), b = e.target.closest('button'); if (!a || !b) return;
+    if (b.classList.contains('prev')) a.prev();
+    else if (b.classList.contains('next')) a.next();
+    else if (home && m) { const h = home; home = null; nav.classList.remove('moved'); m.easeTo({ ...h, duration: 1400, essential: true }); m.once('moveend', () => { if (!home) a.drift(true); }); }
+  });
+
   setInterval(() => {   // 단계가 바뀌면 단추를 켜고 끄고 겹판을 데운다(화면이 뒤에 있어도 돌게 타이머로)
     const l = cur();
     if (l !== btn._l) { btn._l = l; btn.classList.toggle('on', !!l); if (l) btn.innerHTML = `근거 보기 →<small>${l.tip}</small>`; }
+    hookMap();
+    const bk = beatNow();
+    if (bk !== beatKey) { beatKey = bk; home = null; nav.classList.remove('moved'); }
+    const a = app();
+    if (a) { nav.querySelector('.prev').disabled = a.si === 0 && a.bi === 0; nav.querySelector('.next').disabled = a.si === a.STEPS.length - 1 && a.STEPS[a.si].key === 'finale' && a.bi >= 3; }
     warm(); giveBack();
   }, 250);
 

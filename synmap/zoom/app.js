@@ -139,7 +139,7 @@ D.recs.forEach(r => { if (r.c == null) r.c = 9999; });
 /* ── 지도 ── */
 const globeZoom = () => Math.log2(H() * .40 / 81.5);
 const map = window.map = new maplibregl.Map({
-  container: 'map', interactive: false, maxTileCacheSize: 1500,   // 원본이 넷(위성·밤·높이·산그림자)이라 원본마다 따로 쌓인다 — 크게 두면 메모리가 넘친다
+  container: 'map', interactive: true, maxTileCacheSize: 1500,   // 원본이 넷(위성·밤·높이·산그림자)이라 원본마다 따로 쌓인다 — 크게 두면 메모리가 넘친다
   attributionControl: false, fadeDuration: 0,
   pixelRatio: Q.has('hidpi') ? devicePixelRatio : 1,   // 미리 받은 위성사진과 같은 해상도로 고정
   center: [104, 18], zoom: globeZoom() - .2, maxPitch: 75, renderWorldCopies: false,
@@ -793,8 +793,8 @@ function boot() {
     else if (k === 'r' || k === 'R') restart();
     else if (k === 'Escape') closeSite();
   });
-  addEventListener('click', e => { if (e.target.closest('#crumbs,#sitecard,.site')) return; next(); });
-  addEventListener('contextmenu', e => { e.preventDefault(); prev(); });
+  map.keyboard.disable();   // ← → 는 장면 넘기기로 둔다
+  map.on('click', () => { if (si === 0 && bi === 0) next(); });
   document.body.classList.add('showhelp'); setTimeout(() => document.body.classList.remove('showhelp'), 6000);
   const j = Q.get('step'); if (j != null) go(+j, Q.has('end'));
 }
@@ -802,5 +802,5 @@ stars();
 map.on('load', boot);
 map.once('styledata', () => setTimeout(boot, 1500));
 setTimeout(boot, 6000);
-window.__map = map; window.__app = { go, next, prev, get si() { return si; }, get bi() { return bi; }, STEPS };
+window.__map = map; window.__app = { go, next, prev, drift, spin, get busy() { return busy; }, get si() { return si; }, get bi() { return bi; }, STEPS };
 })();
