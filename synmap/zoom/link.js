@@ -13,6 +13,8 @@
   css.textContent = `#evidence{position:fixed;right:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*4.4);z-index:15;font:600 calc(var(--u,16px)*.95)/1 Pretendard,sans-serif;color:#fff;background:rgba(10,14,22,.72);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:.75em 1.2em;cursor:pointer;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .6s,border-color .3s}
 #evidence.on{opacity:1;pointer-events:auto}#evidence:hover,#evidence:focus-visible{border-color:#FF9A4A;outline:none}#evidence small{display:block;margin-top:.45em;font-weight:400;font-size:.78em;color:rgba(255,255,255,.62)}
 body.clean #evidence{display:none}
+body{word-break:keep-all;overflow-wrap:break-word}
+#panel,#finale,#sitecard,#opening,#bignum,#timeline,#rv,#chapter{text-wrap:pretty}
 #stepnav{position:fixed;left:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*4.4);z-index:15;display:flex;gap:8px;font:600 calc(var(--u,16px)*.9)/1 Pretendard,sans-serif;transition:opacity .4s}
 #stepnav button,#stepnav a{color:#fff;background:rgba(10,14,22,.72);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:.7em 1.1em;cursor:pointer;font:inherit;backdrop-filter:blur(6px);transition:border-color .3s,opacity .3s}
 #stepnav button:hover,#stepnav button:focus-visible,#stepnav a:hover,#stepnav a:focus-visible{border-color:#FF9A4A;outline:none}
@@ -90,6 +92,30 @@ body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;t
     else if (home && m) { const h = home; home = null; nav.classList.remove('moved'); m.easeTo({ ...h, duration: 1400, essential: true }); m.once('moveend', () => { if (!home) a.drift(true); }); }
   });
 
+  // 외톨이 글자 막기: 글 덩어리 끝 낱말들을 줄바꿈 없는 띄어쓰기로 묶어 마지막 줄이 너무 짧지 않게(장면마다 새로 그려지는 글도)
+  const WIDOW = '#panel .p-lead,#panel .beat,#panel .src,#bignum .bn-k,#finale .f-s,#finale .f-ask div,#finale .f-ask li,#sitecard p,#sitecard h3,#opening .op-sub';
+  const isBlock = el => !/^inline/.test(getComputedStyle(el).display) || /inline-(block|flex)/.test(getComputedStyle(el).display);
+  function unwidow() {
+    document.querySelectorAll(WIDOW).forEach(el => {
+      if (el.__nb === el.textContent) return;   // 글이 새로 그려졌을 때만
+      const nodes = [];
+      const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, { acceptNode: n => { for (let e = n.parentElement; e && e !== el; e = e.parentElement) if (isBlock(e)) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_ACCEPT; } });
+      for (let n; (n = tw.nextNode());) nodes.push(n);
+      let got = 0, joins = 0;
+      for (let i = nodes.length - 1; i >= 0 && got < 8 && joins < 3; i--) {
+        const t = nodes[i].data.replace(/\s+$/, ''); let out = '';
+        for (let k = t.length - 1; k >= 0; k--) {
+          const c = t[k];
+          if (c === ' ' && got > 0 && got < 8 && joins < 3) { out = '\u00a0' + out; joins++; continue; }
+          if (c !== ' ' && c !== '\u00a0') got++;
+          out = c + out;
+        }
+        nodes[i].data = out + nodes[i].data.slice(t.length);
+      }
+      el.__nb = el.textContent;
+    });
+  }
+
   setInterval(() => {   // 단계가 바뀌면 단추를 켜고 끄고 겹판을 데운다(화면이 뒤에 있어도 돌게 타이머로)
     const l = cur();
     if (l !== btn._l) { btn._l = l; btn.classList.toggle('on', !!l); if (l) btn.innerHTML = `근거 보기 →<small>${l.tip}</small>`; }
@@ -98,7 +124,7 @@ body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;t
     if (bk !== beatKey) { beatKey = bk; home = null; nav.classList.remove('moved'); }
     const a = app();
     if (a) { nav.querySelector('.prev').disabled = a.si === 0 && a.bi === 0; nav.querySelector('.next').disabled = a.si === a.STEPS.length - 1 && a.STEPS[a.si].key === 'finale' && a.bi >= 3; }
-    warm(); giveBack();
+    unwidow(); warm(); giveBack();
   }, 250);
 
   async function show() {
