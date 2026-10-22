@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>김해 원도심 줌인</title>
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="intro">
+<div id="stars"></div>
+<div id="halo"></div>
+<div id="map"></div>
+<div id="rim"></div>
+<canvas id="arc3d"></canvas>
+<div id="vignette"></div>
+<div id="grade"></div>
+<div id="grain"></div>
+
+<!-- 여는 화면 -->
+<section id="opening">
+  <div class="op-kicker">경상남도 컨설팅 · 2026. 10. 27.</div>
+  <h1 class="op-title">김해 원도심 <b>RE:CORE</b></h1>
+  <div class="op-sub">BONG SQUARE — 골목과 사람, 상권과 문화가 다시 만나는 생활광장</div>
+  <div class="op-hint">→ 키 또는 화면 클릭으로 시작</div>
+</section>
+
+<!-- 단계 설명판 -->
+<aside id="panel"><div id="panel-in"></div></aside>
+
+<!-- 숫자 크게 -->
+<div id="bignum"><div class="bn-v"></div><div class="bn-k"></div></div>
+
+<!-- 봉리단길 시간 흐름 -->
+<div id="timeline">
+  <div class="tl-year">2009</div>
+  <svg class="tl-chart" viewBox="0 0 640 170" preserveAspectRatio="none"></svg>
+  <div class="tl-legend"><span class="lg-a">영업 중</span><span class="lg-o">개업</span><span class="lg-c">폐업</span></div>
+</div>
+
+<!-- 로드뷰 비교 -->
+<div id="rv"></div>
+
+<!-- 거점 상세 -->
+<div id="sitecard"></div>
+
+<!-- 마지막 -->
+<section id="finale"></section>
+
+<!-- 날아가는 동안 -->
+<div id="lbx"><i></i><i></i></div>
+<div id="chapter"></div>
+
+<!-- 아래 단계 막대 -->
+<nav id="crumbs"></nav>
+<div id="scale"><span class="sc-k">화면 폭 약</span> <span class="sc-v">—</span></div>
+<div id="attr">위성사진 Esri, Maxar, Earthstar Geographics · 밤 지구 NASA Black Marble · 지형 Mapzen Terrain Tiles · 경계 통계청 · 로드뷰 © Kakao</div>
+
+<div id="notes"></div>
+<div id="help">
+  <b>조작</b> → / 스페이스 다음 · ← 이전 · 0~6 단계 바로 가기 · G 근거 보기(원도심·봉리단길·봉스퀘어) · F 전체 화면 · R 처음부터 · 거점 번호 클릭 = 그 건물로
+</div>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script src="data/data.js"></script>
+<script src="app.js"></script>
+<script src="link.js"></script>
+</body>
+</html>
