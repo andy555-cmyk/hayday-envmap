@@ -37,6 +37,8 @@
 | 도구 | GIS | `gis.html` |
 
 라이브 — https://web-gijang-map-mrksc1tcf2e7efab.sel3.cloudtype.app/
+GIS 공식 주소 — https://andy555-cmyk.github.io/hayday-envmap/gis.html (GitHub Pages, 2026-10-25). 위 Cloudtype 의 gis.html 은 옛 링크 호환용(같은 판, 함께 재배포)
+- 지역 지도(서구·사하 등)는 Cloudtype 주소로 연다 — AI 답변 서버(envmap-ask)가 그 출처만 받는다. GIS 의 「다른 화면」 링크도 Cloudtype 절대주소
 
 ## 🔴 고칠 때 지킬 3줄 — 어긴 적 있다
 
