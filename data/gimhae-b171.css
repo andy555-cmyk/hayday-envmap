@@ -10,8 +10,8 @@
 .b-overview-actions{display:flex;gap:6px;margin-top:10px}
 .b-overview-actions button{border:1px solid #477e73;color:#d9f8ef;background:#173a33;border-radius:5px;padding:7px 9px;font:inherit;cursor:pointer}
 .b-location-label{pointer-events:none;color:#06281f;background:#70ffce;border:2px solid #edfff7;border-radius:9px;padding:10px 16px;font:22px/1.25 system-ui;text-align:center;box-shadow:0 0 0 4px #05382cd9,0 4px 22px #0009;position:absolute;width:max-content;max-width:220px}
-.b-location-label:after{content:'';position:absolute;bottom:-11px;left:calc(50% - 9px);border-left:9px solid transparent;border-right:9px solid transparent;border-top:11px solid #70ffce}
-.b-location-label b,.b-location-label span{display:block}.b-location-label em{font-size:15px;font-style:normal;font-weight:650}.b-location-label span{font-size:11px;color:#174e3d;margin-top:4px;font-weight:650}
+.b-location-label:after{content:'';position:absolute;bottom:-11px;left:calc(var(--b-arrow,50%) - 9px);border-left:9px solid transparent;border-right:9px solid transparent;border-top:11px solid #70ffce}
+.b-location-label.b-below:after{bottom:auto;top:-11px;border-top:0;border-bottom:11px solid #70ffce}.b-location-label b,.b-location-label span{display:block}.b-location-label em{font-size:15px;font-style:normal;font-weight:650}.b-location-label span{font-size:11px;color:#174e3d;margin-top:4px;font-weight:650}
 @media(max-width:820px){.b-location-label{font-size:18px;padding:7px 11px}.b-location-label em{font-size:13px}.b-location-label span{font-size:10px}}
 body[data-b-ready=true]:not(.b-active) #lgd::after{content:'━ 확정 구역계(1안) 20.9ha · 2026-10-30';display:block;color:#8af2d1;border-top:1px solid #39786c;margin-top:8px;padding-top:7px;font-weight:700}
 @media(max-width:820px){body[data-b-ready=true]:not(.b-active) #lgd{top:94px;bottom:auto;max-width:235px;padding:8px 10px;font-size:10px}}
@@ -79,7 +79,7 @@ body.pmode #b-map-caption{left:15px}
 #b-panel :is(button,a,input,select):focus-visible{outline:3px solid #8af2d1;outline-offset:3px}
 #b-panel .b-result:hover{border-color:#78d6bb;background:#19332f}
 #b-map-selection{color:#ffdc72;font-weight:650;margin-top:4px}
-@media(max-width:820px){#b-panel .b-jump{position:static}#b-panel section[id]{scroll-margin-top:100px}}
+@media(max-width:820px){#b-panel .b-jump{position:static}#b-panel section[id]{scroll-margin-top:calc(var(--b-scope-height,94px) / var(--dz,1) + 24px)}}
 /* 확정 구역계(2026-10-11) — 이전 범위와의 관계 · 시 우선순위 13곳 · 기존 탭 표시 */
 #b-panel .b-relation{margin:14px 0;padding:12px 13px;border:1px solid #355d54;border-radius:9px;background:#0f1d1c;font-size:13px;line-height:1.6}
 #b-panel .b-relation>b{display:block;color:#8af2d1;margin-bottom:4px}
@@ -130,3 +130,4 @@ body.pmode #b-map-caption{left:15px}
 #b-panel #b-pop th,#b-panel #b-pop td{padding:4px 6px;border-bottom:1px solid #2a4640;text-align:right}
 #b-panel #b-pop th:first-child,#b-panel #b-pop td:first-child{text-align:left}
 #b-panel .b-small{font-size:12px}
+#b-panel .b-funnel{display:grid;gap:6px;margin:10px 0}#b-panel .b-fun{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:13px}#b-panel .b-fun span{grid-column:1/-1;color:#cfe9e1}#b-panel .b-fun i{display:block;height:10px;background:#ff8a5b;border-radius:3px;align-self:center}#b-panel .b-fun b{color:#fff;white-space:nowrap}#b-panel .b-fun small{grid-column:1/-1;color:#9fb5ae;font-size:12px;line-height:1.5}

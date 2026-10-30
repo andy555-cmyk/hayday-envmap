@@ -39,9 +39,9 @@ function pip(q,r){let b=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const A
 const ring=Z.boundary.geometry.coordinates[0];
 for(const s of Z.sites)assert.equal(pip(s.lnglat||s.coordinates||s.ll,ring),s.inside,'site '+s.rank);
 assert.ok(!/의향|매매 의사|생각해 봄|수도|연체|체납|보증금|억/.test(JSON.stringify(Z.sites)),'public-safe site wording');
-// 재수집 전 자료는 비워 두고 「재수집 중」 — 옛 구역 숫자를 싣지 않는다
-for(const k of ['roadview','listings','rone','bizTimeline','vacRate','requirements'])assert.ok(Z.pending[k],'still pending: '+k);
-assert.ok(!('vacancy' in Z)&&!Z.pending.vacancy&&!Z.pending.energy&&!Z.pending.linkage,'re-collected keys left pending');
+// 남은 「재수집 중」 칸 없음 — 다시 계산하지 않은 항목은 「자료 없음(이유)」로
+assert.deepEqual(Z.pending,{},'pending emptied');assert.ok(!('vacancy' in Z),'old-shape vacancy not used');
+assert.ok(Z.missing.length>=5&&Z.missing.every(m=>m.item&&m.reason),'missing items carry a reason');
 // 새 구역 재수집 값(숫자정본표 2판 행 그대로)
 const C=JSON.parse(fs.readFileSync(process.env.CANON||path.join(require('os').homedir(),'Library/CloudStorage/GoogleDrive-ganpan0@gmail.com/내 드라이브/hayday-hq/02_도시기획_로컬브랜딩/김해_초광역/구역계1안_확정_261030/숫자정본표_구역계1안_261030.json'),'utf8'));
 const RC=Object.fromEntries(Z.recollect.groups.flatMap(g=>g.items).map(i=>[i.label,i.value]));
@@ -80,11 +80,20 @@ const pub=fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8')+html.re
 for(const bad of ['21.8ha','21.75','217,510','217510','217,511','217,995','67,510','71,890','26개 블록','블록 26개','13곳 모두 포함','208,622','208622'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 assert.ok(!/남실장|대표 제공|대표 확정|대표 결정|방 ⑦|010-|코덱스|클로드|Claude|Codex/.test(JSON.stringify(Z)+JSON.stringify(FA)),'no internal provenance');
 assert.ok(fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8').includes("#lgd::after{content:'━ 확정 구역계(1안) 20.9ha · 2026-10-30'"),'legacy legend = 1안');
-assert.ok(html.includes('gimhae-b171.js?v=zone261030-r6')&&html.includes('gimhae-meeting.js?v=1an-r6'),'cache versions');
+assert.ok(html.includes('gimhae-b171.js?v=zone261030-r7')&&html.includes('gimhae-meeting.js?v=1an-r7'),'cache versions');
 // 13곳 임시 유지(10/30 대표) — 핀 13곳 같은 모양, 목록에 밖 표시·회색 없음, 「재배치」 문구 없음
 const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8'),M=fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8');
 assert.ok(B.includes("'circle-color':SITE_COLOR")&&!B.includes('b-site-out'),'13 pins same style, list unchanged');
 assert.ok(!/재배치/.test(pub+JSON.stringify(FA)+fs.readFileSync(path.join(root,'data/gimhae-zone-261030-facts.json'),'utf8')),'no relocation wording');
 assert.ok(B.includes("d.sites.length!==13"),'13 kept');
 assert.ok(B.includes("addSource('bs-sig'")&&B.includes("b-sig-"),'signal layers wired');
-console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 2판 대조 · 재수집 38항목 · 공실 신호 레이어 7종(겹침 8) · 인구 이동(정본표 합계 대조) · 카드 4 · 옛 숫자 없음');
+// 전수조사·공실·도로·요건(B-01·B-02) — 정본표·재수집 결과 그대로
+assert.deepEqual(Z.survey.counts,{A:8,B:53,C:5,D:219,E:198});assert.equal(Z.survey.points.features.length,483);assert.equal(Z.survey.counts.A+Z.survey.counts.B,CR['장기공실 후보(A+B) 지번']);
+const V=Z.vac1an;assert.deepEqual(V.funnel.map(x=>x.count),[440,38,4,2,1],'공실 거르기 단계');assert.deepEqual([V.timeline.total,V.timeline.eligibleNow,V.timeline.watch],[77,26,20]);
+assert.deepEqual([V.signals.emptyBld,V.signals.closed,V.signals.ab,V.signals.overlap,V.signals.water,V.signals.elecLow,V.listings.inside],[CR['빈 점포 후보 건물(용도·영업 규칙)'],CR['빈 점포 신호(폐업 뒤 새 영업 없음)'],61,CR['공실 신호 2개 이상 지번'],CR['수도 미사용·최근 중단 지번'],CR['전기 — 월평균 100kWh 이하 지번'],CR['공개 매물(상가·사무실·건물) 구역 안']]);
+assert.equal(Z.context.roads.totalM,CR['구역 안 도로 길이(OSM 차량 도로)']);assert.deepEqual(Z.context.rail.map(t=>t.distM),[CR['부원역 → 구역 거리'],CR['봉황역 → 구역 거리']]);
+assert.equal(Z.requirements.items.length,17);assert.ok(Z.requirements.items.find(r=>r.id==='r3').now.includes('208,778㎡'),'요건 r3 = 1안 면적');
+assert.ok(!/재수집 중|다시 모으는 중/.test(html.replace(/<script id="dat2?" type="application\/json">.*?<\/script>/gs,'')+fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8')),'no 「재수집 중」 boxes left');
+{const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8');assert.ok(B.includes(`\${data.survey?'<a href="#b-survey">전수조사</a>':''}`),'survey link only when data.survey');assert.ok(B.includes('function vac1anSection')&&B.includes('function missingSection'),'1안 vacancy + missing sections');assert.ok(B.includes("map.on('moveend',fitLabel)"),'zone label kept on screen');}
+assert.ok(html.includes('<link rel="icon" href="favicon.svg"')&&fs.existsSync(path.join(root,'favicon.svg')),'favicon');
+console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 2판 대조 · 재수집 38항목 · 공실 신호 레이어 7종(겹침 8) · 인구 이동(정본표 합계 대조) · 카드 4 · 전수조사 A~E(483) · 공실 거르기 440→38→4→2→1 · 요건 17 · 자료 없음 칸 · 옛 숫자 없음');
