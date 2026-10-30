@@ -121,7 +121,7 @@ for (let lon = -180; lon < 180; lon += 15) GRAT.push(line(Array.from({ length: 6
 for (let lat = -75; lat <= 75; lat += 15) GRAT.push(line(Array.from({ length: 121 }, (_, i) => [-180 + i * 3, lat])));
 const FOREIGN_C = [128.8829, 35.2350];
 const FOREIGN = ellipse(FOREIGN_C, 290, 205, rad(25));
-const ZONE = D.zoneK.coordinates[0];
+const ZONE = D.zone.coordinates[0];
 const CENTER_WORKER = [128.88126045, 35.23383916];   // 김해외국인근로자지원센터
 const NEAR = nearestOnRing(CENTER_WORKER, ZONE);
 const JONGRO = [128.88259015, 35.23443849];
@@ -166,7 +166,7 @@ const op = (id, prop, v) => map.setPaintProperty(id, prop, v);
 
 function addLayers() {
   map.setLight({ anchor: 'viewport', color: '#ffe0bd', intensity: .42, position: [1.3, 210, 38] });
-  src('prov', fc(D.prov)); src('gimhae', fc([D.gimhae])); src('zone', fc([{ type: 'Feature', properties: {}, geometry: D.zoneK }]));
+  src('prov', fc(D.prov)); src('gimhae', fc([D.gimhae])); src('zone', fc([{ type: 'Feature', properties: {}, geometry: D.zone }]));
   src('zoneDraw'); src('foreign', fc([{ type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [FOREIGN] } }]));
   src('grat', fc(GRAT)); src('sea'); src('arcs'); src('near', fc([line([CENTER_WORKER, NEAR])])); src('loop'); src('thread');
   src('recs', fc(D.recs.map(r => ({ type: 'Feature', properties: { o: r.o, c: r.c }, geometry: { type: 'Point', coordinates: r.ll } }))));
@@ -242,7 +242,7 @@ function buildMarkers() {
   mk('k2', [128.8329, 35.1661], lbl('장유', '신도시', 'small'), '', 'right', [-6, 0]);
   mk('k2', [128.9364, 35.1801], lbl('김해국제공항', '', 'small'), '', 'left', [6, 0]);
   // 원도심
-  mk('k3', [128.8762, 35.2252], lbl('확정 구역계', '21.8ha · 봉황동 일대', 'zone'), '', 'right', [-8, 0]);
+  mk('k3', [128.8762, 35.2252], lbl('확정 구역계', '20.9ha · 봉황동·부원동 일대', 'zone'), '', 'right', [-8, 0]);
   mk('k3h', [128.87597, 35.23060], lbl('봉황동 유적', '', 'her small'), '', 'right', [-6, 0]);
   mk('k3h', [128.87849, 35.23531], lbl('수로왕릉', '', 'her small'), '', 'right', [-6, 0]);
   mk('k3h', [128.87381, 35.23716], lbl('대성동고분군', '', 'her small'), '', 'right', [-6, 0]);
@@ -252,7 +252,7 @@ function buildMarkers() {
   mk('k3f', CENTER_WORKER, lbl('외국인근로자지원센터', '', 'small sea'), '', 'left', [6, 12]);
   mk('k3f', [128.88405, 35.23540], lbl('가야글로벌센터', '', 'small sea'), '', 'left', [6, 0]);
   mk('k3f', [128.872243, 35.22934], lbl('김해시가족센터', '', 'small sea'), '', 'left', [6, 0]);
-  mk('k3d', NEAR, `<div class="dist">190m</div>`, '', 'right', [-10, 6]);
+  mk('k3d', NEAR, `<div class="dist">327m</div>`, '', 'right', [-10, 6]);
   // 봉리단길
   mk('k4', [128.8768, 35.2282], lbl('봉황대길', '「봉리단길」 735m', 'zone'), '', 'right', [-8, 0]);
   // 봉스퀘어 거점
@@ -454,7 +454,7 @@ function beatItems(b) {
 }
 
 /* ── 단계 정의 ── */
-const LEGEND2 = `<div class="legend"><span style="--c:#5AA9FF">본 사업 — 구역 안(약 21.8ha)</span><span style="--c:#FF9A4A">연계 — 종로길·외국인 생활권</span></div>`;
+const LEGEND2 = `<div class="legend"><span style="--c:#5AA9FF">본 사업 — 구역 안(약 20.9ha)</span><span style="--c:#FF9A4A">연계 — 종로길·외국인 생활권</span></div>`;
 const LEG_A = `<div class="legend dots"><span style="--c:#FF8A3D">특화거점</span><span style="--c:#3D6BFF">거점상가</span><span style="--c:#2FB8FF">협업공간</span><span style="--c:#A66BFF">입주공간</span><span style="--c:#3BD18B">마당·주차</span></div>`;
 const STEPS = [
   { key: 'earth', no: '0', label: '지구', crumb: '지구',
@@ -478,10 +478,10 @@ const STEPS = [
     notes: '' },
   { key: 'old', no: '3', label: '원도심', crumb: '원도심',
     title: '구역은 지키고,<br>이웃은 잇는다',
-    lead: '확정 구역계 <b>21.8ha</b>(217,510㎡) 안은 본 사업으로, 바로 옆 <b>동상동 외국인 생활권</b>은 프로그램과 연계사업으로 잇는다.',
+    lead: '확정 구역계 <b>20.9ha</b>(208,778㎡) 안은 본 사업으로, 바로 옆 <b>동상동 외국인 생활권</b>은 프로그램과 연계사업으로 잇는다.',
     items: [
-      { b: 0, cls: 'zone', html: '구역 안 건물 <b>10채 중 9채</b>가 지은 지 20년 넘었다.<span class="src">건축물대장 583동 중 20년 이상 87.3%</span>' },
-      { b: 1, cls: 'sea', html: '외국인 지원기관까지 <b>가장 가까운 곳 190m</b>. 구역을 넓히지 않아도 걸어서 이어진다.<span class="src">김해외국인근로자지원센터 → 구역계 가장 가까운 변, 직선거리 190.6m</span>' },
+      { b: 0, cls: 'zone', html: '구역 안 건물 <b>10채 중 8채 넘게</b> 지은 지 20년 넘었다.<span class="src">건축물대장 516동 기준 20년 이상 84.0%</span>' },
+      { b: 1, cls: 'sea', html: '외국인 지원기관까지 <b>가장 가까운 곳 327m</b>. 구역을 넓히지 않아도 걸어서 이어진다.<span class="src">김해외국인근로자지원센터 → 구역계 가장 가까운 변, 직선거리 326.6m</span>' },
       { b: 1, cls: '', html: LEGEND2 }],
     cam: () => ({ center: [128.8812, 35.2312], zoom: 15.3, pitch: 52, bearing: -12 }), dur: 6500,
     notes: '' },
@@ -560,7 +560,7 @@ function scene(fast) {
     'earth1': ['서기 48<small>년</small>', '허황옥 도래 · 『삼국유사』 전승', 'sea'],
     'korea0': [549861, '명', '김해시 총인구<em>외국인주민 포함 · 행정안전부 2024.11.1 기준</em>', ''],
     'city0': [7.0, '%', '김해시 인구 가운데 외국인주민<em>38,465명 / 549,861명 · 행정안전부 2024.11.1 기준</em>', 'sea'],
-    'old0': [87.3, '%', '구역 안 20년 넘은 건물<em>건축물대장 583동 기준</em>', 'zone'],
+    'old0': [84.0, '%', '구역 안 20년 넘은 건물<em>건축물대장 516동 기준</em>', 'zone'],
     'square0': [13, '곳', '활용 후보 대상지<em>매입·임대 협의 후 확정</em>', ''],
     'square1': [66, '명', '청년 창작·창업 입주 첫해 목표<em>공유오피스·독립공간·레지던시 연계 · 공간별 인원은 확보 후 확정</em>', 'zone']
   }[k + bi];
