@@ -360,9 +360,9 @@ function riseBuildings(on, fast) {
 }
 
 /* ── 봉리단길 10년 ── */
-const Y = D.yearly, YMAX = 260;
+const Y = D.yearly, YMAX = 360;
 function chart(upTo) {
-  const svg = $('.tl-chart'), x = y => (y - 2009) / 16 * 600 + 20, ya = v => 150 - v / YMAX * 140, yb = v => 150 - v / 60 * 46;
+  const svg = $('.tl-chart'), x = y => (y - 2009) / 16 * 600 + 20, ya = v => 150 - v / YMAX * 140, yb = v => 150 - v / 75 * 46;
   const fy = Math.min(2025, Math.floor(upTo)), fr = fy >= 2025 ? 1 : Math.min(1, (upTo - fy) * 1.6);
   const pts = Y.filter(r => r.y <= fy);
   let h = `<line x1="20" y1="150" x2="620" y2="150" stroke="rgba(255,255,255,.25)"/>`;
@@ -372,8 +372,8 @@ function chart(upTo) {
   if (nx && fy < 2025) { const u = upTo - fy, cur = pts[pts.length - 1]; lp.push((x(fy) + (x(fy + 1) - x(fy)) * u) + ',' + (ya(cur.a) + (ya(nx.a) - ya(cur.a)) * u)); }
   if (lp.length > 1) h += `<polyline points="${lp.join(' ')}" fill="none" stroke="#ffd76a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   const mark = (yr, txt, dy = -12, anchor = 'middle') => { const r = Y.find(q => q.y === yr); if (r && yr <= upTo) h += `<circle cx="${x(yr)}" cy="${ya(r.a)}" r="5.5" fill="#ffd76a"/><text x="${x(yr)}" y="${ya(r.a) + dy}" text-anchor="${anchor}" font-weight="700">${txt}</text>`; };
-  mark(2016, '2016 · 123', -12); mark(2023, '2023 · 245', -12, 'end');
-  if (upTo >= 2024) h += `<text x="${x(2024.5)}" y="${yb(29) - 8}" text-anchor="middle" fill="#ff8f8f" font-weight="700">폐업 > 개업</text>`;
+  mark(2016, '2016 · 252', -12); mark(2023, '2023 · 328', -12, 'end');
+  if (upTo >= 2025) h += `<text x="${x(2025)}" y="${yb(32) - 8}" text-anchor="middle" fill="#ff8f8f" font-weight="700">폐업 > 개업</text>`;
   [2009, 2016, 2025].forEach(yr => h += `<text x="${x(yr)}" y="168" text-anchor="middle" opacity=".7">${yr}</text>`);
   svg.innerHTML = h;
 }
@@ -389,13 +389,13 @@ function setTime(t) {
   $('.tl-year').textContent = y;
   const r0 = Y.find(q => q.y === y), r1 = Y.find(q => q.y === y + 1) || r0, u = y >= 2025 ? 0 : Math.max(0, (t - y - .6) / .4), f = u * u * (3 - 2 * u);   // 숫자는 그해 값으로 머물다 해 끝에 넘어간다
   const a = Math.round(r0.a + (r1.a - r0.a) * f);
-  if (bnYear !== y) { bnYear = y; bignum(`${a}<small>건</small>`, `영업 중인 가게형 인허가 · ${y}년<em>행정안전부 지방행정 인허가데이터 · 확정 구역계 안</em>`, 'zone', true); }
+  if (bnYear !== y) { bnYear = y; bignum(`${a}<small>건</small>`, `영업 중인 가게형 인허가 · ${y}년<em>행정안전부 지방행정 인허가데이터 · 확정 구역계(1안) 안</em>`, 'zone', true); }
   else $('#bignum .bn-v').innerHTML = `${a}<small>건</small>`;
   chart(t);
 }
 // 연도 → 화면 시간: 2016·2023·2024 앞에서 천천히 멈췄다 간다
 const TL = (() => { const k = [[0, 2009]]; let ms = 0;
-  for (let y = 2009; y < 2026; y++) { const slow = y === 2016 || y === 2023 || y === 2024; ms += slow ? 1250 : 560; k.push([ms, y + 1 - .001]); }
+  for (let y = 2009; y < 2026; y++) { const slow = y === 2016 || y === 2023 || y === 2025; ms += slow ? 1250 : 560; k.push([ms, y + 1 - .001]); }
   return k; })();
 const tlAt = ms => { for (let i = 1; i < TL.length; i++) if (ms <= TL[i][0]) { const [m0, y0] = TL[i - 1], [m1, y1] = TL[i], u = (ms - m0) / (m1 - m0); return y0 + (y1 - y0) * (u * u * (3 - 2 * u)); } return 2025.999; };
 let tlRun = 0;
@@ -481,15 +481,15 @@ const STEPS = [
     lead: '확정 구역계 <b>20.9ha</b>(208,778㎡) 안은 본 사업으로, 바로 옆 <b>동상동 외국인 생활권</b>은 프로그램과 연계사업으로 잇는다.',
     items: [
       { b: 0, cls: 'zone', html: '구역 안 건물 <b>10채 중 8채 넘게</b> 지은 지 20년 넘었다.<span class="src">건축물대장 516동 기준 20년 이상 84.0%</span>' },
-      { b: 1, cls: 'sea', html: '외국인 지원기관까지 <b>가장 가까운 곳 327m</b>. 구역을 넓히지 않아도 걸어서 이어진다.<span class="src">김해외국인근로자지원센터 → 구역계 가장 가까운 변, 직선거리 326.6m</span>' },
+      { b: 1, cls: 'sea', html: '외국인 지원기관까지 <b>가장 가까운 곳 327m</b>. 구역을 넓히지 않아도 걸어서 이어진다.<span class="src">김해외국인근로자지원센터 → 구역계 가장 가까운 변, 직선거리 326.5m</span>' },
       { b: 1, cls: '', html: LEGEND2 }],
     cam: () => ({ center: [128.8812, 35.2312], zoom: 15.3, pitch: 52, bearing: -12 }), dur: 6500,
     notes: '' },
   { key: 'street', no: '4', label: '봉리단길', crumb: '봉리단길',
-    title: '7년 만에 두 배,<br>그리고 멈춤',
-    lead: '봉리단길을 품은 <b>사업구역 전체</b>의 가게형 인허가는 <b>2016년 123건 → 2023년 245건</b>으로 늘었다가, 2024년부터 <b>폐업이 개업보다 많아졌다.</b>',
+    title: '7년 동안 늘고,<br>그리고 멈춤',
+    lead: '봉리단길을 품은 <b>사업구역 전체</b>의 가게형 인허가는 <b>2016년 252건 → 2023년 328건</b>으로 늘었다가, 2025년부터 <b>폐업이 개업보다 많아졌다.</b>',
     items: [
-      { b: 0, cls: 'zone', html: '<span style="color:#ffd76a">●</span> 영업 중 &nbsp;<span style="color:#53d8a0">●</span> 그해 개업 &nbsp;<span style="color:#ff6b6b">●</span> 그해 폐업<span class="src">행정안전부 지방행정 인허가데이터(가게형 업종) · 확정 구역계 안 · 한 가게가 여러 인허가를 가질 수 있음</span>' },
+      { b: 0, cls: 'zone', html: '<span style="color:#ffd76a">●</span> 영업 중 &nbsp;<span style="color:#53d8a0">●</span> 그해 개업 &nbsp;<span style="color:#ff6b6b">●</span> 그해 폐업<span class="src">행정안전부 지방행정 인허가데이터(가게형 업종, 2026-10-30 받음) · 확정 구역계(1안) 안 · 한 가게가 여러 인허가를 가질 수 있음</span>' },
       { b: 1, cls: '', html: '골목은 바뀌었지만, <b>스스로 이어 갈 힘</b>이 떨어지고 있다. 지금이 손을 쓸 때다.' }],
     cam: () => ({ center: [128.8786, 35.2292], zoom: 16.45, pitch: 54, bearing: 22 }), dur: 5500,
     notes: '' },
