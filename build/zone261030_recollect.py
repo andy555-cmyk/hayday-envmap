@@ -59,7 +59,7 @@ Z['recollect'] = {'edition': C['edition'], 'made': C['made'], 'groups': [{'id': 
                   'note': '구역 안 자료를 확정 구역계(1안)로 다시 모은 값 — 항목마다 기준일이 다르고, 공실 신호는 후보이며 서로 더하지 않는다'}
 covered = ['vacancy', 'emptyShop', 'energy', 'landUse537', 'heritage', 'archPms', 'sbizZone', 'licenseAll', 'kakaoPlace', 'survey', 'context', 'linkage', 'terrain', 'landPrice']
 for k in covered: Z['pending'].pop(k, None)
-Z['pending'].update({'listings': '공개 매물(새 구역)', 'roadview': '과거 로드뷰 판독(새 블록)'})
+Z['pending'].update({'listings': '공개 매물(새 구역)', 'roadview': '과거 로드뷰 판독(새 블록)', 'popMove': '인구 이동(회현동 등에서 빠져나간 인구의 행선지·앞으로의 예측)'})
 blob = json.dumps(Z['recollect'], ensure_ascii=False)
 assert not any(w in blob for w in ['⑦', '방 ', '남실장', '대표', '010-', '보증금', '만원', '869']), '공개 금지 문구'
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')) + '\n')

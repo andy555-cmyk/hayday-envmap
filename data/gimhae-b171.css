@@ -122,3 +122,7 @@ body.pmode #b-map-caption{left:15px}
 #b-panel .b-rc li b{display:block;font-size:18px;color:#e6fff4}
 #b-panel .b-rc li small{display:block;margin-top:3px;font-size:12px;color:#89b5ab}
 #b-panel .b-rc-src{font-size:12px;color:#89b5ab;margin:8px 0 0}
+#b-panel .b-sig{margin:10px 0;padding:10px 12px;border:1px solid #355d54;border-radius:10px}
+#b-panel .b-sig legend{padding:0 6px;font-weight:700;color:#e6fff4}
+#b-panel .b-sig label{display:flex;align-items:center;gap:6px}
+#b-panel .b-sig p{font-size:12px;color:#89b5ab;margin:6px 0 0}
