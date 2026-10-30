@@ -27,7 +27,7 @@
     const sorted=Object.entries(industries).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'ko'));
     const foodRetail=stores.filter(p=>p.L==='음식'||p.L==='소매').length;
     const residential=buildings.filter(f=>['단독주택','공동주택'].includes(f.properties.pu)).length;
-    const neighborhood=buildings.filter(f=>['제1종근린생활시설','제2종근린생활시설'].includes(f.properties.pu)).length;
+    const neighborhood=buildings.filter(f=>['제1종근린생활시설','제2종근린생활시설','근린생활시설'].includes(f.properties.pu)).length;
     return {year:YEAR,total:buildings.length,known,old20,oldPct:pct(old20,known),counts:Object.fromEntries(Object.keys(groups).map(k=>[k,count(k)])),industries:sorted,foodRetail,foodRetailPct:pct(foodRetail,stores.length),residential,neighborhood,candidateEdge:buildings.filter(f=>matches(f.properties,'candidate')&&matches(f.properties,'edge')).length};
   }
   return {YEAR,groups,pct,filterBuildings,filterStores,summarize};

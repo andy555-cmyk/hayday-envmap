@@ -3,12 +3,12 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const data=require('../data/gimhae-meeting.json');
-const Z=require('../data/gimhae-zone-261011.json');
+const Z=require('../data/gimhae-zone-261030.json');
 const script=fs.readFileSync(path.join(__dirname,'../data/gimhae-meeting.js'),'utf8');
 new vm.Script(script);
 assert.ok(!/<\/option\s/.test(script),'option closing tags cannot have attributes');
 function inside(q,r){let b=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const a=r[i],c=r[j];if(((a[1]>q[1])!==(c[1]>q[1]))&&(q[0]<(c[0]-a[0])*(q[1]-a[1])/(c[1]-a[1])+a[0]))b=!b;}return b;}
-assert.equal(data.version,'2026-10-13-v3');assert.equal(data.vacancyTotal,null);
+assert.equal(data.version,'2026-10-30-1an');assert.equal(data.vacancyTotal,null);
 assert.equal(data.places.length,25);assert.equal(new Set(data.places.map(p=>p.id)).size,25);
 assert.equal(data.places.filter(p=>p.source==='city').length,13);
 assert.equal(data.places.filter(p=>p.source==='official').length,6);
@@ -19,7 +19,8 @@ assert.equal(data.places.filter(p=>p.coordinates).length,23);
 assert.deepEqual(data.places.filter(p=>!p.coordinates).map(p=>p.id),['자2','자4']);
 const ring=Z.boundary.geometry.coordinates[0];
 for(const p of data.places){assert.ok(p.evidence&&p.checked&&p.status&&p.detail,p.id);assert.ok(!('insideB' in p),p.id+' old field removed');if(p.coordinates){assert.equal(inside(p.coordinates,ring),p.inside,p.id+' boundary membership');}else assert.equal(p.inside,null);for(const key of ['sourceUrl','mapUrl'])if(p[key])assert.equal(new URL(p[key]).protocol,'https:');}
-assert.deepEqual(data.places.filter(p=>p.inside===false).map(p=>p.id),['자3','자6']);
+assert.deepEqual(data.places.filter(p=>p.inside===false).map(p=>p.id),['시2','시8','시11','시13','공1','공2','공3','공4','공5','공6','자1','자3','자5'],'1안: 시 4곳·공식 6곳 모두·자1·자3·자5 밖');
+assert.ok(data.places.filter(p=>p.source==='city'&&!p.inside).every(p=>p.zoneStatus==='구역 밖(재배치 검토 중)'));
 // City sites mirror the zone file (rank order, same point) and carry no public-banned wording.
 assert.deepEqual(data.places.filter(p=>p.source==='city').map(p=>[p.rank,p.address,p.coordinates]),Z.sites.map(t=>[t.rank,t.jibun,t.lnglat]));
 assert.ok(!/의향|매매 의사|생각해 봄|수도|연체|체납|남실장|대표 제공|대표님|실장님|보증금|월세 \d|만원|억원|권리금/.test(JSON.stringify(data)),'public page: no prices, owner intent, utility arrears or internal names');
@@ -35,10 +36,11 @@ const run=()=>vm.runInNewContext(code+'filtered().map(p=>p.id)',context).join(',
 assert.equal(run(),'시1,시2,시3,시4,시5,시6,시7,시8,시9,시10,시11,시12,시13,공1,공2,공3,공4,공5,공6,자1,자2,자3,자4,자5,자6');
 values['meeting-source']='research';assert.equal(run(),'자1,자2,자3,자4,자5,자6');
 values['meeting-zone']='unknown';assert.equal(run(),'자2,자4');
-values['meeting-zone']='inside';assert.equal(run(),'자1,자5');
-values['meeting-zone']='outside';assert.equal(run(),'자3,자6');
-values['meeting-source']='official';values['meeting-zone']='inside';assert.equal(run(),'공1,공2,공3,공4,공5,공6');
-values['meeting-source']='city';values['meeting-zone']='outside';assert.equal(run(),'');
+values['meeting-zone']='inside';assert.equal(run(),'자6');
+values['meeting-zone']='outside';assert.equal(run(),'자1,자3,자5');
+values['meeting-source']='official';values['meeting-zone']='inside';assert.equal(run(),'');
+values['meeting-source']='city';values['meeting-zone']='outside';assert.equal(run(),'시2,시8,시11,시13');
+values['meeting-zone']='inside';assert.equal(run(),'시1,시3,시4,시5,시6,시7,시9,시10,시12');
 values['meeting-source']='all';values['meeting-zone']='all';values['meeting-query']='270';assert.equal(run(),'공3,공4,공5');
 values['meeting-query']='182';assert.equal(run(),'시2,공6');
 values['meeting-query']='없는주소123';assert.equal(run(),'');

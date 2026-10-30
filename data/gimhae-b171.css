@@ -112,3 +112,8 @@ body.pmode #b-map-caption{left:15px}
 #b-panel .b-req span{font-size:11.5px;color:#aab7c8}#b-panel .b-req b{color:#e8f0f6;font-weight:600}#b-panel .b-req small{grid-column:2;color:#9fd9c8;font-size:12px}
 #b-panel .b-req-ok{border-left-color:#5fd3a4}#b-panel .b-req-chk{border-left-color:#ffb020}#b-panel .b-req-ing{border-left-color:#4fb3ff}#b-panel .b-req-no{border-left-color:#ff5a6b}
 #b-panel .b-req a{color:#8af2d1}
+/* 구역계(1안, 2026-10-30) — 구역 밖 대상지·재수집 중 칸 */
+.b-site-out{opacity:.72}
+.b-site-out .b-site-no{background:#8a929c}
+.b-site-out-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;background:rgba(154,165,177,.18);color:#c9d1d9;font-size:12px;font-weight:700}
+.b-pending article strong{color:#ffd27a}
