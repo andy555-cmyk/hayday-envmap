@@ -12,14 +12,14 @@ window.__req = new Set(); window.__miss = new Set();
 const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/';
 const b64 = Uint8Array.fromBase64 ? s => Uint8Array.fromBase64(s).buffer   // 브라우저 내장 해독(빠름)
   : s => { const b = atob(s), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a.buffer; };
-let localOK = false;
-const probe = location.protocol.startsWith('http') && !Q.has('online') ? fetch('tiles/ok.txt').then(r => localOK = r.ok).catch(() => {}) : Promise.resolve();
+let localOK = false, HAVE = null;   // HAVE = 폴더에 실제로 있는 조각(tiles/have.json, tools/tile_index.py) — 없는 조각은 부르지 않고 바로 인터넷으로
+const probe = location.protocol.startsWith('http') && !Q.has('online') ? fetch('tiles/have.json').then(r => r.ok ? r.json() : null).then(h => { if (h) { HAVE = { s: new Set(h.sat), n: new Set(h.night), d: new Set(h.dem) }; localOK = true; } }).catch(() => {}) : Promise.resolve();
 maplibregl.addProtocol('sat', async (p, ac) => {
   const key = p.url.slice(6); __req.add(key);
   const T = window.TILES;
   if (T && T[key]) return { data: b64(T[key]) };
   await probe;
-  if (localOK) {
+  if (localOK && HAVE.s.has(key)) {
     try { const r = await fetch('tiles/' + key + '.jpg', { signal: ac.signal }); if (r.ok) return { data: await r.arrayBuffer() }; } catch (e) {}
   }
   __miss.add(key);
@@ -34,7 +34,7 @@ maplibregl.addProtocol('night', async (p, ac) => {
   const key = p.url.slice(8), T = window.TILES; __req.add('n/' + key);
   if (T && T['n/' + key]) return { data: b64(T['n/' + key]) };
   await probe;
-  if (localOK) { try { const r = await fetch('tiles_night/' + key + '.jpg', { signal: ac.signal }); if (r.ok) return { data: await r.arrayBuffer() }; } catch (e) {} }
+  if (localOK && HAVE.n.has(key)) { try { const r = await fetch('tiles_night/' + key + '.jpg', { signal: ac.signal }); if (r.ok) return { data: await r.arrayBuffer() }; } catch (e) {} }
   __miss.add('n/' + key);
   const r = await fetch(GIBS + key + '.png', { signal: ac.signal });
   if (!r.ok) throw new Error('night ' + r.status);
@@ -47,7 +47,7 @@ maplibregl.addProtocol('dem', async (p, ac) => {
   const key = p.url.slice(6), T = window.TILES; __req.add('d/' + key);
   if (T && T['d/' + key]) return { data: b64(T['d/' + key]) };
   await probe;
-  if (localOK) { try { const r = await fetch('tiles_dem/' + key + '.png', { signal: ac.signal }); if (r.ok) return { data: await r.arrayBuffer() }; } catch (e) {} }
+  if (localOK && HAVE.d.has(key)) { try { const r = await fetch('tiles_dem/' + key + '.png', { signal: ac.signal }); if (r.ok) return { data: await r.arrayBuffer() }; } catch (e) {} }
   __miss.add('d/' + key);
   const [z, y, x] = key.split('/');
   const r = await fetch(DEM + z + '/' + x + '/' + y + '.png', { signal: ac.signal });
@@ -507,6 +507,8 @@ const STEPS = [
     cam: () => ({ center: [110, 24], zoom: globeZoom() - .05, pitch: 0, bearing: 0 }), dur: 11000,
     notes: '' }
 ];
+// 휴대전화: 화면 폭이 좁아 같은 줌이면 너무 가깝다 — 폭에 맞춰 한 단계 가까이 물린다(발표용 넓은 화면은 그대로)
+if (innerWidth < 760) { const dz = Math.log2(760 / innerWidth) * .9; STEPS.forEach(s => { const c = s.cam; s.cam = () => { const v = c(); return { ...v, zoom: v.zoom - dz }; }; if (s.beatCam) for (const k in s.beatCam) s.beatCam[k] = { ...s.beatCam[k], zoom: s.beatCam[k].zoom - dz }; }); }
 
 /* ── 장면: 상태(단계·박자)에 따라 보이는 것 정하기 ── */
 let si = 0, bi = 0, busy = false, siteOpen = null;
@@ -561,7 +563,7 @@ function scene(fast) {
     'korea0': [549861, '명', '김해시 총인구<em>외국인주민 포함 · 행정안전부 2024.11.1 기준</em>', ''],
     'city0': [7.0, '%', '김해시 인구 가운데 외국인주민<em>38,465명 / 549,861명 · 행정안전부 2024.11.1 기준</em>', 'sea'],
     'old0': [84.0, '%', '구역 안 20년 넘은 건물<em>건축물대장 516동 기준</em>', 'zone'],
-    'square0': [13, '곳', '활용 후보 대상지<em>매입·임대 협의 후 확정</em>', ''],
+    'square0': [13, '곳', '활용 후보 대상지<em>구역 안 9곳 · 구역 밖 4곳(새 대상지 선정 전 임시 유지)</em><em>매입·임대 협의 후 확정</em>', ''],
     'square1': [66, '명', '청년 창작·창업 입주 첫해 목표<em>공유오피스·독립공간·레지던시 연계 · 공간별 인원은 확보 후 확정</em>', 'zone']
   }[k + bi];
   if (scene.hold) bignum(null);
@@ -631,6 +633,7 @@ function closeSite(noFly) {
 /* ── 카메라 ── */
 function pad(step) {
   const k = step.key;
+  if (W() < 760) return (k === 'finale' || (k === 'earth' && bi === 0)) ? { left: 0, right: 0, top: 0, bottom: H() * .3 } : { left: 0, right: 0, top: H() * .16, bottom: H() * .42 };   // 휴대전화: 설명판이 아래에 깔림
   if (k === 'earth' && bi === 0) return { left: W() * .48, right: 0, top: 0, bottom: 0 };
   if (k === 'finale') return { left: W() * .52, right: 0, top: 0, bottom: 0 };
   if (k === 'earth') return { left: W() * .30, right: 0, top: 0, bottom: 0 };

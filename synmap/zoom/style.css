@@ -213,3 +213,35 @@ body.flying .mk,body.flying .site{opacity:0!important;transition:opacity .5s}
 #lbx::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:39;opacity:0;transition:opacity 1.4s ease;background:radial-gradient(ellipse at 50% 50%,transparent 40%,rgba(0,0,0,.55) 100%)}
 body.flying #lbx::after{opacity:1}
 #timeline,#rv,#sitecard{transition-timing-function:cubic-bezier(.2,.8,.2,1)!important}
+
+/* ── 휴대전화(폭 760 이하) — 발표 비율(--u)로 줄어드는 글자를 고정 크기로: 본문 14px·보조 12px 이상, 설명판은 아래 시트 ── */
+@media (max-width:760px){
+  #opening{left:16px;right:16px}
+  .op-kicker{font-size:12px} .op-title{font-size:34px} .op-sub{font-size:14px;max-width:none} .op-hint{font-size:12px}
+  #panel{left:12px;right:12px;width:auto;top:auto;bottom:190px;max-height:calc(100vh - 560px);min-height:160px;overflow-y:auto;pointer-events:auto;scrollbar-width:none}
+  .p-step{font-size:12px;margin-bottom:8px} .p-step i{width:22px;height:22px}
+  .p-title{font-size:22px} .p-lead{font-size:14px;margin-top:8px}
+  .p-beats{margin-top:10px;gap:8px}
+  .beat{font-size:14px;padding:10px 12px;border-radius:10px} .beat .src{font-size:12px}
+  .legend span{font-size:12px} .legend span:before{width:14px} .legend.dots span:before{width:10px;height:10px}
+  .pic img{height:120px} .logo{height:36px;margin-bottom:8px}
+  #bignum{right:12px;top:48px} .bn-v{font-size:40px} .bn-k{font-size:13px;padding:6px 10px;max-width:52vw} .bn-k em{font-size:12px}
+  body.bnleft #bignum{left:12px;right:auto;top:48px;bottom:auto}
+  #crumbs{left:0;right:0;bottom:6px;transform:none;overflow-x:auto;justify-content:flex-start;padding:0 12px;scrollbar-width:none}
+  #crumbs button{font-size:12px;gap:6px} #crumbs button i{width:9px;height:9px} #crumbs .bar{width:14px;margin:0 4px;flex:none}
+  #scale{left:12px;right:auto;bottom:92px;font-size:12px} #scale .sc-v{min-width:0}
+  #attr{left:12px;right:12px;bottom:136px;font-size:12px;line-height:1.35}
+  .lbl .t{font-size:13px} .lbl .t small{font-size:12px} .lbl.big .t{font-size:16px} .lbl.small .t{font-size:12px}
+  .dist{font-size:12px}
+  .site .pin{width:26px;height:26px} .site .pin b{font-size:12px} .site .nm{left:30px;top:3px;font-size:12px}
+  #timeline{left:12px;right:12px;width:auto;top:192px;bottom:auto;padding:10px 12px}
+  .tl-year{font-size:22px} .tl-chart{height:96px} .tl-chart text{font-size:24px} .tl-legend{font-size:12px}
+  #rv{left:12px;right:auto;top:48px;width:40vw} .rv-tag{font-size:12px;padding:2px 8px} .rv-cap{font-size:12px;margin-top:4px}
+  #sitecard{left:12px;right:12px;width:auto;max-height:80vh;overflow-y:auto}
+  #sitecard figcaption{font-size:12px} #sitecard .sc-no{font-size:12px} #sitecard h3{font-size:18px} #sitecard p{font-size:14px} .sc-state{font-size:12px}
+  #finale{padding:0 16px 30vh} #finale .f-t{font-size:30px} #finale .f-s{font-size:14px;max-width:none}
+  #finale .f-ask{flex-direction:column;gap:8px} #finale .f-ask div{width:auto;font-size:14px;padding:10px 12px}
+  .ch-no{font-size:72px} .ch-t{font-size:24px;letter-spacing:.5em} .ch-s{font-size:12px;letter-spacing:.3em} .ch-ll{font-size:12px;letter-spacing:.1em}
+  body.chap .ch-t{letter-spacing:.3em} body.chap .ch-s{letter-spacing:.2em}
+  #help{left:12px;right:12px;transform:none;font-size:12px;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
+}

@@ -25,7 +25,12 @@ body{word-break:keep-all;overflow-wrap:break-word}
 body.flying #stepnav{opacity:.35}
 #evframe{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:60;background:transparent;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .8s ease .15s,visibility 0s linear 1s}
 body.ev-open #evframe{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .8s ease .15s,visibility 0s}
-body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;transition:opacity .35s ease!important}`;
+body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;transition:opacity .35s ease!important}
+@media (max-width:760px){
+#help{left:12px;right:12px;max-width:none;font-size:12px;text-overflow:clip;overflow-x:auto;pointer-events:auto;scrollbar-width:none;padding:6px 12px}
+#stepnav{left:12px;right:12px;bottom:46px;font-size:13px;gap:6px}#stepnav button,#stepnav a{padding:.65em .9em}
+#evidence{right:12px;bottom:86px;font-size:13px;padding:.6em 1em}#evidence small{font-size:12px}
+}`;
   document.head.appendChild(css);
 
   // 이전·다음·제자리 — 웹판은 화면 클릭으로 넘기지 않는다(지도를 끌고·확대해 둘러보게)
