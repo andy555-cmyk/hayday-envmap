@@ -30,3 +30,4 @@ const H=fs.readFileSync(path.join(root,'gis.html'),'utf8');
 for(const k of ["id:'base_zone_1an'","function z1anOn()","if (z1anOn()) areaM2 = BASE.zone1an.area","id=\"z1an\"","옛 원도심 구역계(참고)","function fit1an(Z, duration)"])assert.ok(H.includes(k),'gis.html: '+k);
 assert.ok(/'base_zone_l','base_zone_1an_c','base_zone_1an'\]\.forEach/.test(H),'region switch removes 1안 layers');
 console.log('gis gimhae zone 1안 ok');
+assert.ok(H.includes('if (WANT !== R0.k) return;')&&(H.match(/loadBase\(WANT\)/g)||[]).length===2,'late region load does not overwrite the chosen region');

@@ -2300,13 +2300,17 @@ function decodeShops(b64) {
   return {list: out, cat: head.cat, mid: head.mid};
 }
 
+let WANT = null;   // 마지막으로 고른 지역 — 늦게 도착한 앞 지역 자료가 화면을 덮지 않게 (2026-10-30 실측: 부산 받는 중 김해를 누르면 부산이 덮었다)
 function loadBase(key) {
   const R0 = REGIONS.find(r => r.k === (key || REGION)); if (!R0) return;
+  WANT = R0.k;
   ensureData(R0, () => {
+    if (WANT !== R0.k) return;
     /* 자료가 배경지도보다 먼저 도착하면 addSource 가 「Style is not done loading」 으로 튕긴다.
        그때는 실패로 끝내지 말고 배경이 준비될 때까지 짧게 다시 시도한다 (2026-08-19 라이브 실측) */
     let tries = 0;
     const go = () => {
+      if (WANT !== R0.k) return;   // 배경을 기다리는 사이 다른 지역을 골랐다
       try { loadBaseNow(R0); }
       catch (e) {
         if (/Style is not done loading/i.test(e.message || '') && tries < 60) { tries++; setTimeout(go, 250); return; }
@@ -2510,7 +2514,7 @@ function circlePoly(c, m) {
 }
 function setAna(fs){
   window.__anaFC = {type:'FeatureCollection', features:fs};
-  map.getSource('ana').setData(window.__anaFC);
+  const src = map.getSource('ana'); if (src) src.setData(window.__anaFC);   // 첫 자료가 뜨기 전에는 아직 없다
   if (window.__lupeSync) window.__lupeSync();
 }
 function drawCircle() {
@@ -3105,8 +3109,10 @@ function renderRegions() {
     `<button class="btn ${REGION===r.k?'':'g'} rg" data-k="${r.k}">${r.t}</button>`).join('');
   el.querySelectorAll('.rg').forEach(b => b.onclick = () => {
     if (b.dataset.k === REGION) return;
-    ['base_uq_f','base_bld_f','base_bld_c','base_bld_l','base_zone_l','base_zone_1an_c','base_zone_1an'].forEach(id => map.getLayer(id) && map.removeLayer(id));
-    ['base_uq','base_bld','base_zone'].forEach(id => map.getSource(id) && map.removeSource(id));
+    try {   // 배경이 아직 안 떴을 때 누르면 getLayer 가 튕긴다 — 그래도 고른 지역은 받아야 한다
+      ['base_uq_f','base_bld_f','base_bld_c','base_bld_l','base_zone_l','base_zone_1an_c','base_zone_1an'].forEach(id => map.getLayer(id) && map.removeLayer(id));
+      ['base_uq','base_bld','base_zone'].forEach(id => map.getSource(id) && map.removeSource(id));
+    } catch (e) { /* 지울 레이어가 아직 없다 */ }
     BASE = null; ana.center = null; ana.poly = []; ana.closed = false; ana.snap = false; setAna([]);
     $('#ressec').style.display = 'none';
     loadBase(b.dataset.k);
@@ -3181,10 +3187,10 @@ function boot() {
   if (BASE) return;
   // 화면이 준비되면 바로 올린다. 인터넷이 없어 준비 신호가 안 와도 5초 뒤엔 그냥 올린다.
   if (map.isStyleLoaded()) {
-    try { loadBase(); return; } catch (e) { /* 아래에서 다시 시도 */ }
+    try { loadBase(WANT); return; } catch (e) { /* 아래에서 다시 시도 */ }
   }
   if (++bootTries < 25) { setTimeout(boot, 200); return; }
-  try { loadBase(); }
+  try { loadBase(WANT); }
   catch (e) { console.error(e); logLine(false, '기본 데이터를 불러오지 못했습니다 — ' + e.message); }
 }
 renderRegions();
