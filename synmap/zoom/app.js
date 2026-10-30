@@ -254,7 +254,7 @@ function buildMarkers() {
   mk('k3f', [128.872243, 35.22934], lbl('김해시가족센터', '', 'small sea'), '', 'left', [6, 0]);
   mk('k3d', NEAR, `<div class="dist">327m</div>`, '', 'right', [-10, 6]);
   // 봉리단길
-  mk('k4', [128.8768, 35.2282], lbl('봉황대길', '「봉리단길」 735m', 'zone'), '', 'right', [-8, 0]);
+  mk('k4', [128.8768, 35.2282], lbl('봉황대길', '「봉리단길」 716m', 'zone'), '', 'right', [-8, 0]);
   // 봉스퀘어 거점
   D.sites.forEach(s => {
     const box = document.createElement('div'), el = document.createElement('div'); box.appendChild(el);
