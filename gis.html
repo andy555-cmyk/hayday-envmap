@@ -130,6 +130,14 @@ html[data-theme="dark"] .modes{background:#000}
  background:color-mix(in srgb,var(--panel) 95%,transparent);box-shadow:var(--shadow);font-size:14px;z-index:3;
  max-width:calc(100% - var(--R) - 80px)}
 .legend:empty{display:none}
+.z1an{border:1px solid #0a9e78;border-radius:10px;padding:10px 12px;margin:4px 0 10px;background:rgba(10,158,120,.06)}
+.z1an .z1-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.z1an .z1-h b{color:#0a7d60}
+.z1an dl{margin:0;display:grid;gap:3px}
+.z1an dl>div{display:grid;grid-template-columns:8.5em 1fr;gap:8px}
+.z1an dt{color:var(--mut,#6b7280)}
+.z1an dd{margin:0;font-weight:600}
+.z1an dd small{display:block;font-weight:400;opacity:.7}
 .lg-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 13px}
 .lg-row>span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .lg-k{font-weight:800}
@@ -590,6 +598,7 @@ html[data-theme="dark"] .maplibregl-ctrl-scale{background:rgba(21,26,32,.7);colo
     <section class="sec" id="anasec">
       <div class="sec-h"><h2>분석 구역</h2><span class="upd" id="tgtname"></span></div>
       <p class="hint" id="rgnnote" style="margin:-6px 0 4px"></p>
+      <div class="z1an" id="z1an" hidden></div>
       <p class="hint" id="viewnote" style="margin:0 0 8px;color:var(--acc)"></p>
       <div class="seg2" role="group" aria-label="분석 방식">
         <button type="button" class="btn md on" data-md="circle">반경으로 세기</button>
@@ -2364,6 +2373,10 @@ function loadBaseNow(R) {
     });
   }
   map.jumpTo({center:BASE.center, zoom: R.k === 'busan' ? 12.2 : 14.2});
+  if (BASE.zone1an) {
+    const r = BASE.zone1an.ring, xs = r.map(p => p[0]), ys = r.map(p => p[1]);
+    map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], {padding: 60, duration: 0, maxZoom: 16.5});
+  }
   const ms = Math.round(performance.now() - t0);
   $('#perf').textContent = `${BASE.name} · 건물 ${nf(BASE.bld.length)}동 · ${ms}ms`;
   logLine(true, `${BASE.name} 불러옴 — 건물 ${nf(BASE.bld.length)}동${
@@ -2426,8 +2439,13 @@ function addBaseLayers() {
       'circle-opacity':0.75}});
   map.addLayer({id:'base_bld_l', type:'line', source:'base_bld', minzoom:15,
     paint:{'line-color':'#ffffff','line-width':0.35,'line-opacity':0.6}});
-  map.addLayer({id:'base_zone_l', type:'line', source:'base_zone',
-    paint:{'line-color':'#1a1d21','line-width':2,'line-dasharray':[3,2]}});
+  map.addLayer({id:'base_zone_l', type:'line', source:'base_zone', filter:['!=',['get','k'],'1an'],
+    paint:{'line-color':'#1a1d21','line-width':1.5,'line-dasharray':[3,2],'line-opacity':0.35}});
+  /* 김해 확정 구역계(1안 · 2026-10-30) — 기본 강조선. 옛 선 3개는 위의 옅은 참고선 */
+  map.addLayer({id:'base_zone_1an_c', type:'line', source:'base_zone', filter:['==',['get','k'],'1an'],
+    paint:{'line-color':'#ffffff','line-width':6,'line-opacity':0.7}});
+  map.addLayer({id:'base_zone_1an', type:'line', source:'base_zone', filter:['==',['get','k'],'1an'],
+    paint:{'line-color':'#0a9e78','line-width':3}});
 }
 
 /* 그린 도형 — 밝은 화면과 어두운 화면 둘 다에서 선이 보이게 테두리를 한 겹 깐다 */
@@ -2556,6 +2574,13 @@ function inPoly(x, y, ring) {
   return ok;
 }
 
+/* 지금 분석 구역이 김해 확정 구역계(1안)와 꼭짓점까지 같은가 */
+function z1anOn() {
+  const Z = BASE && BASE.zone1an;
+  if (!Z || ana.mode !== 'poly' || !ana.closed || ana.poly.length !== Z.ring.length) return null;
+  return ana.poly.every((p, i) => p[0] === Z.ring[i][0] && p[1] === Z.ring[i][1]) ? Z : null;
+}
+
 /* ★ 여기가 핵심 — 세는 데 몇 ms 걸리는지가 곧 제품이다 */
 function run() {
   const t0 = performance.now();
@@ -2576,6 +2601,7 @@ function run() {
     // 스스로 꼬인(나비넥타이) 도형이면 넓이가 서로 상쇄되고 한쪽 날개의 건물이 통째로 빠진다.
     // 조용히 틀린 숫자를 내보내지 않는다.
     crossed = ringCrosses(ring);
+    if (z1anOn()) areaM2 = BASE.zone1an.area;   // 면적은 공식 표기(카카오맵 면적재기 실측) 그대로
   }
   // 테두리 상자로 1차 거르고 정밀 판정
   let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
@@ -2741,7 +2767,7 @@ function run() {
   const meet = p20 >= 50;
   const areaHa = crossed ? null : areaM2 / 10000;
   /* 화면 틀(머리 카드·한눈에)이 쓰는 요약 — 위에서 센 값을 그대로 옮긴다 */
-  window.__S = {key: BASE.__key, shape: ana.mode, radius: ana.radius, verts: ana.poly.length,
+  window.__S = {key: BASE.__key, shape: ana.mode, radius: ana.radius, verts: ana.poly.length, z1an: !!z1anOn(),
     n: hit.length, wy: withYear.length, p20, p30, meet, oldest, oddYear, flAvg, maxFl, floor,
     parcels: rich ? parcels : 0, areaHa, crossed, rich, lotSum, bcr, far, under, weak,
     shopN, shopTop: top(shopCat, 2)[0] || null, shop2: top(shopCat, 2)[1] || null,
@@ -2755,7 +2781,7 @@ function run() {
   const heroPop = (window.__zoneEst && window.__zoneEst.ok) ? window.__zoneEst.val : null;
   const hero = `
     <div class="hero">
-      <div class="ttl">내가 그린 구역</div>
+      <div class="ttl">${z1anOn() ? '확정 구역계(1안) — 이 화면 자료(건물 2026-09-02) 기준으로 센 값' : '내가 그린 구역'}</div>
       <div class="big"><span class="n">${nf(hit.length)}</span><span class="u">동의 건축물</span></div>
       <div class="hr">
         ${rich ? `<span>필지 <b>${nf(parcels)}</b></span>` : ''}
@@ -3082,7 +3108,7 @@ function renderRegions() {
     `<button class="btn ${REGION===r.k?'':'g'} rg" data-k="${r.k}">${r.t}</button>`).join('');
   el.querySelectorAll('.rg').forEach(b => b.onclick = () => {
     if (b.dataset.k === REGION) return;
-    ['base_uq_f','base_bld_f','base_bld_c','base_bld_l','base_zone_l'].forEach(id => map.getLayer(id) && map.removeLayer(id));
+    ['base_uq_f','base_bld_f','base_bld_c','base_bld_l','base_zone_l','base_zone_1an_c','base_zone_1an'].forEach(id => map.getLayer(id) && map.removeLayer(id));
     ['base_uq','base_bld','base_zone'].forEach(id => map.getSource(id) && map.removeSource(id));
     BASE = null; ana.center = null; ana.poly = []; ana.closed = false; ana.snap = false; setAna([]);
     $('#ressec').style.display = 'none';
@@ -3090,6 +3116,24 @@ function renderRegions() {
   });
   const R = REGIONS.find(r => r.k === REGION);
   $('#rgnnote').textContent = R ? R.note : '';
+  renderZ1an();
+}
+/* 김해 — 확정 구역계(1안) 요약(숫자정본표 값)과 「이 구역으로 세기」 */
+function renderZ1an() {
+  const el = $('#z1an'); if (!el) return;
+  const Z = BASE && BASE.zone1an;
+  if (!Z) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML = `<div class="z1-h"><b>${esc(Z.name)}</b><button type="button" class="btn" id="z1go">이 구역으로 세기</button></div>
+    <dl>${Z.sum.map(([k, v, n]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}${n ? `<small>${esc(n)}</small>` : ''}</dd></div>`).join('')}</dl>
+    <p class="hint">${esc(Z.src)}</p>`;
+  $('#z1go').onclick = () => {
+    const b = document.querySelector('.md[data-md="poly"]'); if (b) b.click();
+    ana.target = 'base'; ana.poly = Z.ring.map(p => [p[0], p[1]]);
+    closePoly();
+    const xs = Z.ring.map(p => p[0]), ys = Z.ring.map(p => p[1]);
+    map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], {padding: 60, maxZoom: 16.5});
+  };
 }
 
 /* 무엇을 셀지 고르는 줄 */
@@ -3672,6 +3716,7 @@ function declineHTML(hit, p20, areaM2) {
   }
   const repBtn = () => `<button class="btn" type="button" data-act="report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h7"/></svg>구역 보고서</button>`;
   function areaLabel(S) {
+    if (S.z1an) return '확정 구역계(1안) · 이 화면 자료 기준';
     return S.shape === 'circle' ? `그린 구역 · 반경 ${fmt(S.radius)}m` : `그린 구역 · 직접 그린 구역계(꼭짓점 ${S.verts}개)`;
   }
   function idleText() {
@@ -3835,7 +3880,8 @@ function declineHTML(hit, p20, areaM2) {
     if (MODE === 'file' && layers.length)
       rows.push(`<div class="lg-row"><span class="lg-k">올린 레이어</span>${layers.map(L => `<span>${sw(L.color)}${esc(L.name)}</span>`).join('')}</div>`);
     const zone = BASE.zone && BASE.zone.features && BASE.zone.features.length;
-    rows.push(`<div class="lg-row"><span>${'<i class="sw2 ar"></i>'}분석 구역</span>${zone ? '<span><i class="sw2 ln"></i>대상지 구역계</span>' : ''}${
+    const z1 = BASE.zone1an;
+    rows.push(`<div class="lg-row"><span>${'<i class="sw2 ar"></i>'}분석 구역</span>${z1 ? `<span><i class="sw2" style="background:#0a9e78;height:4px"></i>${esc(z1.name.split(' · ')[0])} ${z1.ha}ha · ${z1.date}</span><span><i class="sw2 ln" style="opacity:.45"></i>옛 원도심 구역계(참고)</span>` : zone ? '<span><i class="sw2 ln"></i>대상지 구역계</span>' : ''}${
       MODE === 'move' ? '<span class="lg-s">역은 500m · 교차로는 300m 안까지 셉니다</span>' : ''}</div>`);
     el.innerHTML = rows.join('');
   }
@@ -4061,6 +4107,7 @@ function declineHTML(hit, p20, areaM2) {
     const R = REGIONS.find(r => r.k === REGION);
     const where = S.shape === 'circle' && ana.center
       ? `반경 ${fmt(S.radius)}m · 중심 ${ana.center[1].toFixed(5)}, ${ana.center[0].toFixed(5)}`
+      : S.z1an ? `확정 구역계(1안) · 2026-10-30 · 공식 면적 208,778㎡(20.9ha) · 건물·점포 수는 이 화면 자료 기준`
       : `직접 그린 구역계 · 꼭짓점 ${S.verts}개`;
     const img = await snap();
     if (window.__S !== S) return;   // 지도 그림을 기다리는 사이 구역·지역이 바뀌었다
