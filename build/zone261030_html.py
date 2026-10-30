@@ -19,15 +19,15 @@ S, R = Z['stats'], Z['relation']
 n = lambda v: f'{v:,}'
 AREA, HA, D = n(Z['area']), f"{Z['area'] / 10000:.1f}ha", Z['confirmed']
 ins = [s['rank'] for s in Z['sites'] if s['inside']]; out = [s['rank'] for s in Z['sites'] if not s['inside']]
-SITES = f"13곳 중 {len(ins)}곳 구역 안 · {len(out)}곳({'·'.join(f'{x}번' for x in out)}) 구역 밖(재배치 검토 중)"
+SITES = f"13곳 중 {len(ins)}곳 구역 안 · {len(out)}곳({'·'.join(f'{x}번' for x in out)}) 임시 유지"
 PEND = '새 구역 재수집 중'
 
-h = re.sub(r'gimhae-b171\.(js|css)\?v=zone2610\d\d-r\d+', r'gimhae-b171.\1?v=zone261030-r1', h)
-assert h.count('gimhae-b171.js?v=zone261030-r1') == 1 and h.count('gimhae-b171.css?v=zone261030-r1') == 1
-h = re.sub(r'gimhae-meeting\.(js|css)\?v=[\w-]+"', r'gimhae-meeting.\1?v=1an-r1"', h)
-assert h.count('gimhae-meeting.js?v=1an-r1') == 1
-h = re.sub(r'gimhae-b-insights\.js\?v=[\w-]+"', 'gimhae-b-insights.js?v=1an-r1"', h)  # 「근린생활시설」 단독 표기도 근생으로 셈(정본표 묶음과 같게)
-assert h.count('gimhae-b-insights.js?v=1an-r1') == 1
+h = re.sub(r'gimhae-b171\.(js|css)\?v=zone2610\d\d-r\d+', r'gimhae-b171.\1?v=zone261030-r2', h)
+assert h.count('gimhae-b171.js?v=zone261030-r2') == 1 and h.count('gimhae-b171.css?v=zone261030-r2') == 1
+h = re.sub(r'gimhae-meeting\.(js|css)\?v=[\w-]+"', r'gimhae-meeting.\1?v=1an-r2"', h)
+assert h.count('gimhae-meeting.js?v=1an-r2') == 1
+h = re.sub(r'gimhae-b-insights\.js\?v=[\w-]+"', 'gimhae-b-insights.js?v=1an-r2"', h)  # 「근린생활시설」 단독 표기도 근생으로 셈(정본표 묶음과 같게)
+assert h.count('gimhae-b-insights.js?v=1an-r2') == 1
 
 def sub_once(pat, repl, flags=0):
     global h
@@ -98,9 +98,9 @@ new = [
       '환경분석맵 건물 10,065동(건축물대장 기반) · 소상공인시장진흥공단 상가정보', '건물 2026-08 · 상가 2026-06', f'확정 구역계(1안) {HA}',
       '건물은 대표점이 경계 안이면 포함. 등록점포는 현재 영업 수가 아니다. 이 지도의 다른 수치(1,009동·91.4%)는 사업구역 51.8ha 기준이라 섞지 않는다'
       + (f" · 공모 노후도 판정은 건축물대장 기준 {n(L['buildings'])}동 중 사용승인일 확인 {n(L['known'])}동의 {L['old20Pct']}%({n(L['old20'])}동)" if L else '')),
-    C('시 우선순위 대상지 13곳 거점 부지 후보 매입 임대 대상부지 안에 밖 재배치 1안', '시 우선순위 대상지 13곳은 구역 안인가',
+    C('시 우선순위 대상지 13곳 거점 부지 후보 매입 임대 대상부지 안에 밖 임시 유지 1안', '시 우선순위 대상지 13곳은 구역 안인가',
       f"{SITES} · 거점 후보 5번(봉황동 15-2)·10번(봉황동 23-3)은 구역 안", '김해시 사업대상지 목록 · 10/8 현장 미팅(역할)', '2026-10-08', '지번 위치점',
-      f"구역 밖 {'·'.join(f'{x}번' for x in out)}은 봉황대길 북측이며 지우지 않고 「구역 밖(재배치 검토 중)」으로만 표시한다 — 사업 배치는 결정 대기. 지번 기준점 판정이며 필지 전체 판정이 아니다. 지도는 「공실·거점 위치」 탭"),
+      f"구역 밖 {'·'.join(f'{x}번' for x in out)}은 봉황대길 북측이며 새 대상지 선정 전까지 임시 유지한다(구역 통계에는 넣지 않음). 지번 기준점 판정이며 필지 전체 판정이 아니다. 지도는 「공실·거점 위치」 탭"),
     C('확정 구역계 1안 공실 빈 점포 공실률 인허가 폐업 상가정보 로드뷰 전기 재수집', '확정 구역계(1안) 안 공실·상권 자료는',
       PEND + ' — 상권정보·인허가·공실 신호·전기·토지이음·로드뷰를 새 구역으로 다시 모으고 있다', '구역 안 자료 재수집(2026-10-30 시작)', D, '확정 구역계(1안)',
       '옛 확정 구역계(10/11)의 공실 신호·빈 점포 후보 숫자는 범위가 절반만 겹쳐 쓰지 않는다. 다 모이면 이 카드를 바꾼다'),

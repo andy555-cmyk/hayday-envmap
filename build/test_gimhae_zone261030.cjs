@@ -33,7 +33,7 @@ assert.equal(Z.perimeterM,1996);
 assert.equal(Z.sites.length,13);assert.deepEqual(Z.sites.map(s=>s.rank),[1,2,3,4,5,6,7,8,9,10,11,12,13]);
 assert.deepEqual(Z.sites.filter(s=>s.inside).map(s=>s.rank),[1,3,4,5,6,7,9,10,12]);
 assert.deepEqual(Z.sites.filter(s=>!s.inside).map(s=>s.rank),[2,8,11,13]);
-assert.ok(Z.sites.filter(s=>!s.inside).every(s=>s.zoneStatus==='구역 밖(재배치 검토 중)'));
+assert.ok(Z.sites.filter(s=>!s.inside).every(s=>s.zoneStatus==='구역 밖(새 대상지 선정 전 임시 유지)'));
 assert.equal(Math.round(Math.min(...Z.sites.filter(s=>s.inside).map(s=>s.edgeM))),36,'12번 36m = 정본표');
 function pip(q,r){let b=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const A=r[i],C=r[j];if(((A[1]>q[1])!==(C[1]>q[1]))&&(q[0]<(C[0]-A[0])*(q[1]-A[1])/(C[1]-A[1])+A[0]))b=!b;}return b;}
 const ring=Z.boundary.geometry.coordinates[0];
@@ -53,5 +53,10 @@ const AC=JSON.parse(fs.readFileSync(path.join(root,'build/ask_cards/gimhae-wondo
 const pub=html.replace(/<script id="dat2?" type="application\/json">.*?<\/script>/gs,'')+JSON.stringify(Z)+fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8')+fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8')+fs.readFileSync(path.join(root,'data/gimhae-meeting.json'),'utf8');
 for(const bad of ['21.8ha','21.75','217,510','217510','217,511','217,995','67,510','71,890','26개 블록','블록 26개','13곳 모두 포함','208,622','208622'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 assert.ok(!/남실장|대표 제공|대표 확정|대표 결정|방 ⑦|010-|코덱스|클로드|Claude|Codex/.test(JSON.stringify(Z)+JSON.stringify(FA)),'no internal provenance');
-assert.ok(html.includes('gimhae-b171.js?v=zone261030-r1')&&html.includes('gimhae-meeting.js?v=1an-r1'),'cache versions');
+assert.ok(html.includes('gimhae-b171.js?v=zone261030-r2')&&html.includes('gimhae-meeting.js?v=1an-r2'),'cache versions');
+// 13곳 임시 유지(10/30 대표) — 핀 13곳 같은 모양, 목록에 밖 표시·회색 없음, 「재배치」 문구 없음
+const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8'),M=fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8');
+assert.ok(B.includes("'circle-color':SITE_COLOR")&&!B.includes('b-site-out'),'13 pins same style, list unchanged');
+assert.ok(!/재배치/.test(pub+JSON.stringify(FA)+fs.readFileSync(path.join(root,'data/gimhae-zone-261030-facts.json'),'utf8')),'no relocation wording');
+assert.ok(B.includes("d.sites.length!==13"),'13 kept');
 console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 1판 대조 · 카드 4 · 옛 숫자 없음');

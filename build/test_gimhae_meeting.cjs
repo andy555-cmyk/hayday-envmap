@@ -20,7 +20,7 @@ assert.deepEqual(data.places.filter(p=>!p.coordinates).map(p=>p.id),['자2','자
 const ring=Z.boundary.geometry.coordinates[0];
 for(const p of data.places){assert.ok(p.evidence&&p.checked&&p.status&&p.detail,p.id);assert.ok(!('insideB' in p),p.id+' old field removed');if(p.coordinates){assert.equal(inside(p.coordinates,ring),p.inside,p.id+' boundary membership');}else assert.equal(p.inside,null);for(const key of ['sourceUrl','mapUrl'])if(p[key])assert.equal(new URL(p[key]).protocol,'https:');}
 assert.deepEqual(data.places.filter(p=>p.inside===false).map(p=>p.id),['시2','시8','시11','시13','공1','공2','공3','공4','공5','공6','자1','자3','자5'],'1안: 시 4곳·공식 6곳 모두·자1·자3·자5 밖');
-assert.ok(data.places.filter(p=>p.source==='city'&&!p.inside).every(p=>p.zoneStatus==='구역 밖(재배치 검토 중)'));
+assert.ok(data.places.filter(p=>p.source==='city'&&!p.inside).every(p=>p.zoneStatus==='구역 밖(새 대상지 선정 전 임시 유지)'));
 // City sites mirror the zone file (rank order, same point) and carry no public-banned wording.
 assert.deepEqual(data.places.filter(p=>p.source==='city').map(p=>[p.rank,p.address,p.coordinates]),Z.sites.map(t=>[t.rank,t.jibun,t.lnglat]));
 assert.ok(!/의향|매매 의사|생각해 봄|수도|연체|체납|남실장|대표 제공|대표님|실장님|보증금|월세 \d|만원|억원|권리금/.test(JSON.stringify(data)),'public page: no prices, owner intent, utility arrears or internal names');

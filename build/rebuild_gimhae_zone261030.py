@@ -23,7 +23,7 @@ zone_path, old_path, old_json_path = (Path(a).expanduser() for a in sys.argv[1:4
 Z = json.loads(zone_path.read_text()); OLDK = json.loads(old_path.read_text()); OJ = json.loads(old_json_path.read_text())
 AREA = 208778              # 공식 표기(카카오맵 면적재기 실측, 대표 확정) — 화면에는 이 값만 쓴다
 AREA_TOL = 0.005           # 도형 계산값 허용 오차 ±0.5% (정본 안내: EPSG:5181 평면 계산 208,622㎡ = −0.07%)
-INSIDE_SITES = {1, 3, 4, 5, 6, 7, 9, 10, 12}   # 정본 안내 — 2·8·11·13 은 구역 밖(재배치 검토 중, 대표 결정 대기)
+INSIDE_SITES = {1, 3, 4, 5, 6, 7, 9, 10, 12}   # 정본 안내 — 2·8·11·13 은 구역 밖(새 대상지 선정 전 임시 유지)
 assert len(Z['features']) == 1
 zf = Z['features'][0]; poly = shape(zf['geometry'])
 assert poly.is_valid and poly.geom_type == 'Polygon' and not poly.interiors and len(zf['geometry']['coordinates'][0]) == 21
@@ -74,7 +74,7 @@ sites = []
 for s in sorted(OJ['sites'], key=lambda s: s['rank']):
     pt = Point(*s['lnglat']); isin = poly.covers(pt); dist = round(metric(poly.exterior).distance(metric(pt)), 1)
     row = {k: s[k] for k in KEEP if k in s}
-    row.update({'inside': isin, 'edgeM': dist, 'zoneStatus': '구역 안' if isin else '구역 밖(재배치 검토 중)'})
+    row.update({'inside': isin, 'edgeM': dist, 'zoneStatus': '구역 안' if isin else '구역 밖(새 대상지 선정 전 임시 유지)'})
     assert not banned.search(json.dumps({k: v for k, v in row.items() if k not in ('officialPrice',)}, ensure_ascii=False)), row['rank']
     sites.append(row)
 assert len(sites) == 13 and {s['rank'] for s in sites if s['inside']} == INSIDE_SITES, [s['rank'] for s in sites if s['inside']]
@@ -101,7 +101,7 @@ data = {'version': '2026-10-30-zone1an', 'id': 'zone1an', 'name': '확정 구역
         'relation': relation,
         'buildingIndices': inside, 'edgeBuildingIndices': edges, 'intersectOutsideIndices': touch, 'storeIndices': stores, 'skippedGeometryIndices': skipped,
         'stats': stats, 'statsSource': 'engine', 'wifiInside': wifi, 'sites': sites,
-        'sitesSummary': {'inside': sorted(INSIDE_SITES), 'outside': sorted({s['rank'] for s in sites} - INSIDE_SITES), 'rule': '결정 전까지 구역 밖 4곳은 지우지 않고 「구역 밖(재배치 검토 중)」 표시만'},
+        'sitesSummary': {'inside': sorted(INSIDE_SITES), 'outside': sorted({s['rank'] for s in sites} - INSIDE_SITES), 'rule': '새 대상지 선정 전까지 13곳 그대로 — 구역 밖 4곳은 구역 포함을 따지는 표·통계에만 「구역 밖(새 대상지 선정 전 임시 유지)」'},
         'sitePhotoSource': OJ.get('sitePhotoSource', ''),
         'timeline': OJ.get('timeline'),
         'pending': PENDING, 'pendingNote': '새 구역계(1안)로 구역 안 자료를 다시 모으는 중 — 끝나는 대로 이어서 반영',
