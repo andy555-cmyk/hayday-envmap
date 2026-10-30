@@ -2348,7 +2348,7 @@ function loadBaseNow(R) {
   if (!isPt) BASE.bld.forEach(b => {
     let sx = 0, sy = 0, n = 0;
     const rec = a => { if (typeof a[0] === 'number') { sx += a[0]; sy += a[1]; n++; } else a.forEach(rec); };
-    if (b.p) { b.cx = b.p[0]; b.cy = b.p[1]; return; }   // 대표점(늘 건물 안) — 김해 숫자정본표와 같은 판정(꼭짓점 평균으로는 704동이 706동으로 셌다, 10/30)
+    if (b.p) { b.cx = b.p[0]; b.cy = b.p[1]; return; }   // 대표점(늘 건물 안) — 김해 숫자정본표와 같은 판정
     rec(b.g); b.cx = sx / n; b.cy = sy / n;
   });
   BASE.__pt = isPt;
