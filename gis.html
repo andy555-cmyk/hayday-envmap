@@ -2218,10 +2218,15 @@ const REGIONS = [
    shop:() => window.__SHOP_BUSAN__,
    note:'16개 구·군 472,608동 · 302,958필지 · 점포 159,689개 · 국토교통부 GIS건물통합정보 2026-08-09'},
   {k:'gimhae', t:'김해 원도심', src:() => window.__GIMHAE__, file:'data/gimhae.js?v=1an-r9',
+   extra:{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v=mv1'},   // 보행·교통 실측(경전철·버스·유동인구)
    shop:() => window.__SHOP_GIMHAE__,
    note:'건물 10,065동 · 점포 26,700개(김해시 전역) · 준공연도 86%'},
 ];
 let REGION = 'busan';   /* 켜면 부산 전역부터 보인다 */
+/* 보행·교통 실측 — 부산 전역은 도시철도·스마트교차로, 김해 원도심은 김해경전철·버스·행정동 유동인구 (2026-10-31) */
+const GM = () => (REGION === 'gimhae' && window.__GMOVE__) || null;
+const metroSet = () => GM() ? GM().lrt : window.__METRO__;
+const walkSet = () => GM() ? null : window.__WALK__;
 
 /* 점 묶음 풀기 — 좌표를 차이값으로 저장했다. 그래야 파일이 작아진다 */
 function decodeBin(u8) {
@@ -2259,6 +2264,17 @@ function decodeBin(u8) {
    한 파일로 묶은 판(오프라인)에는 이미 안에 들어 있으므로 바로 넘어간다. */
 let LOADING = null;
 function ensureData(R, cb) {
+  /* 곁들이 자료(김해 보행·교통)는 본 자료 뒤에 받는다. 못 받아도 본 화면은 그대로 뜬다 */
+  if (R.extra && !R.extra.has()) {
+    const X = R.extra, done = cb; X.has.busy = X.has.busy || false;
+    cb = () => {
+      if (X.has() || X.has.busy) { done(); return; }
+      X.has.busy = true;
+      const sx = document.createElement('script'); sx.src = X.file; sx.async = true;
+      sx.onload = sx.onerror = () => { X.has.busy = false; done(); };
+      document.head.appendChild(sx);
+    };
+  }
   if (R.src()) { cb(); return; }
   if (!R.file) { logLine(false, R.t + ' 자료가 없습니다'); return; }
   if (LOADING === R.k) return;                 // 같은 것을 두 번 받지 않는다
@@ -2635,22 +2651,46 @@ function run() {
   }
   /* 스마트교차로 — 보행자를 실제로 센 유일한 자료. 구역 안 또는 300m 안 */
   const walk = [];
-  if (window.__WALK__) {
+  const WK = walkSet(), MT = metroSet(), GV = GM();
+  if (WK) {
     const cy = (y0 + y1) / 2;
     const wx = 300 / (111320 * Math.cos(cy * Math.PI / 180)), wy = 300 / 110540;
-    for (const it of window.__WALK__.ix) {
+    for (const it of WK.ix) {
       if (it.x < x0 - wx || it.x > x1 + wx || it.y < y0 - wy || it.y > y1 + wy) continue;
       walk.push({it, inside: inPoly(it.x, it.y, ring)});
     }
   }
-  /* 도시철도 역 — 구역 안, 또는 걸어서 500m 안 */
+  /* 도시철도 역 — 구역 안, 또는 걸어서 500m 안 (김해 원도심은 김해경전철 역) */
   const metro = [];
-  if (window.__METRO__) {
+  if (MT) {
     const cy = (y0 + y1) / 2;
     const mx = 500 / (111320 * Math.cos(cy * Math.PI / 180)), my = 500 / 110540;
-    for (const st of window.__METRO__.st) {
+    for (const st of MT.st) {
       if (st.x < x0 - mx || st.x > x1 + mx || st.y < y0 - my || st.y > y1 + my) continue;
       metro.push({st, inside: inPoly(st.x, st.y, ring)});
+    }
+  }
+  /* 김해 원도심 — 버스 정류장(구역 안 또는 300m)·자전거 주차장·횡단보도·신호, 행정동 유동인구 */
+  const busS = [], gPts = {bike: [], voice: [], cross: 0, sig: 0}, dongN = {};
+  if (GV) {
+    const cy = (y0 + y1) / 2;
+    const bx = 300 / (111320 * Math.cos(cy * Math.PI / 180)), by = 300 / 110540;
+    for (const st of GV.bus.st) {
+      if (st.x < x0 - bx || st.x > x1 + bx || st.y < y0 - by || st.y > y1 + by) continue;
+      busS.push({st, inside: inPoly(st.x, st.y, ring)});
+    }
+    const inZ = (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1 && inPoly(x, y, ring);
+    gPts.bike = GV.bike.filter(b => inZ(b.x, b.y));
+    gPts.voice = GV.voice.filter(b => inZ(b.x, b.y));
+    gPts.cross = GV.cross.filter(p => inZ(p[0], p[1])).length;
+    gPts.sig = GV.sig.filter(p => inZ(p[0], p[1])).length;
+    /* 건물이 어느 행정동에 있나 — 건물 대표점으로 센다 */
+    const DG = GV.flow.geo.features.map(f => ({n: f.properties.n,
+      rings: f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates}));
+    for (const b of hit) {
+      const x = b.cx, y = b.cy;
+      const d = DG.find(D => D.rings.some(P => inPoly(x, y, P[0]) && !P.slice(1).some(h => inPoly(x, y, h))));
+      if (d) dongN[d.n] = (dongN[d.n] || 0) + 1;
     }
   }
   const ms = Math.round(performance.now() - t0);
@@ -2860,7 +2900,9 @@ function run() {
 
   /* ── 아직 안 붙인 섹션 — 무엇이 남았는지 화면에 보인다 ── */
   /* ── 대중교통 유입 — 유동인구의 가장 단단한 실측 신호다 ── */
-  const M = window.__METRO__;
+  const M = MT;
+  const H0 = GV ? 0 : 1;          // 부산 도시철도 자료는 첫 칸이 1시, 김해경전철은 0시
+  const MNM = GV ? '경전철 역' : '도시철도 역';
   let gMetro = '';
   if (M && metro.length) {
     const sum = a => a.reduce((x,y) => x+y, 0);
@@ -2871,20 +2913,61 @@ function run() {
     const pk = hr.indexOf(Math.max(...hr));
     window.__S.metro = {n: metro.length, inside: metro.filter(m => m.inside).length, wd: wdAll, we: weAll, names: metro.map(m => m.st.n)};
     gMetro = grp(TT('대중교통 유입') + Z,
-      `<div class="kvl"><span class="k">도시철도 역 <span style="color:var(--ink3)">(구역 안 또는 걸어서 500m)</span></span>
+      `<div class="kvl"><span class="k">${MNM} <span style="color:var(--ink3)">(구역 안 또는 걸어서 500m)</span></span>
         <div class="chips">${metro.map(m =>
           `<span class="chip"${m.inside ? ' style="border-color:var(--acc)"' : ''}>${esc(m.st.n)}${
             m.inside ? '' : ' <span style="color:var(--ink3);font-size:13px">인근</span>'}</span>`).join('')}</div></div>` +
       kv('평일 하루 승하차', `${nf(wdAll)}명`) +
       kv('주말 하루 승하차', `${nf(weAll)}명`) +
-      kv('가장 붐비는 시간', `${pk + 1}시~${pk + 2}시 · ${nf(hr[pk])}명`) +
+      kv('가장 붐비는 시간', `${pk + H0}시~${pk + H0 + 1}시 · ${nf(hr[pk])}명`) +
       kv(`주말 / 평일 비<span class="srcx">${
         wdAll && weAll / wdAll >= 1 ? '주말이 더 붐빈다 — 관광·여가 성격'
         : wdAll && weAll / wdAll < 0.7 ? '평일에 몰린다 — 업무·통근 성격' : '평일·주말이 비슷하다'}</span>`,
         `${wdAll ? (weAll / wdAll * 100).toFixed(0) : '-'}%`) +
-      `<div class="spk">${spark(hr, hr.map((_, i) => (i + 1) + '시'), {unit:'명'})}
-        <div class="spkc">평일 시간대별 승하차 합 · ${esc(M.src)}</div></div>`,
-      '', '부산교통공사 일별 역별 시간대별 승하차');
+      `<div class="spk">${spark(hr, hr.map((_, i) => (i + H0) + '시'), {unit:'명'})}
+        <div class="spkc">평일 시간대별 승하차 합 · ${esc(M.src)}</div></div>` +
+      (GV ? `<p class="hint">2025년 평일 ${M.nwd}일·주말·공휴일 ${M.nwe}일 하루 평균(승차+하차). 역 개찰 집계라 실측입니다.</p>` : ''),
+      '', GV ? '김해시 경전철 역사별 시간대별 승하차 인원(공공데이터포털)' : '부산교통공사 일별 역별 시간대별 승하차');
+  }
+
+  /* ── 김해 원도심: 버스 정류장 이용 · 행정동 유동인구 · 보행 시설 ── */
+  let gBus = '', gFlowG = '', gWalkG = '';
+  const NB = '<span class="tg g">주변</span>';
+  if (GV && !metro.length) gMetro = grp(TT('경전철'), '<div class="box">구역 500m 안에 김해경전철 역이 없습니다.</div>', '', '김해시 경전철 역사별 시간대별 승하차 인원');
+  if (GV) {
+    const ride = busS.filter(m => m.st.wd != null);
+    const bwd = ride.reduce((t, m) => t + m.st.wd, 0), bwe = ride.reduce((t, m) => t + m.st.we, 0);
+    const top = ride.slice().sort((a, b) => b.st.wd - a.st.wd).slice(0, 6);
+    window.__S.bus = {n: busS.length, ride: ride.length, inside: busS.filter(m => m.inside).length, wd: bwd, we: bwe};
+    gBus = busS.length ? grp(TT('버스 정류장 이용') + NB,
+      kv('정류장(구역 안 또는 300m)', `${nf(busS.length)}곳${busS.filter(m => m.inside).length ? ` · 구역 안 ${busS.filter(m => m.inside).length}곳` : ''}`) +
+      kv('평일 하루 이용객', `${nf(bwd)}명`) +
+      kv('주말 하루 이용객', `${nf(bwe)}명`) +
+      `<div class="kvl"><span class="k">많이 타는 정류장(평일)</span><div class="chips">${top.map(m =>
+        `<span class="chip"${m.inside ? ' style="border-color:var(--acc)"' : ''}>${esc(m.st.n)} <span style="color:var(--ink3);font-size:13px">${nf(m.st.wd)}명</span></span>`).join('')}</div></div>` +
+      `<p class="hint">교통카드 이용객 기준이라 현금 승차는 빠집니다. 정류장마다 2025년 평일 ${GV.bus.nwd}일·주말·공휴일 ${GV.bus.nwe}일 하루 평균.
+        같은 이름이 길 양쪽에 있으면 정류장 번호로 따로 셉니다${ride.length < busS.length ? ` · 이용 기록이 없는 정류장 ${busS.length - ride.length}곳` : ''}.</p>`,
+      '', '김해시 버스정류장별 이용객수(공공데이터포털) · 정류장 위치 카카오맵')
+      : grp(TT('버스 정류장 이용'), '<div class="box">구역 300m 안에 버스 정류장이 없습니다.</div>', '', '김해시 버스정류장별 이용객수');
+    const dn = Object.entries(dongN).sort((a, b) => b[1] - a[1]);
+    window.__S.dong = dn.map(d => d[0]); window.__S.dongN = Object.fromEntries(dn);
+    if (dn.length) {
+      const F = GV.flow.dong;
+      gFlowG = grp(TT('행정동 유동인구') + '<span class="tg g">행정동 전체</span>',
+        dn.map(([n, c]) => { const v = F[n]; return v ? kv(`${esc(n)} <span class="srcx">구역 건축물 ${nf(c)}동</span>`,
+          `하루 ${nf(v.svc)}명`) +
+          `<div class="kvl"><span class="k" style="color:var(--ink3)">주거 ${nf(v.res)} · 직장 ${nf(v.work)} · 방문 ${nf(v.visit)} · 평일 ${nf(v.wd)} / 주말 ${nf(v.we)}</span></div>` : ''; }).join('') +
+        `<p class="hint">통신 기반 <b>서비스인구</b>(그 동에 사는·일하는·찾아온 사람) 하루 평균입니다. <b>행정동 전체 값</b>이라 그린 구역만의 값이 아닙니다.
+          기간은 ${esc(GV.flow.src.split(' ').pop())}이고 김해시가 참고용으로 낸 자료입니다.</p>`,
+        '', esc(GV.flow.src) + '(공공데이터포털)');
+    }
+    gWalkG = grp(TT('보행 시설') + Z,
+      kv('횡단보도', gPts.cross ? `${nf(gPts.cross)}곳` : '지도 자료에 없음') + kv('신호등 교차로', gPts.sig ? `${nf(gPts.sig)}곳` : '지도 자료에 없음') +
+      kv('음성안내 보조장치 횡단보도', `${nf(gPts.voice.length)}곳`) +
+      kv('자전거 주차장', gPts.bike.length ? `${nf(gPts.bike.length)}곳 · ${nf(gPts.bike.reduce((t, b) => t + b.cap, 0))}대` : '없음') +
+      `<p class="hint">횡단보도·신호는 OpenStreetMap(${esc(GV.osm)})에 그려진 것만 셉니다. 김해 원도심은 아직 덜 그려져 「없음」이어도 실제로 없다는 뜻이 아닙니다 — 현장 확인이 필요합니다.
+        사람 수를 직접 센 보행량 자료는 김해에 아직 없습니다.</p>`,
+      '', 'OpenStreetMap · 김해시 자전거 주차장·음성안내 보조장치(공공데이터포털)');
   }
 
   /* ── 보행자 실측 — 「유동인구」에 가장 가까운 실제 숫자다 ── */
@@ -2963,7 +3046,7 @@ function run() {
     + MX('old', (function(){ try { return declineHTML(hit, p20, areaM2); } catch(e){ console.error(e); return ''; } })())
     + MX('bld', gBld + gLot + gUse, '건물·땅')
     + MX('shop', gShop + gBiz + gShopSoon, '상권')
-    + MX('move', gWalk + gMetro + gSoc + gFlow, '보행·교통')
+    + MX('move', GV ? gMetro + gBus + gFlowG + gWalkG : gWalk + gMetro + gSoc + gFlow, '보행·교통')
     + MX('bld old shop move', foot);
 
   /* 맨 위 추정 인구 채우기 — declineHTML 이 계산해 둔 값을 쓴다 */
@@ -3338,8 +3421,55 @@ function trend(first, last) {
 }
 
 /* ★ 본체 — 그린 구역에 대해 3요건을 판정한다 */
+/* 김해 원도심 — 인구·사업체는 행정동 단위 통계(회현동·부원동)로 판정한다 (2026-10-31)
+   구역이 두 동에 걸치면 국토부 가이드라인대로 두 동 합계 줄로 판정하고, 동마다 줄도 함께 보인다 */
+function declineGimhae(p20) {
+  const G = GM(), DC = G.decl, dongs = (window.__S && window.__S.dong) || [];
+  const have = dongs.filter(n => DC.rows[n]), miss = dongs.filter(n => !DC.rows[n]);
+  const cntOf = a => a.reduce((t, n) => t + ((window.__S.dongN || {})[n] || 0), 0);
+  /* 통계가 없는 동에 건축물이 더 많으면 판정하지 않는다 — 작은 쪽 동 값으로 구역 전체를 판정하면 틀린 결론이 된다 */
+  if (have.length && cntOf(miss) > cntOf(have)) return `<div class="dsec"><h4>쇠퇴 3요건 판정</h4><div class="box">이 구역 건축물은
+    ${esc(miss.join('·'))}에 더 많이 있습니다(${nf(cntOf(miss))}동 대 ${esc(have.join('·'))} ${nf(cntOf(have))}동).
+    그 동들은 인구·사업체 쇠퇴 통계를 아직 붙이지 않아 3요건 판정을 하지 않았습니다. 노후건축물 요건만 위에 판정했습니다.</div></div>`;
+  if (!have.length) return `<div class="dsec"><h4>쇠퇴 3요건 판정</h4><div class="box">이 구역이 걸친 행정동(${esc(dongs.join('·') || '확인 불가')})은
+    인구·사업체 쇠퇴 통계를 아직 붙이지 않았습니다. 지금은 회현동·부원동만 있습니다. 노후건축물 요건만 위에 판정했습니다.</div></div>`;
+  const key = have.length > 1 ? '합계' : have[0], R = DC.rows[key];
+  const C1 = R.I1.met || R.I2.met, C2 = R.II1.met || R.II2.met, C3 = p20 >= 50;
+  const n = (C1 ? 1 : 0) + (C2 ? 1 : 0) + (C3 ? 1 : 0), MEET = n >= 2;
+  const lab = key === '합계' ? have.join('+') : key;
+  const pv = Object.values(R.pop), py = Object.keys(R.pop);
+  window.__decl = {n, MEET, C1, C2, C3, gu: lab, pmax: R.I1.max, plast: R.I1.y2025, pdrop: -R.I1.change_pct, py0: R.I1.max_year, est: null};
+  const Z = '<span class="tg z">구역</span>', D_ = `<span class="tg g">${esc(lab)} 전체</span>`;
+  const ico = v => v ? '<span style="color:var(--ok);font-weight:800">○</span>' : '<span style="color:var(--ink3);font-weight:800">✗</span>';
+  const row = (t, ok, s) => `<div class="dq"><div class="q">${ico(ok)}</div><div class="b"><div class="t">${t}</div><div class="s">${s}</div></div></div>`;
+  const yn = v => v ? '해당' : '미해당';
+  const per = have.length > 1 ? `<p class="hint">동마다 — ${have.map(d => { const r = DC.rows[d];
+      return `${esc(d)} 인구 ${yn(r.I1.met || r.I2.met)} · 사업체 ${yn(r.II1.met || r.II2.met)}`; }).join(' / ')}</p>` : '';
+  const by = Object.keys(R.biz), bv = Object.values(R.biz);
+  return `
+  <div class="dsec">
+    <h4>쇠퇴 3요건 판정 <span class="src">도시재생 활성화 및 지원에 관한 특별법 제13조 · 시행령 제17조</span></h4>
+    <div class="verdict ${MEET ? 'y' : 'n'}" style="margin-bottom:8px">
+      <div class="t">${MEET ? '쇠퇴지역 요건 충족' : '쇠퇴지역 요건 미달'} — 3개 중 ${n}개 해당</div>
+      <div class="s">법정 기준은 <b>3개 중 2개 이상</b>입니다. ③ 노후건축물은 <b>그린 구역에서 직접</b> 산정했고,
+        ① 인구·② 사업체는 <b>행정동 ${esc(lab)}</b> 값으로 판정했습니다${have.length > 1 ? '(구역이 두 동에 걸쳐 합계 기준)' : ''}${
+        miss.length ? ` · ${esc(miss.join('·'))}은 통계를 아직 붙이지 않아 빠졌습니다` : ''}.</div>
+    </div>
+    ${row('① 인구', C1, `<div class="ln">${D_} ${R.I1.max_year}년 최다 ${nf(R.I1.max)}명 → 2025년 ${nf(R.I1.y2025)}명 (${R.I1.change_pct}%)</div>
+       <div class="jd">최근 30년 최다 대비 20%↑ 감소 <b>${yn(R.I1.met)}</b> · 최근 5년간 3년 이상 연속 감소 <b>${yn(R.I2.met)}</b>(최장 ${R.I2.run}년)</div>`)}
+    ${spkBox(pv, py, {unit:'명', ls:'년'}, `${esc(lab)} 인구 — 1995~2015 인구총조사 · 2020·2025 주민등록 12월 말`)}
+    ${row('② 사업체', C2, `<div class="ln">${D_} ${esc(R.II1.window)} 최다 ${R.II1.max_year}년 ${nf(R.II1.max)}개 → 2024년 ${nf(R.II1.y2024)}개 (${R.II1.change_pct}%)</div>
+       <div class="jd">최근 10년 최다 대비 5%↑ 감소 <b>${yn(R.II1.met)}</b> · 최근 5년간 3년 이상 연속 감소 <b>${yn(R.II2.met)}</b>(최장 ${R.II2.run}년)</div>`)}
+    ${spkBox(bv, by, {unit:'개', ls:'년'}, `${esc(lab)} 사업체 수 2008~2024 · 2020년부터 등록기반 조사`)}
+    ${row('③ 노후건축물', C3, `<div class="ln">${Z} 준공 20년 이상 <b>${p20.toFixed(1)}%</b> <span style="color:var(--ink3)">(법정 기준 50%) — 그린 구역 안 건축물을 직접 산정</span></div>`)}
+    ${per}
+    <p class="hint">원천 — ${esc(DC.src)}. 인구·사업체는 <b>행정동 전체 값</b>이라 그린 구역만의 값이 아닙니다.</p>
+  </div>`;
+}
+
 function declineHTML(hit, p20, areaM2) {
   window.__decl = null; window.__zoneEst = null;   // 앞 구역·앞 지역 값이 남지 않게 (2026-10-25)
+  if (BASE && BASE.__key === 'gimhae' && GM() && hit.length) return declineGimhae(p20);
   const P = window.__BSPOP__;
   if (!P || !BASE || BASE.__key !== 'busan' || !hit.length) return '';
 
@@ -3757,11 +3887,14 @@ function declineHTML(hit, p20, areaM2) {
     if (!RS) return {h: '', s: ''};
     if (MODE === 'old') return {
       h: `${esc(RS.name)} 건축물의 ${NE(RS.p20, 1)}%가 준공 20년을 넘었습니다`,
-      s: `준공연도가 적힌 ${fmt(RS.wy)}동 기준. ${tap} — ${RS.busan ? '「도시재생 특별법」 쇠퇴 3요건(인구·사업체·노후)을 판정합니다.' : '노후 요건(20년 이상 50%)을 판정합니다.'}`};
+      s: `준공연도가 적힌 ${fmt(RS.wy)}동 기준. ${tap} — ${RS.busan ? '「도시재생 특별법」 쇠퇴 3요건(인구·사업체·노후)을 판정합니다.' : GM() ? '「도시재생 특별법」 쇠퇴 3요건을 판정합니다(인구·사업체는 회현동·부원동 행정동 통계).' : '노후 요건(20년 이상 50%)을 판정합니다.'}`};
     if (MODE === 'shop') return RS.shops ? {
       h: `${esc(RS.name)} 영업 중 점포 ${NE(RS.shops)}개를 불러왔습니다`,
       s: `${RS.busan ? '' : '김해시 전역 기준. '}가까이 확대하면 업종별 점포가 점으로 보입니다. ${tap}.`}
       : {h: `${esc(RS.name)}에는 점포 자료가 없습니다`, s: '건축물대장 주용도로 상업·업무 건축물을 세어 대신 보여 줍니다(추정).'};
+    if (MODE === 'move' && GM()) { const G = GM(); return {
+      h: `김해경전철 ${NE(G.lrt.st.length)}개 역 · 버스 정류장 ${NE(G.bus.st.length)}곳의 이용 실측을 띄웠습니다`,
+      s: `동그라미가 클수록 평일 이용이 많습니다. ${tap} — 역은 500m, 정류장은 300m 안까지 세고, 행정동 유동인구도 함께 봅니다.`}; }
     if (MODE === 'move') return RS.busan ? {
       h: `도시철도 ${NE((window.__METRO__ || {st: []}).st.length)}개 역 · 스마트교차로 ${NE((window.__WALK__ || {ix: []}).ix.length)}곳의 실측을 띄웠습니다`,
       s: `동그라미가 클수록 평일 이용이 많습니다. ${tap} — 역은 500m, 교차로는 300m 안까지 셉니다.`}
@@ -3775,7 +3908,7 @@ function declineHTML(hit, p20, areaM2) {
     if (MODE === 'old') {
       const h = `20년 넘은 건축물 ${NE(S.p20, 1)}% — 노후 요건 ${S.meet ? '충족' : '미달'}`;
       const s = D ? `쇠퇴 3요건 3개 중 ${D.n}개 해당(${D.MEET ? '쇠퇴지역 요건 충족' : '요건 미달'}). 노후는 그린 구역, 인구·사업체는 ${D.gu} 전체 값입니다.`
-                  : (RS && !RS.busan ? '인구·사업체 통계는 부산 16개 구·군만 연결돼 있어 이 지역은 노후 요건만 판정합니다.'
+                  : (RS && !RS.busan ? (GM() ? '이 구역이 걸친 행정동은 인구·사업체 통계를 아직 붙이지 않아 노후 요건만 판정합니다(회현동·부원동만 연결).' : '인구·사업체 통계는 부산 16개 구·군만 연결돼 있어 이 지역은 노후 요건만 판정합니다.')
                                      : `준공연도가 적힌 ${fmt(S.wy)}동 기준 · 법정 기준 50%`);
       return {h, s};
     }
@@ -3785,6 +3918,14 @@ function declineHTML(hit, p20, areaM2) {
         s: `${S.areaHa ? `ha당 ${fmt(S.shopN / S.areaHa, 1)}개 · ` : ''}${S.shopTop ? `업종 1위 ${S.shopTop[0]} ${fmt(S.shopTop[1])}개 · ` : ''}소상공인 상가정보 2026-06 기준`};
       if (S.comN) return {h: `상업·업무 용도 건축물 ${NE(S.comN)}동`, s: '이 지역은 점포 자료가 없어 건축물대장 주용도로 센 추정치입니다.'};
       return {h: '이 구역에는 점포가 잡히지 않았습니다', s: '반경을 넓히거나 다른 곳을 눌러 보십시오.'};
+    }
+    if (MODE === 'move' && GM()) {
+      const M = S.metro, B = S.bus;
+      if (M) return {h: `주변 경전철 ${M.n}개 역 · 평일 승하차 ${NE(M.wd)}명`,
+        s: B && B.wd ? `버스 정류장 ${B.n}곳 평일 이용객 ${fmt(B.wd)}명(교통카드) · 2025년 하루 평균` : '2025년 하루 평균 · 300m 안에 버스 정류장은 없습니다.'};
+      if (B && B.n) return {h: `주변 버스 정류장 ${B.n}곳 · 평일 이용객 ${NE(B.wd)}명`,
+        s: '교통카드 기준 2025년 하루 평균 · 500m 안에 경전철 역은 없습니다.'};
+      return {h: '구역 주변에 경전철 역·버스 정류장이 없습니다', s: '500m 안에 경전철 역, 300m 안에 버스 정류장이 없습니다. 다른 곳을 눌러 보십시오.'};
     }
     if (MODE === 'move') {
       const W = S.walk, M = S.metro;
@@ -3820,6 +3961,7 @@ function declineHTML(hit, p20, areaM2) {
       if (RS) {
         if (MODE === 'old') cards = kpi(ALL, N(RS.p20, 1), '%', '준공 20년 이상', `준공연도 확인 ${fmt(RS.wy)}동 기준`) + kpi(ALL, N(RS.n), '동', '건축물');
         else if (MODE === 'shop') cards = RS.shops ? kpi(ALL, N(RS.shops), '개', '영업 중 점포', RS.busan ? '부산 16개 구·군' : '김해시 전역') : '';
+        else if (MODE === 'move' && GM()) cards = kpi(ALL, N(GM().lrt.st.length), '개', '김해경전철 역', '2025 역별 승하차') + kpi(ALL, N(GM().bus.st.length), '곳', '버스 정류장', '2025 교통카드 이용객');
         else if (MODE === 'move') cards = RS.busan ? kpi(ALL, N(window.__METRO__.st.length), '개', '도시철도 역', '부산교통공사 2026-01~06') + kpi(ALL, N(window.__WALK__.ix.length), '곳', '스마트교차로', '10곳은 차량만 셈') : '';
         else cards = kpi(ALL, N(RS.n), '동', '건축물') + (RS.parcels ? kpi(ALL, N(RS.parcels), '개', '필지') : '');
       }
@@ -3838,10 +3980,10 @@ function declineHTML(hit, p20, areaM2) {
         `<div class="bar"><i style="width:${Math.min(100, S.p20)}%"></i><span class="mk" style="left:50%"></span></div>`)
         + '<div class="kpis">'
         + kpi(Z, N(S.p30, 1), '%', '준공 30년 이상')
-        + (D ? kpi('<span class="tg g">구역 + 구 전체</span>', `${D.n}<small>/ 3</small>`, '', '쇠퇴 3요건 해당', D.MEET ? '쇠퇴지역 요건 충족' : '요건 미달 · 2개 이상이면 충족')
+        + (D ? kpi(`<span class="tg g">구역 + ${GM() ? '행정동' : '구'} 전체</span>`, `${D.n}<small>/ 3</small>`, '', '쇠퇴 3요건 해당', D.MEET ? '쇠퇴지역 요건 충족' : '요건 미달 · 2개 이상이면 충족')
              : kpi(Z, S.oldest ? N(S.oldest, -1) : dash, S.oldest ? '년' : '', '최초 준공연도', S.oddYear ? '1900년 이전 값 — 확인 필요' : ''))
         + (D ? kpi(GU(D.gu), N(D.pdrop, 1), '%', '인구 감소', `${D.py0}~2025 최다 ${fmt(D.pmax)}명 대비`)
-             : kpi('', dash, '', '인구·사업체', '부산 16개 구·군만 연결'))
+             : kpi('', dash, '', '인구·사업체', GM() ? '회현동·부원동만 연결' : '부산 16개 구·군만 연결'))
         + (D && D.est ? kpi(ES, N(Math.round(D.est)), '명', '추정 상주인구', '구 인구 × 주거 연면적 비율')
              : kpi(Z, N(S.wy), '동', '준공연도 확인 건축물'))
         + '</div>';
@@ -3860,7 +4002,19 @@ function declineHTML(hit, p20, areaM2) {
       else html = '<div class="kempty">이 구역에는 점포가 잡히지 않았습니다.</div>';
     } else if (MODE === 'move') {
       const W = S.walk, M = S.metro;
-      if (!RS || !RS.busan) html = '<div class="kempty">이 지역은 보행·도시철도 실측 자료가 없습니다. 「부산 전역」에서 볼 수 있습니다.</div>';
+      if (GM()) {
+        const B = S.bus;
+        html = (M ? big(N(M.wd), '명', `${NB} 평일 하루 경전철 승하차`, `${M.n}개 역 · 김해시 경전철 2025`)
+              : B && B.wd ? big(N(B.wd), '명', `${NB} 평일 하루 버스 이용객`, `정류장 ${B.n}곳 · 교통카드 2025`)
+              : '<div class="kempty">구역 500m 안에 경전철 역, 300m 안에 버스 정류장이 없습니다.</div>')
+          + '<div class="kpis">'
+          + kpi(NB, N(M ? M.n : 0), '개', '경전철 역(500m)', M && M.inside ? `구역 안 ${M.inside}개` : '')
+          + kpi(NB, M ? N(M.wd) : dash, M ? '명' : '', '경전철 평일 승하차', M && M.wd ? `주말/평일 ${fmt(M.we / M.wd * 100)}%` : '')
+          + kpi(NB, N(B ? B.n : 0), '곳', '버스 정류장(300m)', B && B.inside ? `구역 안 ${B.inside}곳` : '')
+          + kpi(NB, B && B.wd ? N(B.wd) : dash, B && B.wd ? '명' : '', '버스 평일 이용객', '교통카드 기준')
+          + '</div>';
+      }
+      else if (!RS || !RS.busan) html = '<div class="kempty">이 지역은 보행·도시철도 실측 자료가 없습니다. 「부산 전역」에서 볼 수 있습니다.</div>';
       else {
         html = (W && W.wd ? big(N(W.wd), '명', `${NB} 평일 하루 보행자`, `스마트교차로 ${W.on}곳 영상 계수 · 실측(추정 아님)`)
               : M ? big(N(M.wd), '명', `${NB} 평일 하루 도시철도 승하차`, `${M.n}개 역 · 부산교통공사`)
@@ -3890,7 +4044,7 @@ function declineHTML(hit, p20, areaM2) {
   /* ═══ 범례 ═══ */
   const AGE = [['30년 이상', '#8c3b2c'], ['20~30년', '#c8542a'], ['10~20년', '#d99a6c'], ['10년 미만', '#8ea6bd'], ['준공연도 미상', '#b9bfc5']];
   const UQ = [['일반상업', '#e8b4a0'], ['준주거', '#e3c9a8'], ['제1종일반주거', '#d8dcc4'], ['제2종일반주거', '#cfd6bd'], ['제3종일반주거', '#c6d0b6'], ['자연녹지', '#bcd3bc'], ['보전녹지', '#a9c6a9']];
-  const LINE = {'1호선': '#f06a00', '2호선': '#81bf48', '3호선': '#bb8c00', '4호선': '#217dcb'};
+  const LINE = {'1호선': '#f06a00', '2호선': '#81bf48', '3호선': '#bb8c00', '4호선': '#217dcb', '김해경전철': '#8e44ad'};
   const CATC = ['#6b7280', '#0ea5e9', '#e11d48', '#8b5cf6', '#f59e0b', '#14b8a6', '#ec4899', '#a16207', '#22c55e', '#ef4444'];
   const sw = (c, cls) => `<i class="sw2 ${cls || ''}" style="background:${c}"></i>`;
   function paintLegend() {
@@ -3905,6 +4059,10 @@ function declineHTML(hit, p20, areaM2) {
       rows.push(`<div class="lg-row"><span class="lg-k">점포 업종</span>${BASE.shops.cat.map((t, i) => `<span>${sw(CATC[i % CATC.length], 'c')}${esc(t)}</span>`).join('')}</div>`);
       if (map.getZoom() < SHOP_Z) rows.push(`<div class="lg-row"><span class="lg-s">더 가까이 확대하면 점포가 점으로 보입니다(지금 축척에서는 너무 많아 숨김)</span></div>`);
     }
+    if (MODE === 'move' && GM()) {
+      rows.push(`<div class="lg-row"><span class="lg-k">대중교통</span><span>${sw(LINE['김해경전철'], 'c')}김해경전철 역</span><span>${sw('#0f766e', 'c')}버스 정류장</span><span class="lg-s">· 클수록 평일 이용이 많음</span></div>`);
+      rows.push(`<div class="lg-row"><span class="lg-k">행정동</span><span><i class="sw2 ln" style="border-color:#64748b"></i>행정동 경계(유동인구 단위)</span></div>`);
+    }
     if (MODE === 'move' && RS && RS.busan) {
       rows.push(`<div class="lg-row"><span class="lg-k">도시철도 역</span>${Object.entries(LINE).map(([t, c]) => `<span>${sw(c, 'c')}${t}</span>`).join('')}</div>`);
       rows.push(`<div class="lg-row"><span class="lg-k">스마트교차로</span><span>${sw('#7c3aed', 'c')}보행자 실측</span><span><i class="sw2 c" style="background:#fff;border:2px solid #8a939c"></i>차량만</span><span class="lg-s">· 클수록 평일 이용이 많음</span></div>`);
@@ -3914,21 +4072,26 @@ function declineHTML(hit, p20, areaM2) {
     const zone = BASE.zone && BASE.zone.features && BASE.zone.features.length;
     const z1 = BASE.zone1an;
     rows.push(`<div class="lg-row"><span>${'<i class="sw2 ar"></i>'}분석 구역</span>${z1 ? `<span><i class="sw2" style="background:#0a9e78;height:4px"></i>${esc(z1.name.split(' · ')[0])} ${z1.ha}ha · ${z1.date}</span><span><i class="sw2 ln" style="opacity:.45"></i>옛 원도심 구역계(참고)</span>` : zone ? '<span><i class="sw2 ln"></i>대상지 구역계</span>' : ''}${
-      MODE === 'move' ? '<span class="lg-s">역은 500m · 교차로는 300m 안까지 셉니다</span>' : ''}</div>`);
+      MODE === 'move' ? `<span class="lg-s">${GM() ? '역은 500m · 정류장은 300m 안까지 셉니다' : '역은 500m · 교차로는 300m 안까지 셉니다'}</span>` : ''}</div>`);
     el.innerHTML = rows.join('');
   }
 
   /* ═══ 지도에 새로 띄우는 것 — 역·교차로·점포 ═══ */
   const SHOP_Z = 14.5;
   const sum = a => a.reduce((x, y) => x + y, 0);
-  let metroFC = null, walkFC = null;
+  let metroFC = null, walkFC = null, busFC = null, dongFC = null;
   function ovData() {
     const hitM = new Set(((window.__S || {}).metro || {}).names || []);
     const hitW = new Set(((window.__S || {}).walk || {}).names || []);
     const on = active() && !window.__S.layer;
-    metroFC = {type: 'FeatureCollection', features: ((window.__METRO__ || {}).st || []).map((s, i) => ({type: 'Feature', id: i,
+    metroFC = {type: 'FeatureCollection', features: ((metroSet() || {}).st || []).map((s, i) => ({type: 'Feature', id: i,
       properties: {n: s.n, l: s.l, wd: sum(s.wd), we: sum(s.we), hit: on && hitM.has(s.n) ? 1 : 0},
       geometry: {type: 'Point', coordinates: [s.x, s.y]}}))};
+    const G = window.__GMOVE__;
+    busFC = {type: 'FeatureCollection', features: G ? G.bus.st.map((s, i) => ({type: 'Feature', id: i,
+      properties: {n: s.n, c: s.c, d: s.d, wd: s.wd == null ? -1 : s.wd, we: s.we == null ? -1 : s.we},
+      geometry: {type: 'Point', coordinates: [s.x, s.y]}})) : []};
+    dongFC = G ? G.flow.geo : {type: 'FeatureCollection', features: []};
     walkFC = {type: 'FeatureCollection', features: ((window.__WALK__ || {}).ix || []).map((s, i) => ({type: 'Feature', id: i,
       properties: {n: s.n, w: sum(s.w), v: sum(s.v), on: sum(s.w) > 0 ? 1 : 0, hit: on && hitW.has(s.n) ? 1 : 0},
       geometry: {type: 'Point', coordinates: [s.x, s.y]}}))};
@@ -3949,6 +4112,17 @@ function declineHTML(hit, p20, areaM2) {
         'circle-opacity': ['case', ['==', ['get', 'on'], 1], 0.78, 0.95],
         'circle-stroke-color': ['case', ['==', ['get', 'hit'], 1], '#16181d', ['==', ['get', 'on'], 1], '#ffffff', '#8a939c'],
         'circle-stroke-width': ['case', ['==', ['get', 'hit'], 1], 3.5, 2]}}, before);
+    if (!map.getSource('ov_dong')) map.addSource('ov_dong', {type: 'geojson', data: dongFC}); else map.getSource('ov_dong').setData(dongFC);
+    if (!map.getLayer('ov_dong_l')) map.addLayer({id: 'ov_dong_l', type: 'line', source: 'ov_dong', layout: {visibility: 'none'},
+      paint: {'line-color': '#64748b', 'line-width': 1.6, 'line-dasharray': [3, 2], 'line-opacity': 0.85}}, before);
+    if (!map.getLayer('ov_dong_t')) map.addLayer({id: 'ov_dong_t', type: 'symbol', source: 'ov_dong', layout: {visibility: 'none',
+      'text-field': ['get', 'n'], 'text-size': 13, 'symbol-placement': 'point'},
+      paint: {'text-color': '#475569', 'text-halo-color': '#fff', 'text-halo-width': 1.6}});
+    if (!map.getSource('ov_bus')) map.addSource('ov_bus', {type: 'geojson', data: busFC}); else map.getSource('ov_bus').setData(busFC);
+    if (!map.getLayer('ov_bus_c')) map.addLayer({id: 'ov_bus_c', type: 'circle', source: 'ov_bus', layout: {visibility: 'none'},
+      paint: {'circle-radius': ['interpolate', ['linear'], ['sqrt', ['max', ['get', 'wd'], 0]], 0, 3.5, 15, 6, 36, 12],
+        'circle-color': '#0f766e', 'circle-opacity': ['case', ['<', ['get', 'wd'], 0], 0.35, 0.8],
+        'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.4}}, before);
     if (!map.getSource('ov_metro')) map.addSource('ov_metro', {type: 'geojson', data: metroFC}); else map.getSource('ov_metro').setData(metroFC);
     if (!map.getLayer('ov_metro_c')) map.addLayer({id: 'ov_metro_c', type: 'circle', source: 'ov_metro', layout: {visibility: 'none'},
       paint: {'circle-radius': ['interpolate', ['linear'], ['sqrt', ['get', 'wd']], 0, 5, 100, 8, 290, 17],
@@ -3969,12 +4143,14 @@ function declineHTML(hit, p20, areaM2) {
     };
     const hide = () => { if (pop) pop.remove(); map.getCanvas().style.cursor = ''; };
     map.on('mousemove', 'ov_metro_c', e => { const p = e.features[0].properties;
-      show(e, `<b>${esc(p.n)}</b><small>${esc(p.l)} · 평일 하루 승하차 ${fmt(p.wd)}명 · 주말 ${fmt(p.we)}명</small><small>부산교통공사 2026-01~06</small>`); });
+      show(e, `<b>${esc(p.n)}</b><small>${esc(p.l)} · 평일 하루 승하차 ${fmt(p.wd)}명 · 주말 ${fmt(p.we)}명</small><small>${GM() ? '김해시 경전철 2025 하루 평균' : '부산교통공사 2026-01~06'}</small>`); });
+    map.on('mousemove', 'ov_bus_c', e => { const p = e.features[0].properties;
+      show(e, `<b>${esc(p.n)}</b><small>정류장 ${esc(p.c)}${p.d ? ` · ${esc(p.d)} 방면` : ''}</small><small>${+p.wd >= 0 ? `평일 하루 이용객 ${fmt(+p.wd)}명 · 주말 ${fmt(+p.we)}명` : '이용 기록 없음'}</small><small>김해시 2025 교통카드 기준</small>`); });
     map.on('mousemove', 'ov_walk_c', e => { const p = e.features[0].properties;
       show(e, `<b>${esc(p.n)}</b><small>${+p.on ? `평일 하루 보행자 ${fmt(p.w)}명(영상 계수) · 차량 ${fmt(p.v)}대` : `보행자를 세지 않는 교차로 · 차량 ${fmt(p.v)}대`}</small><small>스마트교차로 2026-08 평일 5일 평균</small>`); });
     map.on('mousemove', 'ov_shop_c', e => { const p = e.features[0].properties; const S = BASE && BASE.shops;
       show(e, `<b>${esc(S ? S.cat[p.c] || '' : '')}</b><small>${esc(S ? S.mid[p.m] || '' : '')}</small><small>소상공인 상가정보 2026-06</small>`); });
-    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c'].forEach(id => map.on('mouseleave', id, hide));
+    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c', 'ov_bus_c'].forEach(id => map.on('mouseleave', id, hide));
   }
   let shopT = null;
   function refreshShops() {
@@ -3995,8 +4171,12 @@ function declineHTML(hit, p20, areaM2) {
   function applyVis() {
     const vis = (id, on) => map.getLayer(id) && map.setLayoutProperty(id, 'visibility', on ? 'visible' : 'none');
     const busan = RS && RS.busan;
-    vis('ov_metro_c', MODE === 'move' && busan);
+    const gmv = !!GM();
+    vis('ov_metro_c', MODE === 'move' && (busan || gmv));
     vis('ov_walk_c', MODE === 'move' && busan);
+    vis('ov_bus_c', MODE === 'move' && gmv);
+    vis('ov_dong_l', MODE === 'move' && gmv);
+    vis('ov_dong_t', MODE === 'move' && gmv);
     vis('ov_shop_c', MODE === 'shop');
     /* 점포·역을 볼 때는 건물을 옅게 깐다 — 점이 묻히지 않게 */
     const fade = MODE === 'shop' || MODE === 'move';
