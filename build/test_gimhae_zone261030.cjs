@@ -80,7 +80,7 @@ const pub=fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8')+html.re
 for(const bad of ['21.8ha','21.75','217,510','217510','217,511','217,995','67,510','71,890','26개 블록','블록 26개','13곳 모두 포함','208,622','208622'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 assert.ok(!/남실장|대표 제공|대표 확정|대표 결정|방 ⑦|010-|코덱스|클로드|Claude|Codex/.test(JSON.stringify(Z)+JSON.stringify(FA)),'no internal provenance');
 assert.ok(fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8').includes("#lgd::after{content:'━ 확정 구역계(1안) 20.9ha · 2026-10-30'"),'legacy legend = 1안');
-assert.ok(html.includes('gimhae-b171.js?v=zone261030-r8')&&html.includes('gimhae-meeting.js?v=1an-r8'),'cache versions');
+assert.ok(html.includes('gimhae-b171.js?v=zone261030-r9')&&html.includes('gimhae-meeting.js?v=1an-r9'),'cache versions');
 // 13곳 임시 유지(10/30 대표) — 핀 13곳 같은 모양, 목록에 밖 표시·회색 없음, 「재배치」 문구 없음
 const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8'),M=fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8');
 assert.ok(B.includes("'circle-color':SITE_COLOR")&&!B.includes('b-site-out'),'13 pins same style, list unchanged');
@@ -95,5 +95,6 @@ assert.equal(Z.context.roads.totalM,CR['구역 안 도로 길이(OSM 차량 도�
 assert.equal(Z.requirements.items.length,17);assert.ok(Z.requirements.items.find(r=>r.id==='r3').now.includes('208,778㎡'),'요건 r3 = 1안 면적');
 assert.ok(!/재수집 중|다시 모으는 중/.test(html.replace(/<script id="dat2?" type="application\/json">.*?<\/script>/gs,'')+fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8')),'no 「재수집 중」 boxes left');
 {const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8');assert.ok(B.includes(`\${data.survey?'<a href="#b-survey">전수조사</a>':''}`),'survey link only when data.survey');assert.ok(B.includes('function vac1anSection')&&B.includes('function missingSection'),'1안 vacancy + missing sections');assert.ok(B.includes("map.on('moveend',fitLabel)"),'zone label kept on screen');}
+assert.ok(!html.includes('다시 계산 중')&&html.includes('이 상권과 31.4%만 겹친다</b>(등록점포 206/440곳'),'R-ONE 상권 겹침 = 끝난 값(31.4%)');
 assert.ok(html.includes('<link rel="icon" href="favicon.svg"')&&fs.existsSync(path.join(root,'favicon.svg')),'favicon');
 console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 2판 대조 · 재수집 38항목 · 공실 신호 레이어 7종(겹침 8) · 인구 이동(정본표 합계 대조) · 카드 4 · 전수조사 A~E(483) · 공실 거르기 440→38→4→2→1 · 요건 17 · 자료 없음 칸 · 옛 숫자 없음');

@@ -29,5 +29,11 @@ for(const bad of ['21.8','21.75','217,510','217510','67,510','869m','26개 블�
 const H=fs.readFileSync(path.join(root,'gis.html'),'utf8');
 for(const k of ["id:'base_zone_1an'","function z1anOn()","if (z1anOn()) areaM2 = BASE.zone1an.area","id=\"z1an\"","옛 원도심 구역계(참고)","function fit1an(Z, duration)"])assert.ok(H.includes(k),'gis.html: '+k);
 assert.ok(/'base_zone_l','base_zone_1an_c','base_zone_1an'\]\.forEach/.test(H),'region switch removes 1안 layers');
+{// 「이 구역으로 세기」 = 건물 대표점(b.p)이 구역 안 → 숫자정본표와 같은 수(꼭짓점 평균으로는 706동·585/672였다, 코덱스 D11)
+ const inP=(x,y,r)=>{let c=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const[xi,yi]=r[i],[xj,yj]=r[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c;}return c;};
+ assert.ok(D.bld.every(b=>Array.isArray(b.p)),'every building has a representative point');
+ const hit=D.bld.filter(b=>inP(b.p[0],b.p[1],Z.ring)),yr=hit.filter(b=>b.y>0),old=yr.filter(b=>2026-b.y>=20).length;
+ assert.strictEqual(hit.length,R['건물 동수(윤곽 기준)'],'GIS count = canon');assert.strictEqual(`${old}/${yr.length}`,R['20년 이상 노후 동수(윤곽 기준)'],'GIS aging = canon');
+ assert.ok(H.includes('if (b.p) { b.cx = b.p[0]; b.cy = b.p[1]; return; }')&&H.includes("file:'data/gimhae.js?v="),'gis.html uses the representative point · cache-busted data');}
 console.log('gis gimhae zone 1안 ok');
 assert.ok(H.includes('if (WANT !== R0.k) return;')&&(H.match(/loadBase\(WANT\)/g)||[]).length===2,'late region load does not overwrite the chosen region');

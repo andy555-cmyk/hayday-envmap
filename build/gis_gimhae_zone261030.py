@@ -4,9 +4,12 @@ Usage: python3 build/gis_gimhae_zone261030.py <김해_구역계1안_정본_26103
 - 구역 선(zone) 맨 앞 = 1안 정본 좌표 그대로(k=1an). 기존 3개 선은 지우지 않고 참고선(k=ref)으로 둔다
 - 요약 숫자(zone1an.sum) = 숫자정본표 행 값 그대로. 화면에서 실시간으로 세는 값은 gis.html 이 「이 화면 자료 기준」으로 따로 보인다
 - 면적 표기는 정본표 공식 표기(208,778㎡ · 20.9ha). 도형 계산 면적은 싣지 않는다
+- 건물마다 대표점(p = shapely representative_point, 늘 건물 안의 한 점)을 싣는다. 「이 구역으로 세기」가 이 점으로 구역 안을 판정해야
+  숫자정본표(ENVMAP 엔진 · 건물 대표점이 경계 안)와 같은 704동·584/671이 나온다 — 꼭짓점 평균으로는 706동·585/672였다(10/30 코덱스 D11)
 - 여러 번 돌려도 결과가 같다
 """
 import base64, gzip, json, re, sys
+from shapely.geometry import MultiPolygon, Point, Polygon
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +36,19 @@ def v(key, fmt=None):
     s = fmt(x) if fmt else (f'{x:,}' if isinstance(x, int) else str(x))
     return s + (r['단위'] or '').strip() if isinstance(x, (int, float)) else s
 
+def rep_point(g):
+    shp = MultiPolygon([Polygon(p[0], p[1:]) for p in g]) if isinstance(g[0][0][0], list) else Polygon(g[0], g[1:])
+    q = shp.representative_point()
+    return [round(q.x, 7), round(q.y, 7)]
+
+for b in D['bld']:
+    b['p'] = rep_point(b['g'])
+Z1 = Polygon(ring)
+hit = [b for b in D['bld'] if Z1.contains(Point(b['p']))]
+yr = [b for b in hit if (b.get('y') or 0) > 0]
+old = sum(1 for b in yr if 2026 - b['y'] >= 20)
+assert len(hit) == R['건물 동수(윤곽 기준)']['새값'] and f"{old}/{len(yr)}" == R['20년 이상 노후 동수(윤곽 기준)']['새값'], (len(hit), old, len(yr))
+
 pct = lambda x: f'{x:.1f}'
 SUM = [
     ('면적', f"{area:,}㎡ · {ha}ha", '카카오맵 면적재기 실측 · 지적 경계 아님'),
@@ -55,4 +71,4 @@ for bad in ['217,510', '217510', '21.8', '21.75', '67,510', '869m', '26개 블�
     assert bad not in blob, bad
 enc = base64.b64encode(gzip.compress(json.dumps(D, ensure_ascii=False, separators=(',', ':')).encode(), mtime=0)).decode()
 JS.write_text(src[:m.start(1)] + enc + src[m.end(1):])
-print(json.dumps({'zone': [f['properties'] for f in D['zone']['features']], 'verts': len(ring) - 1, 'sum': len(SUM)}, ensure_ascii=False))
+print(json.dumps({'zone': [f['properties'] for f in D['zone']['features']], 'verts': len(ring) - 1, 'sum': len(SUM), 'inside': [len(hit), f'{old}/{len(yr)}']}, ensure_ascii=False))

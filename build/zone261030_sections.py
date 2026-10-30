@@ -85,6 +85,24 @@ Z['requirements'] = {'items': [{'id': r['id'], 'title': r['title'], 'status': r[
                      'culture': [], 'url': 'https://andy555-cmyk.github.io/hayday-envmap/gimhae-recore/',
                      'source': '김해 원도심 RE:CORE 사업 안내 누리집 「요건 점검」(국토부 가이드라인 설명회본 2026.9.11 기준, 확정 구역계(1안) 2026-10-30 판)'}
 
+# 한국부동산원 표본 상권 「김해시청/동상시장」(R-ONE 상권구획도 2024.3Q)과 겹침 — 13.7% 공실률을 구역 값으로 쓰지 않는 근거.
+# 소진공 상권(정본표 「소진공 상권 겹침」 김해부원동우체국 66.4%)과는 출처가 다른 별개 값이다
+import base64, gzip, math, re
+from shapely.affinity import scale
+from shapely.geometry import Point, Polygon, shape
+RG = json.loads((ROOT / 'build/data/rone_gimhae_markets_2024q3.geojson').read_text())
+MK = shape(next(f for f in RG['features'] if f['properties']['sec_nm'] == '김해시청/동상시장')['geometry'])
+ZR = Polygon(Z['boundary']['geometry']['coordinates'][0])
+kx = math.cos(math.radians(ZR.centroid.y))                       # 경위도 → 동서 길이 보정(비율만 쓰므로 이 정도로 충분)
+overlap = round(100 * scale(ZR.intersection(MK), kx, 1, origin=(0, 0)).area / scale(ZR, kx, 1, origin=(0, 0)).area, 1)
+GJ = json.loads(gzip.decompress(base64.b64decode(re.match(r'window\.__GIMHAE__="([^"]+)"', (ROOT / 'data/gimhae.js').read_text()).group(1))))
+inz = [q for q in GJ['store'] if ZR.contains(Point(q[0], q[1]))]
+assert len(inz) == R['점포 수(전 층)'], len(inz)
+Z['rone'] = {'market': '김해시청/동상시장', 'code': '6480062', 'overlapPct': overlap, 'oldOverlapPct': 98.8,
+             'storesIn': sum(MK.contains(Point(q[0], q[1])) for q in inz),
+             'sitesIn': [x['rank'] for x in Z['sites'] if MK.contains(Point(x['lnglat']))],
+             'source': '한국부동산원 R-ONE 상권구획도(2024.3Q 재구획) ∩ 확정 구역계(1안) · 면적 비율, 점포는 상가(상권)정보 2026-06'}
+
 # 새 구역으로 다시 계산하지 않은 항목 — 「자료 없음(이유)」
 Z['missing'] = [
     {'item': '공실률', 'reason': '현장·시 확인 전이라 내지 않음. 부동산원 공실률은 표본 상권 건물의 값이라 구역 공실률로 쓰지 않음'},
@@ -95,9 +113,9 @@ Z['missing'] = [
     {'item': '부원동 수도 사용량', 'reason': '시 회신이 봉황동만 있음(부원동 자료 없음)'}]
 Z['pending'] = {}
 
-blob = json.dumps({k: Z[k] for k in ('survey', 'context', 'vac1an', 'requirements', 'missing')}, ensure_ascii=False).replace('대표콘텐츠', '')  # 사업 용어 「대표콘텐츠」는 사람 호칭이 아니다
+blob = json.dumps({k: Z[k] for k in ('survey', 'context', 'vac1an', 'requirements', 'missing', 'rone')}, ensure_ascii=False).replace('대표콘텐츠', '')  # 사업 용어 「대표콘텐츠」는 사람 호칭이 아니다
 for bad in ['⑦', '코덱스', '클로드', '대표', '남실장', '010-', '208,622', '208622', '21.8ha', '217,510', '869m', '26개 블록', '옛 확정안', '보증금']:
     assert bad not in blob, bad
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')) + '\n')
 print(json.dumps({'survey': counts, 'rail': [(t['name'], t['distM']) for t in X['rail']], 'funnel': [x['count'] for x in Z['vac1an']['funnel']],
-                  'req': {v: sum(r['label'] == v for r in Z['requirements']['items']) for v in LAB.values()}, 'missing': len(Z['missing'])}, ensure_ascii=False))
+                  'req': {v: sum(r['label'] == v for r in Z['requirements']['items']) for v in LAB.values()}, 'missing': len(Z['missing']), 'rone': Z['rone']}, ensure_ascii=False))
