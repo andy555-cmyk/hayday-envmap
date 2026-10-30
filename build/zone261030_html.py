@@ -39,7 +39,7 @@ def sub_once(pat, repl, flags=0):
 # 1. 부동산원 공실률 설명(<!--zk-rone-->) · 한계 9(<!--zk-l9-->)
 ro = Z.get('rone')
 if ro:
-    ZN = (f"<br>\n      <b class=\"warn\">확정 구역계(1안 · {D} · {HA})는 이 상권과 {ro['overlapPct']}%만 겹친다</b>(등록점포 {ro['storesIn']}/{S['stores']}곳 · 시 13곳 중 "
+    ZN = (f"<br>\n      <b class=\"warn\">확정 구역계(1안 · {D} · {HA})는 이 상권과 {ro['overlapPct']}%만 겹친다</b>(등록점포 {ro['storesIn']}/{S['stores']}곳(부원동 동쪽 새 블록) · 시 13곳 중 "
           + ('·'.join(f'{x}번' for x in ro['sitesIn']) or '없음') + f") — 이전 사업구역 51.8ha는 상권 도형과 {ro['oldOverlapPct']}% 겹쳤다. 13.7%를 확정 구역계 공실률로 쓰지 않고 주변 상권 참고값으로만 쓴다(공식 통계표 상권 코드 {ro['code']}).<!--zk-rone-->")
     L9 = f" <b class=\"warn\">확정 구역계(1안 · {HA})는 이 상권과 {ro['overlapPct']}%만 겹쳐 구역 공실률로 쓰지 않는다(주변 상권 참고값).</b><!--zk-l9-->"
 else:
