@@ -59,7 +59,7 @@ body.pmode #b-map-caption{left:15px}
 @media(max-width:820px){#b-map-caption{top:94px;max-width:calc(100vw - 40px);font-size:9px}.b-map-legend{display:none}#b-map-caption b{font-size:10px}}
 #b-panel .b-jump{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:18px 0;position:sticky;top:calc(var(--b-scope-height,94px) / var(--dz,1));z-index:5;padding:8px 0;background:#0c1118}
 #b-panel .b-jump a{padding:8px;text-align:center;color:#93ebd2;background:#142b29;border:1px solid #355d54;border-radius:7px;text-decoration:none}
-#b-panel section[id]{scroll-margin-top:calc(var(--b-scope-height,94px) / var(--dz,1) + 120px)}
+#b-panel section[id]{scroll-margin-top:calc((var(--b-scope-height,94px) + var(--b-jump-height,220px)) / var(--dz,1) + 16px)}
 #b-panel .b-reading{margin:18px 0;padding:14px;border:1px solid #355d54;background:#112322;border-radius:10px}
 #b-panel .b-reading h3{margin-top:0}
 #b-panel .b-reading article+article{border-top:1px solid #304741;margin-top:12px;padding-top:12px}

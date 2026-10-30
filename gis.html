@@ -2386,6 +2386,7 @@ function loadBaseNow(R) {
   renderRegions();
   if (window.renderTargets) renderTargets();   // 「무엇을 셀지」 줄의 기본 이름을 지역에 맞춘다
   if (BASE.__viewport) { refreshView(); if (!window.__viewBound) { window.__viewBound = true; map.on('moveend', refreshView); } }
+  else { clearTimeout(viewTimer); const vn = $('#viewnote'); if (vn) vn.textContent = ''; }   // 건물을 모두 그리는 지역(김해 등)은 앞 지역의 「몇 개만 그림」 안내를 지운다
 }
 
 /* 화면에 보이는 건물만 지도에 넣는다. 너무 넓으면 솎아서 넣는다 */
@@ -2394,7 +2395,7 @@ function refreshView() {
   if (!BASE || !BASE.__viewport || !map.getSource('base_bld')) return;
   clearTimeout(viewTimer);
   viewTimer = setTimeout(() => {
-    if (!BASE || !BASE.bld || !map.getSource('base_bld')) return;   // 지역을 바꾸는 중이면 건너뛴다
+    if (!BASE || !BASE.bld || !BASE.__viewport || !map.getSource('base_bld')) return;   // 지역을 바꾸는 중이거나 전부 그리는 지역이면 건너뛴다
     const b = map.getBounds();
     const w = b.getWest(), e = b.getEast(), s2 = b.getSouth(), n = b.getNorth();
     const inView = [];
@@ -3195,6 +3196,23 @@ function boot() {
 }
 renderRegions();
 map.on('load', boot);
+/* 바탕 지도(OpenFreeMap) 필터 중 숫자 비교(ref_length·rank·admin_level)는 값이 없는 도로·지명에서 「숫자 자리에 null」 경고를 낸다.
+   값이 없으면 비교가 거짓이 되도록 빈 값을 먼 숫자로 채운다 — 그려지는 결과는 같고 경고만 없어진다(2026-10-30). */
+function nullSafeFilter(f) {
+  if (!Array.isArray(f)) return f;
+  const op = f[0];
+  if (['<','<=','>','>='].includes(op) && Array.isArray(f[1]) && f[1][0] === 'get' && typeof f[2] === 'number')
+    return [op, ['coalesce', f[1], op[0] === '<' ? 1e9 : -1e9], f[2]];
+  return f.map(nullSafeFilter);
+}
+function fixBaseFilters(m) {
+  for (const l of (m.getStyle()?.layers || [])) {
+    if (!l.filter) continue;
+    const g = nullSafeFilter(l.filter);
+    if (JSON.stringify(g) !== JSON.stringify(l.filter)) try { m.setFilter(l.id, g); } catch (e) {}
+  }
+}
+map.on('style.load', () => fixBaseFilters(map));
 map.on('style.load', boot);
 map.once('styledata', boot);
 setTimeout(boot, 400);
@@ -3481,7 +3499,7 @@ function declineHTML(hit, p20, areaM2) {
     if (lupe) return lupe;
     lupe = new maplibregl.Map({container:'anaLupeMap', style:baseStyle(curKind()), localIdeographFontFamily: CJK,
       center:map.getCenter(), zoom:map.getZoom()+2.6, interactive:false, attributionControl:false});
-    lupe.on('style.load', () => { lupeReady = true; syncLupe(); });
+    lupe.on('style.load', () => { fixBaseFilters(lupe); lupeReady = true; syncLupe(); });
     window.__lupeRef = lupe;
     return lupe;
   }
