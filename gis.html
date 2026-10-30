@@ -2373,10 +2373,7 @@ function loadBaseNow(R) {
     });
   }
   map.jumpTo({center:BASE.center, zoom: R.k === 'busan' ? 12.2 : 14.2});
-  if (BASE.zone1an) {
-    const r = BASE.zone1an.ring, xs = r.map(p => p[0]), ys = r.map(p => p[1]);
-    map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], {padding: 60, duration: 0, maxZoom: 16.5});
-  }
+  if (BASE.zone1an) fit1an(BASE.zone1an, 0);
   const ms = Math.round(performance.now() - t0);
   $('#perf').textContent = `${BASE.name} · 건물 ${nf(BASE.bld.length)}동 · ${ms}ms`;
   logLine(true, `${BASE.name} 불러옴 — 건물 ${nf(BASE.bld.length)}동${
@@ -3131,9 +3128,19 @@ function renderZ1an() {
     const b = document.querySelector('.md[data-md="poly"]'); if (b) b.click();
     ana.target = 'base'; ana.poly = Z.ring.map(p => [p[0], p[1]]);
     closePoly();
-    const xs = Z.ring.map(p => p[0]), ys = Z.ring.map(p => p[1]);
-    map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], {padding: 60, maxZoom: 16.5});
+    fit1an(Z);
   };
+}
+/* 1안 구역에 화면 맞춤 — 지도 위에 얹힌 머리 카드·범례·오른쪽 패널에 가리지 않게 여백을 잰다 */
+function fit1an(Z, duration) {
+  const xs = Z.ring.map(p => p[0]), ys = Z.ring.map(p => p[1]);
+  const M = map.getContainer().getBoundingClientRect(), r = s => { const e = $(s); return e && e.offsetParent ? e.getBoundingClientRect() : null; };
+  const P = r('#panel'), L = r('#legend'), H = $('#mhero');
+  const hb = H && H.offsetParent ? H.getBoundingClientRect().bottom : M.top;
+  let pad = {top: Math.max(40, hb - M.top + 16), bottom: L && L.top > M.top + M.height / 2 ? M.bottom - L.top + 16 : 40,
+             left: 40, right: P && P.left > M.left + M.width / 2 ? M.right - P.left + 24 : 40};
+  if (pad.left + pad.right > M.width * 0.8 || pad.top + pad.bottom > M.height * 0.8) pad = 30;
+  map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], {padding: pad, maxZoom: 16.5, duration: duration === 0 ? 0 : 600});
 }
 
 /* 무엇을 셀지 고르는 줄 */

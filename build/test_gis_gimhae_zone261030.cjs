@@ -27,6 +27,6 @@ assert.strictEqual(sum['시 13곳 중 구역 안'],`${R['시 13곳 중 구역 �
 const pub=JSON.stringify(Z)+JSON.stringify(D.zone.features.map(x=>x.properties));
 for(const bad of ['21.8','21.75','217,510','217510','67,510','869m','26개 블록','208,622','208622','재배치','대표','남실장'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 const H=fs.readFileSync(path.join(root,'gis.html'),'utf8');
-for(const k of ["id:'base_zone_1an'","function z1anOn()","if (z1anOn()) areaM2 = BASE.zone1an.area","id=\"z1an\"","옛 원도심 구역계(참고)","map.fitBounds([[Math.min(...xs)"])assert.ok(H.includes(k),'gis.html: '+k);
+for(const k of ["id:'base_zone_1an'","function z1anOn()","if (z1anOn()) areaM2 = BASE.zone1an.area","id=\"z1an\"","옛 원도심 구역계(참고)","function fit1an(Z, duration)"])assert.ok(H.includes(k),'gis.html: '+k);
 assert.ok(/'base_zone_l','base_zone_1an_c','base_zone_1an'\]\.forEach/.test(H),'region switch removes 1안 layers');
 console.log('gis gimhae zone 1안 ok');
