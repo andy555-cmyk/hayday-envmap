@@ -10,12 +10,12 @@
   };
   const DECK_UI = '#panel,#bignum,#timeline,#rv,#sitecard,#crumbs,#scale,#attr,#chapter,#evidence,#stepnav,#help';
   const css = document.createElement('style');
-  css.textContent = `#evidence{position:fixed;right:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*4.4);z-index:15;font:600 calc(var(--u,16px)*.95)/1 Pretendard,sans-serif;color:#fff;background:rgba(10,14,22,.72);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:.75em 1.2em;cursor:pointer;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .6s,border-color .3s}
-#evidence.on{opacity:1;pointer-events:auto}#evidence:hover,#evidence:focus-visible{border-color:#FF9A4A;outline:none}#evidence small{display:block;margin-top:.45em;font-weight:400;font-size:.78em;color:rgba(255,255,255,.62)}
+  css.textContent = `#evidence{position:fixed;right:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*4.4);z-index:15;font:600 max(13px,calc(var(--u,16px)*.95))/1 Pretendard,sans-serif;color:#fff;background:rgba(10,14,22,.72);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:.75em 1.2em;cursor:pointer;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .6s,border-color .3s}
+#evidence.on{opacity:1;pointer-events:auto}#evidence:hover,#evidence:focus-visible{border-color:#FF9A4A;outline:none}#evidence small{display:block;margin-top:.45em;font-weight:400;font-size:max(13px,.78em);color:rgba(255,255,255,.62)}
 body.clean #evidence{display:none}
 body{word-break:keep-all;overflow-wrap:break-word}
 #panel,#finale,#sitecard,#opening,#bignum,#timeline,#rv,#chapter{text-wrap:pretty}
-#stepnav{position:fixed;left:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*4.4);z-index:15;display:flex;gap:8px;font:600 calc(var(--u,16px)*.9)/1 Pretendard,sans-serif;transition:opacity .4s}
+#stepnav{position:fixed;left:calc(var(--u,16px)*4.2);bottom:calc(var(--u,16px)*4.4);z-index:15;display:flex;gap:8px;font:600 max(13px,calc(var(--u,16px)*.9))/1 Pretendard,sans-serif;transition:opacity .4s}
 #stepnav button,#stepnav a{color:#fff;background:rgba(10,14,22,.72);border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:.7em 1.1em;cursor:pointer;font:inherit;backdrop-filter:blur(6px);transition:border-color .3s,opacity .3s}
 #stepnav button:hover,#stepnav button:focus-visible,#stepnav a:hover,#stepnav a:focus-visible{border-color:#FF9A4A;outline:none}
 #stepnav button:disabled{opacity:.35;cursor:default}
@@ -26,10 +26,10 @@ body.flying #stepnav{opacity:.35}
 #evframe{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:60;background:transparent;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .8s ease .15s,visibility 0s linear 1s}
 body.ev-open #evframe{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .8s ease .15s,visibility 0s}
 body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;transition:opacity .35s ease!important}
-@media (max-width:760px){
-#help{left:12px;right:12px;max-width:none;font-size:12px;text-overflow:clip;overflow-x:auto;pointer-events:auto;scrollbar-width:none;padding:6px 12px}
+@media (max-width:900px){
+#help{left:12px;right:12px;max-width:none;font-size:13px;text-overflow:clip;overflow-x:auto;pointer-events:auto;scrollbar-width:none;padding:6px 12px}
 #stepnav{left:12px;right:12px;bottom:46px;font-size:13px;gap:6px}#stepnav button,#stepnav a{padding:.65em .9em}
-#evidence{right:12px;bottom:86px;font-size:13px;padding:.6em 1em}#evidence small{font-size:12px}
+#evidence{right:12px;bottom:86px;font-size:13px;padding:.6em 1em}#evidence small{font-size:13px}
 }`;
   document.head.appendChild(css);
 

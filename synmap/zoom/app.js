@@ -373,9 +373,11 @@ function chart(upTo) {
   if (lp.length > 1) h += `<polyline points="${lp.join(' ')}" fill="none" stroke="#ffd76a" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   const mark = (yr, txt, dy = -12, anchor = 'middle') => { const r = Y.find(q => q.y === yr); if (r && yr <= upTo) h += `<circle cx="${x(yr)}" cy="${ya(r.a)}" r="5.5" fill="#ffd76a"/><text x="${x(yr)}" y="${ya(r.a) + dy}" text-anchor="${anchor}" font-weight="700">${txt}</text>`; };
   mark(2016, '2016 · 252', -12); mark(2023, '2023 · 328', -12, 'end');
-  if (upTo >= 2025) h += `<text x="${x(2025)}" y="${yb(32) - 8}" text-anchor="middle" fill="#ff8f8f" font-weight="700">폐업 > 개업</text>`;
+  if (upTo >= 2025) h += `<text x="${x(2025) + 12}" y="${yb(32) - 8}" text-anchor="end" fill="#ff8f8f" font-weight="700">폐업 > 개업</text>`;
   [2009, 2016, 2025].forEach(yr => h += `<text x="${x(yr)}" y="168" text-anchor="middle" opacity=".7">${yr}</text>`);
   svg.innerHTML = h;
+  const cw = svg.getBoundingClientRect().width;   // viewBox 640을 늘이고 줄이므로, 화면에서 13px 넘게 보이도록 글자 크기를 폭에 맞춘다
+  if (cw) svg.style.setProperty('--tf', Math.max(15, 13.6 * 640 / cw).toFixed(1) + 'px');
 }
 /* 시간 t(소수 연도)를 끊김 없이 흘린다 — 점은 개업 때 서서히 켜지고 폐업 때 서서히 꺼진다 */
 const clamp01 = e => ['min', 1, ['max', 0, e]];
@@ -508,7 +510,7 @@ const STEPS = [
     notes: '' }
 ];
 // 휴대전화: 화면 폭이 좁아 같은 줌이면 너무 가깝다 — 폭에 맞춰 한 단계 가까이 물린다(발표용 넓은 화면은 그대로)
-if (innerWidth < 760) { const dz = Math.log2(760 / innerWidth) * .9; STEPS.forEach(s => { const c = s.cam; s.cam = () => { const v = c(); return { ...v, zoom: v.zoom - dz }; }; if (s.beatCam) for (const k in s.beatCam) s.beatCam[k] = { ...s.beatCam[k], zoom: s.beatCam[k].zoom - dz }; }); }
+if (innerWidth <= 900) { const dz = Math.max(0, Math.log2(900 / innerWidth) * .9); STEPS.forEach(s => { const c = s.cam; s.cam = () => { const v = c(); return { ...v, zoom: v.zoom - dz }; }; if (s.beatCam) for (const k in s.beatCam) s.beatCam[k] = { ...s.beatCam[k], zoom: s.beatCam[k].zoom - dz }; }); }
 
 /* ── 장면: 상태(단계·박자)에 따라 보이는 것 정하기 ── */
 let si = 0, bi = 0, busy = false, siteOpen = null;
@@ -633,7 +635,7 @@ function closeSite(noFly) {
 /* ── 카메라 ── */
 function pad(step) {
   const k = step.key;
-  if (W() < 760) return (k === 'finale' || (k === 'earth' && bi === 0)) ? { left: 0, right: 0, top: 0, bottom: H() * .3 } : { left: 0, right: 0, top: H() * .16, bottom: H() * .42 };   // 휴대전화: 설명판이 아래에 깔림
+  if (W() <= 900) return (k === 'finale' || (k === 'earth' && bi === 0)) ? { left: 0, right: 0, top: 0, bottom: H() * .3 } : { left: 0, right: 0, top: H() * .16, bottom: H() * .42 };   // 휴대전화: 설명판이 아래에 깔림
   if (k === 'earth' && bi === 0) return { left: W() * .48, right: 0, top: 0, bottom: 0 };
   if (k === 'finale') return { left: W() * .52, right: 0, top: 0, bottom: 0 };
   if (k === 'earth') return { left: W() * .30, right: 0, top: 0, bottom: 0 };
