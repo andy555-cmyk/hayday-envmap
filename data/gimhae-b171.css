@@ -126,3 +126,7 @@ body.pmode #b-map-caption{left:15px}
 #b-panel .b-sig legend{padding:0 6px;font-weight:700;color:#e6fff4}
 #b-panel .b-sig label{display:flex;align-items:center;gap:6px}
 #b-panel .b-sig p{font-size:12px;color:#89b5ab;margin:6px 0 0}
+#b-panel #b-pop table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0}
+#b-panel #b-pop th,#b-panel #b-pop td{padding:4px 6px;border-bottom:1px solid #2a4640;text-align:right}
+#b-panel #b-pop th:first-child,#b-panel #b-pop td:first-child{text-align:left}
+#b-panel .b-small{font-size:12px}

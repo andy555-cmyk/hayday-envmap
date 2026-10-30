@@ -58,7 +58,16 @@ assert.equal(SM.hiddenWater,5);assert.equal(SM.layers[5].n,RC['월평균 100kWh 
 assert.equal(SM.layers.find(l=>l.k==='overlap').n,RC['공실 신호 2개 이상 겹친 지번']);
 assert.ok(!/kWh\(|㎥|\d+\.\d+kWh|⑦|남실장|대표|010-/.test(JSON.stringify(SM)),'signal layer public-safe(no amounts)');
 for(const f of SM.points.features)assert.ok(f.geometry.coordinates[0]>128.87&&f.geometry.coordinates[0]<128.89&&f.geometry.coordinates[1]>35.22&&f.geometry.coordinates[1]<35.24,'coords near zone');
-assert.ok(Z.pending.popMove,'population movement pending until data arrives');
+// 인구 이동 — 정본표 합계·동별 값, 흐름선은 순유출만, 한계 문구
+const CR=Object.fromEntries(C.rows.map(r=>[r['항목'],r['새값']])),PM=Z.popMove;
+assert.ok(!Z.pending.popMove&&PM,'popMove filled');
+assert.equal(PM.total.pop,CR['인구 — 회현동+부원동']);assert.equal(PM.total.forecast2031,CR['2031 인구 예측 — 회현동+부원동']);
+assert.equal(PM.dongs['회현동'].summary.pop_latest,CR['인구 — 회현동']);assert.equal(PM.dongs['부원동'].summary.pop_latest,CR['인구 — 부원동']);
+assert.equal(PM.dongs['회현동'].net,CR['순유출 — 회현동']);assert.equal(PM.dongs['부원동'].net,CR['순유출 — 부원동']);
+assert.equal(PM.dongs['회현동'].yearly.at(-1).age20_39_pct,CR['20~39세 비중 — 회현동']);assert.equal(PM.dongs['부원동'].yearly.at(-1).age20_39_pct,CR['20~39세 비중 — 부원동']);
+for(const d of ['회현동','부원동'])for(const c of PM.dongs[d].categories.filter(c=>c.category!=='울산'&&c.category!=='그 밖의 시도'))assert.ok(CR['전출 행선지 비율 — '+d].includes(c.category+' '+c.share_pct.toFixed(1)+'%'),d+' '+c.category);
+assert.ok(PM.flows.features.length>=6&&PM.flows.features.every(f=>f.properties.net<0&&!['회현동','부원동'].includes(f.properties.name)),'flows = net outflow to other Gimhae dongs');
+assert.ok(PM.limits.some(l=>l.includes('2023-01 이후 공개분')),'destination limit note');
 const zk=JSON.parse(html.match(/const ZK_SHOP=(\[[\d,]*\]);/)[1]);assert.deepEqual(zk,Z.emptyShop?Z.emptyShop.shopIndices:[],'정비 시나리오 후보 = 구역 빈 점포 후보(재수집 전엔 없음)');
 // 카드·질문 카드
 const FA=JSON.parse(html.match(/^const FACTS=(.*?);\s*$/m)[1]);
@@ -70,11 +79,11 @@ const AC=JSON.parse(fs.readFileSync(path.join(root,'build/ask_cards/gimhae-wondo
 const pub=html.replace(/<script id="dat2?" type="application\/json">.*?<\/script>/gs,'')+JSON.stringify(Z)+fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8')+fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8')+fs.readFileSync(path.join(root,'data/gimhae-meeting.json'),'utf8');
 for(const bad of ['21.8ha','21.75','217,510','217510','217,511','217,995','67,510','71,890','26개 블록','블록 26개','13곳 모두 포함','208,622','208622'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 assert.ok(!/남실장|대표 제공|대표 확정|대표 결정|방 ⑦|010-|코덱스|클로드|Claude|Codex/.test(JSON.stringify(Z)+JSON.stringify(FA)),'no internal provenance');
-assert.ok(html.includes('gimhae-b171.js?v=zone261030-r4')&&html.includes('gimhae-meeting.js?v=1an-r4'),'cache versions');
+assert.ok(html.includes('gimhae-b171.js?v=zone261030-r5')&&html.includes('gimhae-meeting.js?v=1an-r5'),'cache versions');
 // 13곳 임시 유지(10/30 대표) — 핀 13곳 같은 모양, 목록에 밖 표시·회색 없음, 「재배치」 문구 없음
 const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8'),M=fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8');
 assert.ok(B.includes("'circle-color':SITE_COLOR")&&!B.includes('b-site-out'),'13 pins same style, list unchanged');
 assert.ok(!/재배치/.test(pub+JSON.stringify(FA)+fs.readFileSync(path.join(root,'data/gimhae-zone-261030-facts.json'),'utf8')),'no relocation wording');
 assert.ok(B.includes("d.sites.length!==13"),'13 kept');
 assert.ok(B.includes("addSource('bs-sig'")&&B.includes("b-sig-"),'signal layers wired');
-console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 2판 대조 · 재수집 38항목 · 공실 신호 레이어 7종(겹침 8) · 카드 4 · 옛 숫자 없음');
+console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 2판 대조 · 재수집 38항목 · 공실 신호 레이어 7종(겹침 8) · 인구 이동(정본표 합계 대조) · 카드 4 · 옛 숫자 없음');
