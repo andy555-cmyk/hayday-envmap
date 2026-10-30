@@ -40,8 +40,16 @@ const ring=Z.boundary.geometry.coordinates[0];
 for(const s of Z.sites)assert.equal(pip(s.lnglat||s.coordinates||s.ll,ring),s.inside,'site '+s.rank);
 assert.ok(!/의향|매매 의사|생각해 봄|수도|연체|체납|보증금|억/.test(JSON.stringify(Z.sites)),'public-safe site wording');
 // 재수집 전 자료는 비워 두고 「재수집 중」 — 옛 구역 숫자를 싣지 않는다
-for(const k of ['vacancy','linkage','survey','emptyShop','roadview','rone','context'])assert.ok(k in Z||Z.pending[k],'absent data must be listed as pending: '+k);
-assert.ok(!('vacancy' in Z)&&Z.pending.vacancy,'vacancy pending until re-collected');
+for(const k of ['roadview','listings','rone','bizTimeline','vacRate','requirements'])assert.ok(Z.pending[k],'still pending: '+k);
+assert.ok(!('vacancy' in Z)&&!Z.pending.vacancy&&!Z.pending.energy&&!Z.pending.linkage,'re-collected keys left pending');
+// 새 구역 재수집 값(숫자정본표 2판 행 그대로)
+const C=JSON.parse(fs.readFileSync(process.env.CANON||path.join(require('os').homedir(),'Library/CloudStorage/GoogleDrive-ganpan0@gmail.com/내 드라이브/hayday-hq/02_도시기획_로컬브랜딩/김해_초광역/구역계1안_확정_261030/숫자정본표_구역계1안_261030.json'),'utf8'));
+const RC=Object.fromEntries(Z.recollect.groups.flatMap(g=>g.items).map(i=>[i.label,i.value]));
+assert.equal(Z.recollect.groups.length,9);assert.equal(Object.keys(RC).length,38);
+for(const [l,v] of [['등록점포 2026-06',440],['등록점포 2026-03',435],['가게형 9종 영업 중',233],['가게형 9종 2022년 이후 폐업',79],['208종 구역 안 기록',1554],['계량기',497],['건축인허가',243],['용도변경 허가',61],['철거·멸실',24],['구역 안 차량 도로',3674],['지번 월평균 중간값',2160.2],['개별공시지가 중간값',886500],['카카오맵 장소',269],['빈 점포 후보 건물',126],['장기공실 후보 지번(책상 판정 A+B)',61],['공실 신호 2개 이상 겹친 지번',8],['봉리단길(구역 북서 경계)',716],['경전철 3역 10분 도보권 겹침',51.7],['시 13곳 한 바퀴','1575m · 20분']])assert.deepEqual(RC[l],v,l);
+const CV=new Set(C.rows.map(r=>JSON.stringify(r['새값'])));for(const [l,v] of Object.entries(RC))assert.ok(CV.has(JSON.stringify(v)),'canon value: '+l);
+assert.equal(Z.recollect.edition,C.edition);
+assert.ok(!/⑦|방 |남실장|대표|옛값|미발송/.test(JSON.stringify(Z.recollect)),'recollect public-safe');
 const zk=JSON.parse(html.match(/const ZK_SHOP=(\[[\d,]*\]);/)[1]);assert.deepEqual(zk,Z.emptyShop?Z.emptyShop.shopIndices:[],'정비 시나리오 후보 = 구역 빈 점포 후보(재수집 전엔 없음)');
 // 카드·질문 카드
 const FA=JSON.parse(html.match(/^const FACTS=(.*?);\s*$/m)[1]);
@@ -53,10 +61,10 @@ const AC=JSON.parse(fs.readFileSync(path.join(root,'build/ask_cards/gimhae-wondo
 const pub=html.replace(/<script id="dat2?" type="application\/json">.*?<\/script>/gs,'')+JSON.stringify(Z)+fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8')+fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8')+fs.readFileSync(path.join(root,'data/gimhae-meeting.json'),'utf8');
 for(const bad of ['21.8ha','21.75','217,510','217510','217,511','217,995','67,510','71,890','26개 블록','블록 26개','13곳 모두 포함','208,622','208622'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 assert.ok(!/남실장|대표 제공|대표 확정|대표 결정|방 ⑦|010-|코덱스|클로드|Claude|Codex/.test(JSON.stringify(Z)+JSON.stringify(FA)),'no internal provenance');
-assert.ok(html.includes('gimhae-b171.js?v=zone261030-r2')&&html.includes('gimhae-meeting.js?v=1an-r2'),'cache versions');
+assert.ok(html.includes('gimhae-b171.js?v=zone261030-r3')&&html.includes('gimhae-meeting.js?v=1an-r3'),'cache versions');
 // 13곳 임시 유지(10/30 대표) — 핀 13곳 같은 모양, 목록에 밖 표시·회색 없음, 「재배치」 문구 없음
 const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8'),M=fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8');
 assert.ok(B.includes("'circle-color':SITE_COLOR")&&!B.includes('b-site-out'),'13 pins same style, list unchanged');
 assert.ok(!/재배치/.test(pub+JSON.stringify(FA)+fs.readFileSync(path.join(root,'data/gimhae-zone-261030-facts.json'),'utf8')),'no relocation wording');
 assert.ok(B.includes("d.sites.length!==13"),'13 kept');
-console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 1판 대조 · 카드 4 · 옛 숫자 없음');
+console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 2판 대조 · 재수집 38항목 · 카드 4 · 옛 숫자 없음');

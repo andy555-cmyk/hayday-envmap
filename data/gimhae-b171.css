@@ -117,3 +117,8 @@ body.pmode #b-map-caption{left:15px}
 .b-site-out .b-site-no{background:#8a929c}
 .b-site-out-tag{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;background:rgba(154,165,177,.18);color:#c9d1d9;font-size:12px;font-weight:700}
 .b-pending article strong{color:#ffd27a}
+#b-panel .b-rc{list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+#b-panel .b-rc li{background:#0d1c1b;border:1px solid #2a4640;border-radius:8px;padding:8px;font-size:13px;line-height:1.45;color:#cfe7df}
+#b-panel .b-rc li b{display:block;font-size:18px;color:#e6fff4}
+#b-panel .b-rc li small{display:block;margin-top:3px;font-size:12px;color:#89b5ab}
+#b-panel .b-rc-src{font-size:12px;color:#89b5ab;margin:8px 0 0}
