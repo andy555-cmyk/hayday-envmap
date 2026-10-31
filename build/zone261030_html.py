@@ -23,12 +23,12 @@ SITES = f"13곳 중 {len(ins)}곳 구역 안 · {len(out)}곳({'·'.join(f'{x}�
 VS = Z['vac1an']['signals']  # 공실 신호 = 숫자정본표 값(build/zone261030_sections.py)
 EB = f"{VS['emptyBld']:,}동"
 
-h = re.sub(r'gimhae-b171\.(js|css)\?v=zone2610\d\d-r\d+', r'gimhae-b171.\1?v=zone261030-r23', h)
-assert h.count('gimhae-b171.js?v=zone261030-r23') == 1 and h.count('gimhae-b171.css?v=zone261030-r23') == 1
-h = re.sub(r'gimhae-meeting\.(js|css)\?v=[\w-]+"', r'gimhae-meeting.\1?v=1an-r23"', h)
-assert h.count('gimhae-meeting.js?v=1an-r23') == 1
-h = re.sub(r'gimhae-b-insights\.js\?v=[\w-]+"', 'gimhae-b-insights.js?v=1an-r23"', h)  # 「근린생활시설」 단독 표기도 근생으로 셈(정본표 묶음과 같게)
-assert h.count('gimhae-b-insights.js?v=1an-r23') == 1
+h = re.sub(r'gimhae-b171\.(js|css)\?v=zone2610\d\d-r\d+', r'gimhae-b171.\1?v=zone261030-r24', h)
+assert h.count('gimhae-b171.js?v=zone261030-r24') == 1 and h.count('gimhae-b171.css?v=zone261030-r24') == 1
+h = re.sub(r'gimhae-meeting\.(js|css)\?v=[\w-]+"', r'gimhae-meeting.\1?v=1an-r24"', h)
+assert h.count('gimhae-meeting.js?v=1an-r24') == 1
+h = re.sub(r'gimhae-b-insights\.js\?v=[\w-]+"', 'gimhae-b-insights.js?v=1an-r24"', h)  # 「근린생활시설」 단독 표기도 근생으로 셈(정본표 묶음과 같게)
+assert h.count('gimhae-b-insights.js?v=1an-r24') == 1
 
 def sub_once(pat, repl, flags=0):
     global h

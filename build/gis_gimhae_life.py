@@ -2,7 +2,8 @@
 
 읽는 것
   ~/dev/gimhae-data-261030/out2/zone/*_zone800.geojson  (확정 구역계 1안 · 800m 안 점, _in = zone | r800)
-  숫자정본표_구역계1안_261030.json  (B 203·227~246행, C 관광 거리 행 — 숫자는 이 표에서만 쓴다)
+  숫자정본표_구역계1안_261030.json  (B 203·227~246·252~281·285~304행, C 관광 거리 행 — 숫자는 이 표에서만 쓴다)
+  out2/kma_heat_rain_summary.json(관측소 좌표) · out2/B_sgis_tract_zone_summary.json + raw/B51 집계구 경계 2024(5179)
 
 내보내는 것
   점: 종류(k) · 경도 · 위도 · 구역 안(z: 1 안 / 0 밖 / 2 경계 도로변) · 갈래(s) · 크기(r) · 이름(n, 공공시설·정본표에 이름이 있는 것만)
@@ -223,12 +224,59 @@ geo = rg[0]['geometry']
 def rnd(c): return [rnd(x) for x in c] if isinstance(c[0], list) else [round(c[0], 6), round(c[1], 6)]
 RONE = {'name': '김해시청/동상시장', 'geo': {'type': geo['type'], 'coordinates': rnd(geo['coordinates'])}, 't': RV,
         'asof': row('⑧-B 상권 — 원도심 중대형 공실률(연평균)')['기준일']}
-OUTD = {'v': 'life2', 'cc': CC + ['기타'], 'c': C, 'pop': POP, 'popAsof': '2022-12 → 2026-09', 'rone': RONE,
+# ── 정본표 2차분(285~304행) ─────────────────────────────────────────────
+# 표본 상권 공실률 — 2024Q3 표본 분기 계열(290~293행), 지금 값은 291행 2026.2Q 소규모. 2024 연평균(위 RV)은 추세로 둔다
+QR = {'big': '⑧-B 2차 상권 — 원도심 중대형 공실률 2024.3Q~2026.2Q', 'small': '⑧-B 2차 상권 — 원도심 소규모 공실률 2024.3Q~2026.2Q',
+      'set': '⑧-B 2차 상권 — 원도심 집합 공실률 2024.3Q~2026.2Q', 'gen': '⑧-B 2차 상권 — 원도심 일반 공실률 2024.3Q~2026.2Q'}
+RQ = {}
+for k, nm in QR.items():
+    pts = re.findall(r'(\d\d\.\dQ) ([\d.]+)', row(nm)['새값'])
+    assert len(pts) == 8 and pts[0][0] == '24.3Q' and pts[-1][0] == '26.2Q', (k, pts)
+    RQ[k] = [[q, float(v)] for q, v in pts]
+assert RQ['small'][-1][1] == 13.73
+RONE.update({'q': RQ, 'qAsof': row(QR['small'])['기준일'], 'now': {'k': 'small', 'q': '2026.2Q', 'v': 13.73},
+             'rentQ': row('⑧-B 2차 상권 — 원도심 임대료 2024.3Q → 2026.2Q(→2026.3Q 새 표본)')['새값']})
+# 기상청 김해시 관측소(ASOS 253) — 285~289행
+KM = json.load(open(Path(sys.argv[1]).expanduser() / 'out2' / 'kma_heat_rain_summary.json'))['stations']['253']
+KR = ['⑧-A 2차 기상 — 김해시 관측소(ASOS 253) 위치', '⑧-A 2차 기상 — 2016~2025 평균(김해시 253)', '⑧-A 2차 기상 — 평년값 1991~2020(김해시 253)',
+      '⑧-A 2차 기상 — 여름 평균최고 최근 10년 vs 평년(김해시 253)', '⑧-A 2차 기상 — 주변 관측소 폭염일 비교 2021~2025 평균']
+assert KM['dist_zone_m'] == 781 and '781m' in row(KR[0])['새값']
+KMA = {'n': '김해시 관측소(ASOS 253)', 'x': round(KM['lon'], 6), 'y': round(KM['lat'], 6), 'd': 781,
+       't': [[row(r)['기준일'], row(r)['새값']] for r in KR[1:]]}
+# SGIS 집계구 단계구분 — 301~304행. 경계 800m 안 집계구 78개(경계 2024), 값은 2024 집계구 원값(면적가중 아님)
+from pyproj import Transformer
+OUT2 = Path(sys.argv[1]).expanduser() / 'out2'
+SG = json.load(open(OUT2 / 'B_sgis_tract_zone_summary.json'))
+BD = {f['properties']['adm_cd']: f['geometry'] for f in json.load(open(OUT2 / 'raw' / 'B51_sgis_tract_boundary_2024_5179.geojson'))['features']}
+TR = Transformer.from_crs(5179, 4326, always_xy=True)
+def to4326(c): return [to4326(x) for x in c] if isinstance(c[0], list) else [round(v, 6) for v in TR.transform(c[0], c[1])]
+ZW = SG['zone_areaweighted']; BW = SG['buf800_areaweighted']['2024']
+pct = lambda a, b: round(a / b * 100, 1)
+def chk(nm, *subs):
+    t = row(nm)['새값']
+    for x in subs: assert x in t, (nm, x, t)
+chk('⑧-B 2차 인구 — 1안 구역 인구·가구(SGIS 추정)', *[f'{y} 인구 {round(ZW[y]["population"]["v"]):,} · 가구 {round(ZW[y]["household"]["v"]):,}' for y in ('2015', '2020', '2024')])
+chk('⑧-B 2차 인구 — 1안 구역 1인가구·65세+ 비율(SGIS 추정)', *[f'{y} 1인가구 {pct(ZW[y]["hh_1person"]["v"], ZW[y]["household"]["v"])}% · 65세+ {pct(ZW[y]["age_65p"]["v"], ZW[y]["population"]["v"])}%' for y in ('2015', '2020', '2024')])
+chk('⑧-B 2차 인구 — 경계 800m 비교(SGIS 추정 2024)', f'인구 {round(BW["population"]["v"]):,}', f'1인가구 {pct(BW["hh_1person"]["v"], BW["household"]["v"])}%', f'65세+ {pct(BW["age_65p"]["v"], BW["population"]["v"])}%')
+chk('⑧-B 2차 주택·사업체 — 1안 구역(SGIS 추정)', *[f'{y} 주택 {round(ZW[y]["house"]["v"])} · 사업체 {round(ZW[y]["company"]["v"])}' for y in ('2015', '2020', '2024')])
+assert len(SG['tracts']) == SG['n_tract_800m'] == 78 and sum(t['share_zone'] > 0 for t in SG['tracts']) == SG['n_tract_touch_zone'] == 9
+TFS = []
+for t in SG['tracts']:
+    g = BD[t['adm_cd']]; v = lambda k: t.get(k + '_2024')
+    pr = {'z': 1 if t['share_zone'] > 0 else 0, 'pop': v('population'), 'house': v('house'), 'comp': v('company'),
+          'h1': pct(v('hh_1person'), v('household')) if v('hh_1person') is not None and v('household') else None,
+          'o65': pct(v('age_65p'), v('population')) if v('age_65p') is not None and v('population') else None}
+    TFS.append({'type': 'Feature', 'properties': {k: (round(x) if k in ('pop', 'house', 'comp') and x is not None else x) for k, x in pr.items()},
+                'geometry': {'type': g['type'], 'coordinates': to4326(g['coordinates'])}})
+TRACT = {'fc': {'type': 'FeatureCollection', 'features': TFS}, 'asof': '2024', 'n': 78, 'nz': 9,
+         't': {k: row(nm)['새값'] for k, nm in {'pop': '⑧-B 2차 인구 — 1안 구역 인구·가구(SGIS 추정)', 'ratio': '⑧-B 2차 인구 — 1안 구역 1인가구·65세+ 비율(SGIS 추정)',
+               'b800': '⑧-B 2차 인구 — 경계 800m 비교(SGIS 추정 2024)', 'hb': '⑧-B 2차 주택·사업체 — 1안 구역(SGIS 추정)'}.items()}}
+OUTD = {'v': 'life3', 'cc': CC + ['기타'], 'c': C, 'pop': POP, 'popAsof': '2022-12 → 2026-09', 'rone': RONE, 'kma': KMA, 'tract': TRACT,
         't': {k: v['새값'] for k, v in T.items()},
         'src': {k: [SRC[k], (T[k]['기준일'] if k != 'bus' else T['route']['기준일'])] for k in SRC},
         'p': P}
 txt = json.dumps(OUTD, ensure_ascii=False, separators=(',', ':'))
-for bad in ('2026.2Q', '208,622', '21.75', '217,510', '67,510', '869m', '재배치', '대표점'):
+for bad in ('208,622', '21.75', '217,510', '67,510', '869m', '재배치', '대표점'):
     assert bad not in txt, bad
 OUT.write_text('/* 김해 원도심 생활·안전 층(⑧-A) — build/gis_gimhae_life.py 가 만든다. 손으로 고치지 않는다 */\n'
                'window.__GLIFE__=' + txt + ';\n', encoding='utf-8')

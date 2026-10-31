@@ -2228,7 +2228,7 @@ const REGIONS = [
    note:'16개 구·군 472,608동 · 302,958필지 · 점포 159,689개 · 국토교통부 GIS건물통합정보 2026-08-09'},
   {k:'gimhae', t:'김해 원도심', src:() => window.__GIMHAE__, file:'data/gimhae.js?v=1an-r10',
    extra:[{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v=mv1'},   // 보행·교통 실측(경전철·버스·유동인구)
-          {has:() => window.__GLIFE__, file:'data/gimhae-life.js?v=life2'}],   // 생활·안전 시설(CCTV·비상벨·정류소·관광 등)
+          {has:() => window.__GLIFE__, file:'data/gimhae-life.js?v=life3'}],   // 생활·안전 시설(CCTV·비상벨·정류소·관광 등)
    shop:() => window.__SHOP_GIMHAE__,
    note:'건물 10,065동 · 점포 26,700개(김해시 전역) · 준공연도 86%'},
 ];
@@ -4128,7 +4128,13 @@ function declineHTML(hit, p20, areaM2) {
         const rg = LPOP ? popRange(LPOP) : null;
         rows.push(`<div class="lg-row"><span class="lg-k">행정동 인구</span>${pb('', '끄기')}${Object.entries(POPM).map(([k, v]) => pb(k, v[0])).join('')}${rg ? `<span><i class="sw2" style="width:54px;background:linear-gradient(90deg,${POPM[LPOP][2]},${POPM[LPOP][3]})"></i>${rg[0]}${POPM[LPOP][1]} → ${rg[1]}${POPM[LPOP][1]}</span>` : ''}<span class="lf-src">회현·부원(굵은 선) + 비교 5개 동 · 구역 값 아님(행정동 전체) · 통·반은 경계 도형이 공개되지 않아 지도에 올리지 않음 · 주민등록 인구 ${esc(L.popAsof)}</span></div>`);
       }
-      if (L.rone) rows.push(`<div class="lg-row"><span class="lg-k">표본 상권</span><button type="button" class="lf-t" data-lr="1" aria-pressed="${LRONE ? 'true' : 'false'}"><i class="sw2 ln" style="border-color:#ea580c"></i>R-ONE 「${esc(L.rone.name)}」</button><span class="lf-src">공실률·임대료는 이 상권 표본 건물 기준 · 구역 값 아님(상권 단위) · 장기공실 후보 61지번과 다른 값 · 한국부동산원 ${esc(L.rone.asof)}</span></div>`);
+      if (L.tract) {
+        const tb = (k, t) => `<button type="button" class="lf-t" data-lt="${k}" aria-pressed="${LTR === k ? 'true' : 'false'}">${t}</button>`;
+        const rg = LTR ? trRange(LTR) : null;
+        rows.push(`<div class="lg-row"><span class="lg-k">집계구</span>${tb('', '끄기')}${Object.entries(TRM).map(([k, v]) => tb(k, v[0])).join('')}${rg ? `<span><i class="sw2" style="width:54px;background:linear-gradient(90deg,${TRM[LTR][2]},${TRM[LTR][3]})"></i>${fmt(rg[0], TRM[LTR][1] === '%' ? 1 : 0)}${TRM[LTR][1]} → ${fmt(rg[1], TRM[LTR][1] === '%' ? 1 : 0)}${TRM[LTR][1]}</span><span>${sw('#d1d5db')}비공개</span>` : ''}<span class="lf-src">경계 800m 안 집계구 ${L.tract.n}개 · 검은 선 = 구역에 걸친 ${L.tract.nz}개 · 집계구 값(구역 값 아님) · 통계청 SGIS 집계구(인구주택총조사 등록센서스·전국사업체조사) ${esc(L.tract.asof)}</span></div>`);
+      }
+      if (L.kma) rows.push(`<div class="lg-row"><span class="lg-k">기상</span><button type="button" class="lf-t" data-lk="1" aria-pressed="${LKMA ? 'true' : 'false'}">${sw('#dc2626', 'c')}김해시 관측소 · 경계 ${fmt(L.kma.d)}m</button><span class="lf-src">${esc((L.kma.t[0][1].match(/폭염 [\d.]+일/) || [''])[0])} · ${esc((L.kma.t[0][1].match(/열대야 [\d.]+일/) || [''])[0])}(2016~2025 평균) · 구역 값 아님(시 관측소) · 기상청</span></div>`);
+      if (L.rone) rows.push(`<div class="lg-row"><span class="lg-k">표본 상권</span><button type="button" class="lf-t" data-lr="1" aria-pressed="${LRONE ? 'true' : 'false'}"><i class="sw2 ln" style="border-color:#ea580c"></i>R-ONE 「${esc(L.rone.name)}」${L.rone.now ? ` · 소규모 공실률 ${L.rone.now.v.toFixed(1)}%(${esc(L.rone.now.q)})` : ''}</button><span class="lf-src">공실률·임대료는 이 상권 표본 건물 기준 · 구역 값 아님(상권 단위) · 장기공실 후보 61지번과 다른 값 · 2024 값은 추세 · 한국부동산원 ${esc(L.rone.qAsof || L.rone.asof)}</span></div>`);
       rows.push(`<div class="lg-row"><span class="lg-k">2순위</span>${tg('hosp', '병·의원')}${tg('shel', '재난대피·쉼터')}${tg('aed', 'AED·응급')}${tg('play', '놀이시설')}${tg('ev', '전기차 충전')}${tg('bike', '자전거보관소')}<span class="lf-src">${['hosp', 'shel', 'dust', 'aed', 'emer', 'play', 'ev', 'bike'].map(src).join(' · ')}</span></div>`);
     }
     if (MODE === 'move' && RS && RS.busan) {
@@ -4159,6 +4165,12 @@ function declineHTML(hit, p20, areaM2) {
   /* 행정동 인구 단계구분(⑧-B) — 회현·부원 + 비교 5개 동. 통·반은 경계 도형이 없어 올리지 않는다 */
   const POPM = {chg: ['인구 증감률', '%', '#b91c1c', '#fee2e2'], o70: ['70세 이상 비율', '%', '#ede9fe', '#5b21b6'], hh: ['세대당 인구', '명', '#0e7490', '#cffafe']};
   let LPOP = '', LRONE = false, popFC = null, roneFC = null;
+  /* SGIS 집계구(2024) 단계구분 — 집계구 원값. 구역 값은 정본표 301~304행(면적가중 추정)만 */
+  const TRM = {pop: ['인구', '명', '#e0f2fe', '#075985'], h1: ['1인가구 비율', '%', '#fef3c7', '#b45309'], o65: ['65세 이상 비율', '%', '#ede9fe', '#5b21b6'],
+    house: ['주택', '호', '#dcfce7', '#166534'], comp: ['사업체', '곳', '#fce7f3', '#9d174d']};
+  let LTR = '', LKMA = false, trFC = null, kmaFC = null;
+  const trRange = k => { const v = (((GL() || {}).tract || {}).fc || {features: []}).features.map(f => f.properties[k]).filter(x => x != null); return [Math.min(...v), Math.max(...v)]; };
+  const trColor = k => { const [a, b] = trRange(k); return ['case', ['==', ['get', k], null], '#d1d5db', ['interpolate', ['linear'], ['get', k], a, TRM[k][2], b === a ? a + 1 : b, TRM[k][3]]]; };
   const popRange = k => { const v = Object.values((GL() || {}).pop || {}).map(d => d[k]); return [Math.min(...v), Math.max(...v)]; };
   const popColor = k => { const [a, b] = popRange(k); return ['interpolate', ['linear'], ['get', k], a, POPM[k][2], b === a ? a + 1 : b, POPM[k][3]]; };
   let lifeFC = null;
@@ -4181,6 +4193,8 @@ function declineHTML(hit, p20, areaM2) {
       return {type: 'Feature', geometry: JSON.parse(JSON.stringify(f.geometry)), properties: {n: f.properties.n, chg: d.chg, o70: d.o70, hh: d.hh, cmp: d.cmp ? 1 : 0,
         l_chg: `${f.properties.n} ${d.chg}%`, l_o70: `${f.properties.n} ${d.o70}%`, l_hh: `${f.properties.n} ${d.hh}명`}};
     }) : []};
+    trFC = GLF && GLF.tract ? GLF.tract.fc : {type: 'FeatureCollection', features: []};
+    kmaFC = {type: 'FeatureCollection', features: GLF && GLF.kma ? [{type: 'Feature', properties: {n: '김해시 관측소'}, geometry: {type: 'Point', coordinates: [GLF.kma.x, GLF.kma.y]}}] : []};
     roneFC = {type: 'FeatureCollection', features: GLF && GLF.rone ? [{type: 'Feature', geometry: GLF.rone.geo, properties: {n: GLF.rone.name}}] : []};
     lifeFC = {type: 'FeatureCollection', features: GLF ? GLF.p.map((s, i) => ({type: 'Feature', id: i,
       properties: {k: s.k, z: s.z, s: s.s == null ? '' : s.s, r: s.r || 0, n: s.n || '', d: s.d || 0},
@@ -4229,6 +4243,17 @@ function declineHTML(hit, p20, areaM2) {
     if (!map.getLayer('ov_pop_t')) map.addLayer({id: 'ov_pop_t', type: 'symbol', source: 'lf_dongt', layout: {visibility: 'none',
       'text-field': ['get', 'l_chg'], 'text-size': 13, 'symbol-placement': 'point', 'text-font': ['Noto Sans Bold']},
       paint: {'text-color': '#1f2937', 'text-halo-color': '#fff', 'text-halo-width': 1.8}});
+    reMk('lf_tract', ['ov_tr_f', 'ov_tr_l'], trFC);
+    if (!map.getLayer('ov_tr_f')) map.addLayer({id: 'ov_tr_f', type: 'fill', source: 'lf_tract', layout: {visibility: 'none'},
+      paint: {'fill-color': '#ccc', 'fill-opacity': 0.55}}, before);
+    if (!map.getLayer('ov_tr_l')) map.addLayer({id: 'ov_tr_l', type: 'line', source: 'lf_tract', layout: {visibility: 'none'},
+      paint: {'line-color': ['case', ['==', ['get', 'z'], 1], '#1f2937', '#ffffff'], 'line-width': ['case', ['==', ['get', 'z'], 1], 1.8, 0.8], 'line-opacity': 0.9}}, before);
+    reMk('lf_kma', ['ov_kma_c', 'ov_kma_t'], kmaFC);
+    if (!map.getLayer('ov_kma_c')) map.addLayer({id: 'ov_kma_c', type: 'circle', source: 'lf_kma', layout: {visibility: 'none'},
+      paint: {'circle-radius': 8, 'circle-color': '#dc2626', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2.5}});
+    if (!map.getLayer('ov_kma_t')) map.addLayer({id: 'ov_kma_t', type: 'symbol', source: 'lf_kma', layout: {visibility: 'none',
+      'text-field': ['get', 'n'], 'text-size': 13, 'text-offset': [0, 1.2], 'text-anchor': 'top', 'text-font': ['Noto Sans Bold']},
+      paint: {'text-color': '#991b1b', 'text-halo-color': '#fff', 'text-halo-width': 1.8}});
     reMk('lf_rone', ['ov_rone_f', 'ov_rone_l'], roneFC);
     if (!map.getLayer('ov_rone_f')) map.addLayer({id: 'ov_rone_f', type: 'fill', source: 'lf_rone', layout: {visibility: 'none'},
       paint: {'fill-color': '#ea580c', 'fill-opacity': 0.08}}, before);
@@ -4299,8 +4324,17 @@ function declineHTML(hit, p20, areaM2) {
     map.on('mousemove', 'ov_pop_f', e => { if (onPt(e)) return; const p = e.features[0].properties, L = GL(); if (!L || !L.pop[p.n]) return;
       show(e, `<b>${esc(p.n)}${+p.cmp ? ' <small style="display:inline">비교 동</small>' : ''}</b><small>${esc(L.pop[p.n].t)}</small><small>구역 값 아님(행정동 전체) · 주민등록 인구 ${esc(L.popAsof)}</small>`); });
     map.on('mousemove', 'ov_rone_f', e => { if (onPt(e)) return; const R = (GL() || {}).rone; if (!R) return;
-      show(e, `<b>표본 상권 「${esc(R.name)}」</b><small>중대형 공실률(%) ${esc(R.t.big)}</small><small>소규모 ${esc(R.t.small)} · 집합상가 ${esc(R.t.set)}</small><small>임대료(천원/㎡) ${esc(R.t.rent)}</small><small>구역 값 아님(상권 단위) · 표본 건물 기준 · 장기공실 후보 61지번과 다른 값 · 한국부동산원 ${esc(R.asof)}</small>`); });
-    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c', 'ov_bus_c', 'ov_life_c', 'ov_pop_f', 'ov_rone_f'].forEach(id => map.on('mouseleave', id, hide));
+      const qs = k => R.q && R.q[k] ? R.q[k].map(([q, v]) => `${q} ${v}`).join(' → ') : '';
+      show(e, `<b>표본 상권 「${esc(R.name)}」</b>${R.now ? `<small>소규모 공실률 <b style="display:inline">${R.now.v.toFixed(1)}%</b>(${esc(R.now.q)})</small>` : ''}`
+        + (R.q ? `<small>분기 추세(%) 소규모 ${esc(qs('small'))}</small><small>중대형 ${esc(qs('big'))}</small><small>집합 ${esc(qs('set'))}</small>` : '')
+        + `<small>연평균 추세 — 중대형 ${esc(R.t.big)} · 소규모 ${esc(R.t.small)} · 집합상가 ${esc(R.t.set)}</small><small>임대료(천원/㎡) ${esc(R.rentQ || R.t.rent)}</small>`
+        + `<small>구역 값 아님(상권 단위) · 표본 건물 기준 · 장기공실 후보 61지번과 다른 값 · 표본이 바뀐 분기끼리 잇지 않음 · 한국부동산원 ${esc(R.qAsof || R.asof)}</small>`); });
+    map.on('mousemove', 'ov_tr_f', e => { if (onPt(e)) return; const p = e.features[0].properties, T = (GL() || {}).tract; if (!T) return;
+      const f = (k, u) => p[k] == null || p[k] === 'null' ? '비공개' : `${fmt(+p[k], u === '%' ? 1 : 0)}${u}`;
+      show(e, `<b>집계구${+p.z ? ' <small style="display:inline">구역에 걸침</small>' : ''}</b><small>인구 ${f('pop', '명')} · 1인가구 ${f('h1', '%')} · 65세+ ${f('o65', '%')}</small><small>주택 ${f('house', '호')} · 사업체 ${f('comp', '곳')}</small><small>집계구 값(구역 값 아님) · 통계청 SGIS 집계구 ${esc(T.asof)} · 5 미만 비공개</small>`); });
+    map.on('mousemove', 'ov_kma_c', e => { const K = (GL() || {}).kma; if (!K) return;
+      show(e, `<b>${esc(K.n)}</b><small>구역 경계에서 ${fmt(K.d)}m</small>${K.t.map(([a, t]) => `<small>${esc(a)} — ${esc(t)}</small>`).join('')}<small>구역 값 아님(시 관측소 값 · 구역 열섬 차이는 못 봄) · 기상청</small>`); });
+    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c', 'ov_bus_c', 'ov_life_c', 'ov_pop_f', 'ov_rone_f', 'ov_tr_f', 'ov_kma_c'].forEach(id => map.on('mouseleave', id, hide));
   }
   let shopT = null;
   function refreshShops() {
@@ -4335,6 +4369,10 @@ function declineHTML(hit, p20, areaM2) {
     ['ov_pop_f', 'ov_pop_l', 'ov_pop_t'].forEach(id => vis(id, popOn));
     if (popOn && map.getLayer('ov_pop_f')) { map.setPaintProperty('ov_pop_f', 'fill-color', popColor(LPOP)); map.setLayoutProperty('ov_pop_t', 'text-field', ['get', 'l_' + LPOP]); }
     vis('ov_rone_f', MODE === 'life' && !!GL() && LRONE); vis('ov_rone_l', MODE === 'life' && !!GL() && LRONE);
+    const trOn = MODE === 'life' && !!GL() && !!LTR;
+    vis('ov_tr_f', trOn); vis('ov_tr_l', trOn);
+    if (trOn && map.getLayer('ov_tr_f')) map.setPaintProperty('ov_tr_f', 'fill-color', trColor(LTR));
+    vis('ov_kma_c', MODE === 'life' && !!GL() && LKMA); vis('ov_kma_t', MODE === 'life' && !!GL() && LKMA);
     /* 점포·역을 볼 때는 건물을 옅게 깐다 — 점이 묻히지 않게 */
     const fade = MODE === 'shop' || MODE === 'move' || MODE === 'life';
     if (window.__satTune) window.__satTune();   // 배경 보정 먼저, 모드 진하기는 그 뒤에
@@ -4367,11 +4405,12 @@ function declineHTML(hit, p20, areaM2) {
   document.querySelectorAll('#modes [data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
   /* 범례의 층 단추 — 생활·안전 층을 하나씩 켜고 끈다 */
   $('#legend').addEventListener('click', e => {
-    const bp = e.target.closest('[data-lp]'), br = e.target.closest('[data-lr]');
-    if (bp) LPOP = bp.dataset.lp; else if (br) LRONE = !LRONE;
+    const bp = e.target.closest('[data-lp]'), br = e.target.closest('[data-lr]'), bt = e.target.closest('[data-lt]'), bk = e.target.closest('[data-lk]');
+    if (bp) { LPOP = bp.dataset.lp; if (LPOP) LTR = ''; } else if (br) LRONE = !LRONE;
+    else if (bt) { LTR = bt.dataset.lt; if (LTR) LPOP = ''; } else if (bk) LKMA = !LKMA;
     const b = e.target.closest('[data-lf]');
     if (b) { const k = b.dataset.lf; LF[k] = !LF[k]; if (LPAIR[k]) LF[LPAIR[k]] = LF[k]; }
-    else if (!bp && !br) return;
+    else if (!bp && !br && !bt && !bk) return;
     try { applyVis(); } catch (er) {}
     paintLegend();
   });

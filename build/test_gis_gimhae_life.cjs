@@ -33,7 +33,17 @@ assert(!src.includes('통별'), '통·반 값은 지도 자료에 넣지 않음'
 // R-ONE 표본 상권 — 김해시청/동상시장 도형 + 정본표 270·272·273·274행 문구(2024.2분기까지)
 assert.strictEqual(L.rone.name, '김해시청/동상시장'); assert(L.rone.geo.coordinates[0].length > 10);
 assert(L.rone.t.big.startsWith('2013 5.0') && L.rone.t.big.includes('2024.2분기 17.5'));
-assert(!src.includes('2026.2Q'), '정본표에 없는 최신 분기 값');
+// 정본표 2차분 — 지금 값은 291행 2026.2Q 소규모 13.73, 분기 계열은 2024Q3 표본 290~293행(8분기), 2024 연평균은 추세로 남김
+assert.deepStrictEqual(L.rone.now, {k: 'small', q: '2026.2Q', v: 13.73});
+for (const k of ['big', 'small', 'set', 'gen']) assert.strictEqual(L.rone.q[k].length, 8, k);
+assert.deepStrictEqual(L.rone.q.small[0], ['24.3Q', 7.27]); assert.deepStrictEqual(L.rone.q.big[7], ['26.2Q', 14.07]);
+// 기상청 김해시 관측소 — 285~289행, 경계 781m
+assert.strictEqual(L.kma.d, 781); assert(L.kma.x > 128.88 && L.kma.x < 128.9 && L.kma.y > 35.22 && L.kma.y < 35.24);
+assert.strictEqual(L.kma.t.length, 4); assert(L.kma.t[0][1].includes('폭염 26.0일') && L.kma.t[0][1].includes('열대야 17.3일'));
+// SGIS 집계구 — 800m 안 78개 · 구역에 걸친 9개 · 2024 값 · 정본표 301~304행 문구
+assert.strictEqual(L.tract.fc.features.length, 78); assert.strictEqual(L.tract.fc.features.filter(f => f.properties.z === 1).length, 9);
+assert(L.tract.fc.features.every(f => f.geometry.coordinates.flat(3).every(v => v > 35 && v < 129.1)), '집계구 좌표 4326');
+assert(L.tract.t.pop.includes('2024 인구 2,193') && L.tract.t.ratio.includes('2024 1인가구 53.5% · 65세+ 28.2%') && L.tract.t.b800.startsWith('인구 27,425'));
 // 출처·기준일이 층마다 있다
 for (const k of ['cctv', 'bell', 'bus', 'tour', 'cul', 'hosp', 'shel', 'dust', 'aed', 'emer', 'play', 'ev', 'bike'])
   assert(L.src[k] && /^\d{4}-\d{2}-\d{2}$/.test(L.src[k][1]), k + ' 출처·기준일');
@@ -51,5 +61,6 @@ assert(html.includes('body:not([data-region="gimhae"]) #modes [data-mode="life"]
 assert(html.includes("map.addLayer({id: 'ov_life_c'") && html.includes("vis('ov_life_c', MODE === 'life'"));
 assert(html.includes('function lifeKpi()'));
 assert((html.match(/'text-font': \['Noto Sans Bold'\]/g) || []).length >= 3, '글자 층 글꼴 지정(빠지면 면까지 안 그려짐)');
+assert(html.includes("map.addLayer({id: 'ov_tr_f'") && html.includes("map.addLayer({id: 'ov_kma_c'") && html.includes('집계구 값(구역 값 아님)') && html.includes('구역 값 아님(시 관측소'));
 assert(html.includes("map.addLayer({id: 'ov_pop_f'") && html.includes("map.addLayer({id: 'ov_rone_l'") && html.includes('구역 값 아님(행정동 전체)') && html.includes('장기공실 후보 61지번과 다른 값'));
 console.log('ok — 생활·안전 점', L.p.length, '· CCTV', n('cctv'), '· 정류장', n('bus'), '· 관광', n('tour'));
