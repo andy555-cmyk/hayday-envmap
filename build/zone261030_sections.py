@@ -144,6 +144,11 @@ for r in C['rows']:  # 「같음」은 바로 위 행의 기준일
 def ex(label, keys, fmt, src):
     for k in keys: assert k in R, k
     return {'label': label, 'value': fmt(*(R[k] for k in keys)), 'source': src, 'asof': DT[keys[0]]}
+# 시 13곳 중 구역 밖 4곳의 경계 거리 — 정본표 「시 13곳 중 구역 밖 4곳 → 구역 경계 최근접 거리」 정수 m 그대로(EPSG:5186, 소수 첫째 자리 반올림)
+OUT4 = {int(a): int(m) for a, m in re.findall(r'(\d+)번 \S+ \S+ (\d+)m', R['시 13곳 중 구역 밖 4곳 → 구역 경계 최근접 거리'])}
+assert OUT4 == {2: 34, 8: 108, 11: 94, 13: 39}, OUT4
+for t in Z['sites']:
+    if not t['inside']: t['edgeM'] = OUT4[t['rank']]
 Z['extra1an'] = [
     ex('용도지역 구성', ['용도지역 구성 — 제2종일반주거지역', '용도지역 구성 — 일반상업지역', '용도지역 구성 — 준주거지역'],
        lambda a, b, c: f'제2종일반주거 {a}% · 일반상업 {b}% · 준주거 {c}%', '용도지역 도형 ∩ 구역 ÷ 구역 면적'),
