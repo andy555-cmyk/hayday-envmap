@@ -48,6 +48,11 @@ B = X['bus']; sh = lambda L: [{'name': b['name'], 'code': b['code'], 'daily': b[
 X['bus'] = {'inside': sh(B['inside']), 'edge': sh(B['edgeRoadside10m']), 'within300': sh(B['inside'] + B['within300']), 'source': B['source'].split(' · 좌표')[0]}
 assert (len(X['bus']['inside']), len(X['bus']['edge']), len(X['bus']['within300']), sum(b['daily'] for b in X['bus']['within300'])) == (1, 2, 23, 6777), B['counts']
 X['rail'] = [t | {'distM': RAIL[t['name']]} for t in X['rail'] if t['name'] in RAIL]
+# 평일 하루 평균 — GIS 보행·교통 칸과 같은 원자료(data/gimhae-move.js, 김해시 경전철 2025)
+_GM = json.loads((Path(__file__).resolve().parents[1] / 'data/gimhae-move.js').read_text().split('=', 1)[1].rstrip().rstrip(';'))
+_WD = {s['n'][:-1]: sum(s['wd']) for s in _GM['lrt']['st']}
+X['rail'] = [t | {'weekday': _WD[t['name']]} for t in X['rail']]
+assert sum(t['weekday'] for t in X['rail']) == 9365, X['rail']
 X.pop('limits', None)
 X['boundaryNote'] = '경계가 도로 안쪽 가장자리를 따라 그어져 경계를 이루는 도로(김해대로·가락로·봉황대길 등)는 구역 밖이다. 그래서 구역 안 차량 도로는 블록 안 골목뿐이고 진출입구도 모두 골목이다'
 Z['context'] = X
