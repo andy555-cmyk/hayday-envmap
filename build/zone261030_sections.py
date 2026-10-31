@@ -153,7 +153,8 @@ def ex(label, keys, fmt, src):
 OUT4 = {int(a): int(m) for a, m in re.findall(r'(\d+)번 \S+ \S+ (\d+)m', R['시 13곳 중 구역 밖 4곳 → 구역 경계 최근접 거리'])}
 assert OUT4 == {2: 34, 8: 108, 11: 94, 13: 39}, OUT4
 for t in Z['sites']:
-    if not t['inside']: t['edgeM'] = OUT4[t['rank']]
+    t['edgeM'] = OUT4[t['rank']] if not t['inside'] else int(t['edgeM'] + 0.5)  # 안쪽 9곳도 같은 규칙(소수 첫째 자리 반올림 정수, 정본표 「안쪽 대상지 중 경계에 가장 가까운 거리」 36m)
+assert min(t['edgeM'] for t in Z['sites'] if t['inside']) == int(str(R['안쪽 대상지 중 경계에 가장 가까운 거리']).rstrip('m')), R['안쪽 대상지 중 경계에 가장 가까운 거리']
 Z['extra1an'] = [
     ex('용도지역 구성', ['용도지역 구성 — 제2종일반주거지역', '용도지역 구성 — 일반상업지역', '용도지역 구성 — 준주거지역'],
        lambda a, b, c: f'제2종일반주거 {a}% · 일반상업 {b}% · 준주거 {c}%', '용도지역 도형 ∩ 구역 ÷ 구역 면적'),
