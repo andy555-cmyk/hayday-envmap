@@ -49,7 +49,7 @@ body.ev-open :is(${DECK_UI}){opacity:0!important;pointer-events:none!important;t
   const r = v => Math.round(v * 1e5) / 1e5;
   // 지금 카메라 + 판의 여백(설명판 자리) — 종합분석맵이 같은 여백으로 그려 원근까지 맞춘 뒤 여백을 풀며 눕는다
   const camNow = () => { const m = map(), c = m.getCenter(), p = m.getPadding(); return [r(c.lng), r(c.lat), r(m.getZoom()), r(m.getPitch()), r(m.getBearing()), ...[p.left, p.right, p.top, p.bottom].map(Math.round)].join(','); };
-  const query = (l, cam, embed) => { const q = new URLSearchParams({ case: 'gimhae_261011', mode: 'explore', cam, layers: l.layers }); if (l.routes) q.set('routes', l.routes); if (embed) q.set('embed', '1'); return q.toString(); };
+  const query = (l, cam, embed) => { const q = new URLSearchParams({ case: 'gimhae_261030', mode: 'explore', cam, layers: l.layers }); if (l.routes) q.set('routes', l.routes); if (embed) q.set('embed', '1'); return q.toString(); };
 
   // 겹판: 이어지는 단계에 처음 내려앉으면 만들고, 단계가 바뀌면 숨은 채로 다음 화면에 맞춰 둔다(타일·삽도 미리 준비)
   let frame = null, open = false, aimed = null;

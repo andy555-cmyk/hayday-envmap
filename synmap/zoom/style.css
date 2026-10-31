@@ -249,3 +249,5 @@ body.flying #lbx::after{opacity:1}
   body.chap .ch-t{letter-spacing:.3em} body.chap .ch-s{letter-spacing:.2em}
   #help{left:13px;right:13px;transform:none;font-size:13px;white-space:nowrap;overflow-x:auto;scrollbar-width:none}
 }
+.site.out .pin{outline:2px dashed #fff;outline-offset:3px;box-shadow:0 4px 14px rgba(0,0,0,.6);opacity:.82}
+.site .nm em{font-style:normal;font-weight:500;color:#ffd76a;margin-left:.3em}

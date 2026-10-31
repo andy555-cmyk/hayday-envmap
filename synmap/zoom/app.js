@@ -130,8 +130,9 @@ const FIX = {   // 독립 검수(10/22) 반영 — 대장 면적과 활용 가�
   6: '협업공간 + 팝업 연계 프로그램② — 1층 114.32㎡ 활용 검토(3동 면적 합 약 234.6㎡는 대상 동·층·임대 조건 확인 필요)',
   7: '협업공간 + 팝업 연계 프로그램① — 1층 173.1㎡ 활용안(실제 대상 동·임대 범위 확인 필요)',
   13: '입주공간 + 청년 창작·창업 공간 — 공유오피스 30인 + 독립공간 계획' };
+const OUT = new Set([2, 8, 11, 13]);   // 확정 구역계(1안) 밖 — 새 대상지 선정 전 임시 유지(대표 10/30)
 const STATE = { 5: '특화거점 후보 · 확보 조건 협의 중', 13: '입주공간 후보 · 사용 가능 여부와 대체안 검토 중' };
-D.sites.forEach(s => { if (FIX[s.no]) s.desc = FIX[s.no]; if (s.no === 13) s.use = '입주공간 + 청년 창작·창업 공간'; s.state = STATE[s.no] || '활용 후보지 · 매입·임대 협의 후 확정'; });
+D.sites.forEach(s => { if (FIX[s.no]) s.desc = FIX[s.no]; if (s.no === 13) s.use = '입주공간 + 청년 창작·창업 공간'; s.state = STATE[s.no] || '활용 후보지 · 매입·임대 협의 후 확정'; s.out = OUT.has(s.no); if (s.out) s.state = '구역 밖(새 대상지 선정 전 임시 유지) · ' + s.state; });
 D.rv.forEach(r => r.label = r.label.replace(/\s*\(\d+m\)/, ''));
 const S = Object.fromEntries(D.sites.map(s => [s.no, s]));
 D.recs.forEach(r => { if (r.c == null) r.c = 9999; });
@@ -258,8 +259,8 @@ function buildMarkers() {
   // 봉스퀘어 거점
   D.sites.forEach(s => {
     const box = document.createElement('div'), el = document.createElement('div'); box.appendChild(el);
-    el.className = 'site'; el.style.setProperty('--c', s.col);
-    el.innerHTML = `<div class="pin"><b>${s.no}</b></div><div class="nm">${s.use.replace(/\(.*?\)/g, '').split(' — ')[0]}</div>`;
+    el.className = 'site' + (s.out ? ' out' : ''); el.style.setProperty('--c', s.col);
+    el.innerHTML = `<div class="pin"><b>${s.no}</b></div><div class="nm">${s.use.replace(/\(.*?\)/g, '').split(' — ')[0]}${s.out ? ' <em>구역 밖(임시 유지)</em>' : ''}</div>`;
     el.addEventListener('click', e => { e.stopPropagation(); openSite(s.no); });
     new maplibregl.Marker({ element: box, anchor: 'bottom' }).setLngLat(s.ll).addTo(map);
     (MK.sites = MK.sites || []).push(el);
@@ -489,9 +490,10 @@ const STEPS = [
     notes: '' },
   { key: 'street', no: '4', label: '봉리단길', crumb: '봉리단길',
     title: '7년 동안 늘고,<br>그리고 멈춤',
-    lead: '봉리단길을 품은 <b>사업구역 전체</b>의 가게형 인허가는 <b>2016년 252건 → 2023년 328건</b>으로 늘었다가, 2025년부터 <b>폐업이 개업보다 많아졌다.</b>',
+    lead: '봉리단길(봉황대길)에 접한 <b>사업구역 전체</b>의 가게형 인허가는 <b>2016년 252건 → 2023년 328건</b>으로 늘었다가, 2025년부터 <b>폐업이 개업보다 많아졌다.</b>',
     items: [
       { b: 0, cls: 'zone', html: '<span style="color:#ffd76a">●</span> 영업 중 &nbsp;<span style="color:#53d8a0">●</span> 그해 개업 &nbsp;<span style="color:#ff6b6b">●</span> 그해 폐업<span class="src">행정안전부 지방행정 인허가데이터(가게형 업종, 2026-10-30 받음) · 확정 구역계(1안) 안 · 한 가게가 여러 인허가를 가질 수 있음</span>' },
+      { b: 1, cls: '', html: '<b>2024년 개업 31 · 폐업 31</b> → 2025년 21 · 32 → 2026년 18 · 20(10월 30일까지).<span class="src">같은 자료 · 그해 가게형 인허가 개업·폐업 건수</span>' },
       { b: 1, cls: '', html: '골목은 바뀌었지만, <b>스스로 이어 갈 힘</b>이 떨어지고 있다. 지금이 손을 쓸 때다.' }],
     cam: () => ({ center: [128.8786, 35.2292], zoom: 16.45, pitch: 54, bearing: 22 }), dur: 5500,
     notes: '' },
@@ -500,8 +502,9 @@ const STEPS = [
     title: '13곳을 한 바퀴로 잇는<br>생활광장',
     lead: '봉황대의 「봉」 + 스퀘어. 빈 가게·빈집·빈 땅 등 <b>활용 후보 13곳</b>을 거점·상가·협업·입주·마당으로 잇는다.',
     items: [
-      { b: 0, cls: '', html: LEG_A + '<span class="src">거점 번호를 누르면 그 건물로 들어간다</span>' },
-      { b: 1, cls: 'zone', html: '<b>13곳을 잇는 계획 동선 약 1.58km · 이동만 약 20분.</b> 5번 특화거점과 주차장이 함께 움직이고, 운영 주체는 <b>봉크크</b>로 꾸린다. 청년 창작·창업 입주 첫해 목표 <b>66명</b>.<span class="src">13곳은 활용 후보지 — 매입·임대 협의 후 확정 · 걷는 시간은 시속 약 4.7km, 체험·대기 제외</span>' },
+      { b: 0, cls: '', html: LEG_A + '<span class="src">거점 번호를 누르면 그 건물로 들어간다 · 점선 테 번호(2·8·11·13)는 구역 밖(새 대상지 선정 전 임시 유지)</span>' },
+      { b: 0, cls: 'zone', html: '확정 구역계(1안) 경계까지 — 봉황역 <b>168m</b> · 부원역 <b>125m</b> · 봉황동 유적 <b>260m</b> · 수로왕릉 <b>552m</b> · 대성동고분군 <b>960m</b> · 봉황예술극장 구역 밖 <b>79m</b><span class="src">카카오맵 장소 좌표 → 경계 가장 가까운 변 직선거리(EPSG:5186), 2026-10-30 계산</span>' },
+      { b: 1, cls: 'zone', html: '<b>13곳을 한 바퀴 잇는 걷는 길 1,575m(계산 · 기획 동선 아님) · 이동만 약 20분.</b> 5번 특화거점과 주차장이 함께 움직이고, 운영 주체는 <b>봉크크</b>로 꾸린다. 청년 창작·창업 입주 첫해 목표 <b>66명</b>.<span class="src">13곳은 활용 후보지 — 매입·임대 협의 후 확정 · 걷는 시간은 시속 약 4.7km, 체험·대기 제외</span>' },
       { b: 2, cls: 'sea', html: '<b>외국인 이웃은 프로그램으로 들어온다</b> — 거점 팝업, 청년 입주, 작가 협업. 이야기는 봉패밀리(토더기)와 거북이 <b>해동이</b>가 잇는다.<div class="pic"><img src="img/story_1280.webp" alt=""></div>' }],
     cam: () => ({ center: [128.8791, 35.2292], zoom: 17.25, pitch: 60, bearing: -18 }), dur: 6000,
     notes: '' },
