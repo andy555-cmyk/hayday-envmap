@@ -131,3 +131,7 @@ body.pmode #b-map-caption{left:15px}
 #b-panel #b-pop th:first-child,#b-panel #b-pop td:first-child{text-align:left}
 #b-panel .b-small{font-size:12px}
 #b-panel .b-funnel{display:grid;gap:6px;margin:10px 0}#b-panel .b-fun{display:grid;grid-template-columns:1fr auto;gap:2px 8px;font-size:13px}#b-panel .b-fun span{grid-column:1/-1;color:#cfe9e1}#b-panel .b-fun i{display:block;height:10px;background:#ff8a5b;border-radius:3px;align-self:center}#b-panel .b-fun b{color:#fff;white-space:nowrap}#b-panel .b-fun small{grid-column:1/-1;color:#9fb5ae;font-size:12px;line-height:1.5}
+#b-panel h4{margin:12px 0 6px;font-size:14px;color:#e8f0f6}
+#b-panel .b-decl{width:100%;border-collapse:collapse;font-size:12.5px;display:block;overflow-x:auto}
+#b-panel .b-decl th,#b-panel .b-decl td{padding:5px 6px;border-bottom:1px solid #263241;text-align:left;white-space:nowrap}
+#b-panel .b-decl th{color:#aab7c8;font-weight:500;font-size:11.5px}#b-panel .b-decl td.ok{color:#5fd3a4}#b-panel .b-decl td.no{color:#ff8a96}

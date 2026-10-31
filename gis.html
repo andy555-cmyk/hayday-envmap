@@ -2217,7 +2217,7 @@ const REGIONS = [
   {k:'busan',  t:'부산 전역', src:() => window.__BUSAN__, bin:true, file:'data/busan.js',
    shop:() => window.__SHOP_BUSAN__,
    note:'16개 구·군 472,608동 · 302,958필지 · 점포 159,689개 · 국토교통부 GIS건물통합정보 2026-08-09'},
-  {k:'gimhae', t:'김해 원도심', src:() => window.__GIMHAE__, file:'data/gimhae.js?v=1an-r9',
+  {k:'gimhae', t:'김해 원도심', src:() => window.__GIMHAE__, file:'data/gimhae.js?v=1an-r10',
    extra:{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v=mv1'},   // 보행·교통 실측(경전철·버스·유동인구)
    shop:() => window.__SHOP_GIMHAE__,
    note:'건물 10,065동 · 점포 26,700개(김해시 전역) · 준공연도 86%'},
@@ -2593,6 +2593,19 @@ function inPoly(x, y, ring) {
   return ok;
 }
 
+/* 점에서 다각형 경계(변)까지 가장 짧은 직선거리(m) — 좁은 범위라 평면 근사 */
+function edgeM(x, y, ring) {
+  const kx = 111320 * Math.cos(y * Math.PI / 180), ky = 110540;
+  let best = Infinity;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const ax = (ring[j][0] - x) * kx, ay = (ring[j][1] - y) * ky, bx = (ring[i][0] - x) * kx, by = (ring[i][1] - y) * ky;
+    const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
+    const t = L ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L)) : 0;
+    best = Math.min(best, Math.hypot(ax + t * dx, ay + t * dy));
+  }
+  return best;
+}
+
 /* 지금 분석 구역이 김해 확정 구역계(1안)와 꼭짓점까지 같은가 */
 function z1anOn() {
   const Z = BASE && BASE.zone1an;
@@ -2657,7 +2670,8 @@ function run() {
     const wx = 300 / (111320 * Math.cos(cy * Math.PI / 180)), wy = 300 / 110540;
     for (const it of WK.ix) {
       if (it.x < x0 - wx || it.x > x1 + wx || it.y < y0 - wy || it.y > y1 + wy) continue;
-      walk.push({it, inside: inPoly(it.x, it.y, ring)});
+      const inside = inPoly(it.x, it.y, ring), d = inside ? 0 : edgeM(it.x, it.y, ring);
+      if (d <= 300) walk.push({it, inside, d});
     }
   }
   /* 도시철도 역 — 구역 안, 또는 걸어서 500m 안 (김해 원도심은 김해경전철 역) */
@@ -2667,7 +2681,8 @@ function run() {
     const mx = 500 / (111320 * Math.cos(cy * Math.PI / 180)), my = 500 / 110540;
     for (const st of MT.st) {
       if (st.x < x0 - mx || st.x > x1 + mx || st.y < y0 - my || st.y > y1 + my) continue;
-      metro.push({st, inside: inPoly(st.x, st.y, ring)});
+      const inside = inPoly(st.x, st.y, ring), d = inside ? 0 : edgeM(st.x, st.y, ring);
+      if (d <= 500) metro.push({st, inside, d});   /* 사각형 여유가 아니라 경계까지 실제 거리로 거른다 */
     }
   }
   /* 김해 원도심 — 버스 정류장(구역 안 또는 300m)·자전거 주차장·횡단보도·신호, 행정동 유동인구 */
@@ -2677,7 +2692,8 @@ function run() {
     const bx = 300 / (111320 * Math.cos(cy * Math.PI / 180)), by = 300 / 110540;
     for (const st of GV.bus.st) {
       if (st.x < x0 - bx || st.x > x1 + bx || st.y < y0 - by || st.y > y1 + by) continue;
-      busS.push({st, inside: inPoly(st.x, st.y, ring)});
+      const inside = inPoly(st.x, st.y, ring), d = inside ? 0 : edgeM(st.x, st.y, ring);
+      if (d <= 300) busS.push({st, inside, d});
     }
     const inZ = (x, y) => x >= x0 && x <= x1 && y >= y0 && y <= y1 && inPoly(x, y, ring);
     gPts.bike = GV.bike.filter(b => inZ(b.x, b.y));
@@ -2913,7 +2929,7 @@ function run() {
     const pk = hr.indexOf(Math.max(...hr));
     window.__S.metro = {n: metro.length, inside: metro.filter(m => m.inside).length, wd: wdAll, we: weAll, names: metro.map(m => m.st.n)};
     gMetro = grp(TT('대중교통 유입') + Z,
-      `<div class="kvl"><span class="k">${MNM} <span style="color:var(--ink3)">(구역 안 또는 걸어서 500m)</span></span>
+      `<div class="kvl"><span class="k">${MNM} <span style="color:var(--ink3)">(구역 안 또는 경계에서 직선 500m 안)</span></span>
         <div class="chips">${metro.map(m =>
           `<span class="chip"${m.inside ? ' style="border-color:var(--acc)"' : ''}>${esc(m.st.n)}${
             m.inside ? '' : ' <span style="color:var(--ink3);font-size:13px">인근</span>'}</span>`).join('')}</div></div>` +
@@ -2940,7 +2956,7 @@ function run() {
     const top = ride.slice().sort((a, b) => b.st.wd - a.st.wd).slice(0, 6);
     window.__S.bus = {n: busS.length, ride: ride.length, inside: busS.filter(m => m.inside).length, wd: bwd, we: bwe};
     gBus = busS.length ? grp(TT('버스 정류장 이용') + NB,
-      kv('정류장(구역 안 또는 300m)', `${nf(busS.length)}곳${busS.filter(m => m.inside).length ? ` · 구역 안 ${busS.filter(m => m.inside).length}곳` : ''}`) +
+      kv('정류장(구역 안 또는 경계에서 직선 300m 안)', `${nf(busS.length)}곳${busS.filter(m => m.inside).length ? ` · 구역 안 ${busS.filter(m => m.inside).length}곳` : ''}`) +
       kv('평일 하루 이용객', `${nf(bwd)}명`) +
       kv('주말 하루 이용객', `${nf(bwe)}명`) +
       `<div class="kvl"><span class="k">많이 타는 정류장(평일)</span><div class="chips">${top.map(m =>

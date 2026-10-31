@@ -23,12 +23,12 @@ SITES = f"13곳 중 {len(ins)}곳 구역 안 · {len(out)}곳({'·'.join(f'{x}�
 VS = Z['vac1an']['signals']  # 공실 신호 = 숫자정본표 값(build/zone261030_sections.py)
 EB = f"{VS['emptyBld']:,}동"
 
-h = re.sub(r'gimhae-b171\.(js|css)\?v=zone2610\d\d-r\d+', r'gimhae-b171.\1?v=zone261030-r9', h)
-assert h.count('gimhae-b171.js?v=zone261030-r9') == 1 and h.count('gimhae-b171.css?v=zone261030-r9') == 1
-h = re.sub(r'gimhae-meeting\.(js|css)\?v=[\w-]+"', r'gimhae-meeting.\1?v=1an-r9"', h)
-assert h.count('gimhae-meeting.js?v=1an-r9') == 1
-h = re.sub(r'gimhae-b-insights\.js\?v=[\w-]+"', 'gimhae-b-insights.js?v=1an-r9"', h)  # 「근린생활시설」 단독 표기도 근생으로 셈(정본표 묶음과 같게)
-assert h.count('gimhae-b-insights.js?v=1an-r9') == 1
+h = re.sub(r'gimhae-b171\.(js|css)\?v=zone2610\d\d-r\d+', r'gimhae-b171.\1?v=zone261030-r10', h)
+assert h.count('gimhae-b171.js?v=zone261030-r10') == 1 and h.count('gimhae-b171.css?v=zone261030-r10') == 1
+h = re.sub(r'gimhae-meeting\.(js|css)\?v=[\w-]+"', r'gimhae-meeting.\1?v=1an-r10"', h)
+assert h.count('gimhae-meeting.js?v=1an-r10') == 1
+h = re.sub(r'gimhae-b-insights\.js\?v=[\w-]+"', 'gimhae-b-insights.js?v=1an-r10"', h)  # 「근린생활시설」 단독 표기도 근생으로 셈(정본표 묶음과 같게)
+assert h.count('gimhae-b-insights.js?v=1an-r10') == 1
 
 def sub_once(pat, repl, flags=0):
     global h
@@ -74,6 +74,22 @@ sub_once(r'※ <b style="color:#8af2d1">민트 선 = 확정 구역계[^<]*</b> �
          lambda m: f"※ <b style=\"color:#8af2d1\">민트 선 = 확정 구역계(1안) {HA}({D})</b> — 노후 {S['oldPct']}% · 시 우선순위 {SITES} 등은 「확정 구역계 상세 분석」")
 sub_once(r'\(확정 구역계(\(1안\))? [\d.]+ha는 위쪽 「확정 구역계 상세 분석」에서 따로\)', lambda m: f'(확정 구역계(1안) {HA}는 위쪽 「확정 구역계 상세 분석」에서 따로)')
 
+# 3-2. 첫 화면 큰 숫자 4개 — 확정 구역계(1안) 값 + 라벨. 이전 분석 범위(51.8ha) 값은 그 아래 한 줄로 내림(data-st 는 옛 범위 값이 채움)
+DR = {r['dong']: r for r in Z['decline']['rows']}; TS = Z['vac1an']['timeline']; SV = Z['survey']['counts']
+neg = lambda v: str(v).replace('-', '−')
+LEDE = (f'<div id="lede"><!--zk-lede-->\n      <div class="scope" style="margin:0 0 6px">확정 구역계(1안 · {HA} · {D}) 기준 · Ver.261031</div>\n'
+        '      <div class="big" style="grid-template-columns:repeat(4,1fr)">\n'
+        f'        <div><b>{neg(DR["합계"]["I1"])}%</b><span>인구 증감(회현+부원 1995→2025)</span></div>\n'
+        f'        <div><b>{neg(DR["합계"]["II1"])}%</b><span>사업체 증감(2021→2024)</span></div>\n'
+        f'        <div><b>{DR["합계"]["III"]}%</b><span>노후 건물(대장 · 윤곽 {S["oldPct"]}%)</span></div>\n'
+        f'        <div><b>{TS["total"]}지번</b><span>공실 예비후보(현장 확인 {SV["A"] + SV["B"] + SV["C"]})</span></div>\n'
+        '      </div>\n'
+        f'      <div class="say"><b style="color:#ff9f7a">쇠퇴 요건 Ⅰ·Ⅱ·Ⅲ 두 동 합계 모두 충족(회현 {DR["회현동"]["judge"].split()[0]}·부원 {DR["부원동"]["judge"].split()[0]})</b>\n'
+        '        <span style="font-size:10px;color:#8b949e">— 자세히는 아래 「확정 구역계(1안)」 공모 요건</span></div>\n'
+        '      <div class="say" style="font-size:11px;color:#8b949e">이전 분석 범위(초광역 원도심 51.8ha · 2026-09) — 인구 <span data-st="pop10">-8.1%</span> · 사업체 <span id="ldbiz">-5.4%</span> · 노후 건물 <span data-st="old20">91.4%</span> · 빈 점포 <span data-st="shop">354동</span> · 사업체수·노후건축물 2개 법정 기준 초과(자세히는 위 「사업체」 탭)</div>\n'
+        '    </div>')
+sub_once(r'<div id="lede">.*?\n    </div>(?=\n    <details class="fold" open id="howto">)', lambda m: LEDE, re.S)
+
 # 4. 질문 카드
 m = re.search(r'^const FACTS=(.*?);\s*$', h, re.M); F = json.loads(m.group(1))
 OLDQ = {'확정 구역계(대상지 범위)는 몇 ㎡인가', '확정 구역계 안 건물·노후도·점포는', '시 우선순위 대상지 13곳은 구역 안인가'}
@@ -87,6 +103,21 @@ for f in F:
         f['l'] += f" · 확정 구역계(1안)는 이 상권과 {ro['overlapPct']}%만 겹쳐 구역 공실률로 쓰지 않는다(참고값)"
     if f['q'] == '빈 점포가 몇 동인가' and es:
         f['l'] += f" · 확정 구역계(1안)는 같은 규칙을 용도지역 무관으로 적용해 {es['any']['shop']}동(상업·준주거만 {es['orig']['shop']}동)"
+# 쇠퇴 요건 카드 — 원도심 3동(동상동 포함)이 아니라 1안이 걸친 행정동 2개(회현·부원) 합계로
+DH, DB_, DS = DR['회현동'], DR['부원동'], DR['합계']
+DECL = {
+    '인구 감소 요건을 충족하나': dict(k='인구요건 법정 쇠퇴 5년 연속 충족 회현 부원 22.9', a=f"충족 — 회현+부원 합계 1995년 21,789명 → 2025년 16,792명({neg(DS['I1'])}%) · {DS['I2']}년 연속 감소",
+        s='통계청 인구총조사·행정안전부 주민등록(12월 말)', d='1995→2025', u='행정동 2개(회현·부원 — 확정 구역계(1안)가 걸친 동)',
+        l=f"동별: 회현동 {neg(DH['I1'])}%(5년 연속 감소) · 부원동 {neg(DB_['I1'])}%(30년 최다 대비는 미충족, 5년 연속 감소로 충족). 행정동 전체 값이며 구역 안 인구가 아니다"),
+    '사업체가 몇 개인가': dict(k='사업체 몇개 4037 가게 줄었 회현 부원', a='4,037개 (2024, 회현동+부원동)', s='김해시 기본통계 전국사업체조사', d='2024', u='행정동 2개(회현·부원)',
+        l='등록 기준이다. 실제 영업 여부는 상가 대장과 병행 확인해야 한다. 동상동을 더한 원도심 3동 값(5,120개)은 확정 구역계(1안) 범위가 아니다'),
+    '사업체 감소 요건을 충족하나': dict(k='사업체 감소 5.1 요건 충족 회현 부원', a=f"충족 — 회현+부원 합계 {neg(DS['II1'])}% (2021년 최대 4,256개 → 2024년 4,037개) · {DS['II2']}년 연속 감소",
+        s='김해시 기본통계 전국사업체조사', d='2021→2024', u='행정동 2개(회현·부원)',
+        l=f"동별로는 회현동 {neg(DH['II1'])}%로 미충족(2/3) · 부원동 {neg(DB_['II1'])}%로 충족(3/3). 두 동 합계 기준임을 명시해야 한다"),
+}
+for f in F:
+    if f['q'] in DECL: f.update(DECL.pop(f['q']))
+assert not DECL, DECL
 L = Z.get('ledger')
 C = lambda k, q, a, s, d, u, l, p='p2': {'k': k, 'q': q, 'a': a, 's': s, 'd': d, 'u': u, 'l': l, 'p': p, 'z': '1an'}
 new = [

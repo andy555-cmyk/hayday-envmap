@@ -81,6 +81,26 @@ Z.pop('vacancy', None)  # 옛 모양(10/11) 칸은 쓰지 않는다
 LAB = {'ok': '충족', 'chk': '확인 필요', 'ing': '진행 중', 'no': '아직'}
 REQ = SITE['requirements']
 assert len(REQ) == 17 and all(r['status'] in LAB for r in REQ)
+# r1·r2 는 이 화면이 정본으로 바로잡는다 — r1 「지적선 정리 예정」은 지난 문구, r2 는 원도심 3동(동상동 포함)이 아닌 1안 행정동(회현·부원) 합계
+DC = js('decline_criteria_by_dong_zone1an.json')['rows']
+I1, I2, II1, II2 = (DC['합계'][k] for k in ('I_1', 'I_2', 'II_1', 'II_2'))
+assert (I1['max'], I1['y2025'], I1['change_pct'], II1['max'], II1['y2024'], II1['change_pct']) == (21789, 16792, -22.9, 4256, 4037, -5.1), (I1, II1)
+NOW = {'r1': lambda t: t.replace('도로 안쪽 가장자리 기준 · 지적선 정리 예정', '카카오맵 면적재기 선 · 도로 안쪽 가장자리 기준 · 지적 경계 아님'),
+       'r2': lambda t: (f"1안이 걸친 행정동 회현동·부원동 합계로 인구가 {I1['max_year']}년 {I1['max']:,}명에서 2025년 {I1['y2025']:,}명으로 줄었고({I1['change_pct']}%, {I2['longest_consecutive_decline_years']}년 연속 감소), "
+                        f"사업체 수가 {II1['max_year']}년 {II1['max']:,}개에서 2024년 {II1['y2024']:,}개로 줄었습니다({II1['change_pct']}%, {II2['longest_consecutive_decline_years']}년 연속 감소). "
+                        f"구역 안 건축물대장 516동 중 연도 확인 513동, 20년 이상 431동(84.0%)이라 두 동 합계로 3개 요건을 모두 충족합니다. "
+                        f"동별로는 회현동 2/3(사업체 요건 미충족, {DC['회현동']['II_1']['change_pct']}%) · 부원동 3/3입니다. 신청 때 법정 범위·양식으로 다시 확인합니다.")}
+for r in REQ:
+    if r['id'] in NOW: r['now'] = NOW[r['id']](r['now'])
+assert '지적선 정리 예정' not in REQ[0]['now'] and '원도심 3동' not in REQ[1]['now']
+OLDP = js('decline_criteria_by_dong_zone1an.json')['III_old_buildings']['rows']
+mk = lambda ok: '충족' if ok else '미충족'
+Z['decline'] = {'rows': [{'dong': n, 'I1': DC[n]['I_1']['change_pct'], 'I1met': DC[n]['I_1']['met'], 'I2': DC[n]['I_2']['longest_consecutive_decline_years'], 'I2met': DC[n]['I_2']['met'],
+                          'II1': DC[n]['II_1']['change_pct'], 'II1met': DC[n]['II_1']['met'], 'II2': DC[n]['II_2']['longest_consecutive_decline_years'], 'II2met': DC[n]['II_2']['met'],
+                          'III': OLDP[n]['old_bld_pct_20y_plus'] if n != '합계' else 84.0, 'IIImet': True,
+                          'judge': R[f'쇠퇴 요건 — {n}(행정동 전체)' if n != '합계' else '쇠퇴 요건 — 두 동 합계']} for n in ('회현동', '부원동', '합계')],
+                'note': 'Ⅰ 인구(Ⅰ-1 30년 최다 대비 20% 이상 감소 · Ⅰ-2 최근 5년 중 3년 연속 감소) · Ⅱ 사업체(Ⅱ-1 10년 최다 대비 5% 이상 감소 · Ⅱ-2 최근 5년 중 3년 연속 감소) · Ⅲ 20년 이상 건축물 50% 이상. 행정동 전체 값(구역 안 값 아님)',
+                'source': '통계청 인구총조사·행정안전부 주민등록(12월 말)·김해시 기본통계 전국사업체조사(2015~2024) · Ⅲ 회현·부원은 2035 김해시 도시재생전략계획(안) 표(2022.12), 합계는 구역 안 건축물대장 516동 중 연도 확인 513동 직접 집계(2026-10-30)'}
 Z['requirements'] = {'items': [{'id': r['id'], 'title': r['title'], 'status': r['status'], 'label': LAB[r['status']], 'now': r['now']} for r in REQ],
                      'culture': [], 'url': 'https://andy555-cmyk.github.io/hayday-envmap/gimhae-recore/',
                      'source': '김해 원도심 RE:CORE 사업 안내 누리집 「요건 점검」(국토부 가이드라인 설명회본 2026.9.11 기준, 확정 구역계(1안) 2026-10-30 판)'}
@@ -98,10 +118,40 @@ overlap = round(100 * scale(ZR.intersection(MK), kx, 1, origin=(0, 0)).area / sc
 GJ = json.loads(gzip.decompress(base64.b64decode(re.match(r'window\.__GIMHAE__="([^"]+)"', (ROOT / 'data/gimhae.js').read_text()).group(1))))
 inz = [q for q in GJ['store'] if ZR.contains(Point(q[0], q[1]))]
 assert len(inz) == R['점포 수(전 층)'], len(inz)
-Z['rone'] = {'market': '김해시청/동상시장', 'code': '6480062', 'overlapPct': overlap, 'oldOverlapPct': 98.8,
-             'storesIn': sum(MK.contains(Point(q[0], q[1])) for q in inz),
+# 건물 = 구역 안 704동(윤곽 기준점) 중 상권 도형 안. 면적 = 겹침 비율 × 공식 표기 면적(화면 비율과 같은 값)
+H = (ROOT / 'gimhae-wondosim.html').read_text()
+BLD = json.loads(re.search(r'<script id="dat" type="application/json">(.*?)</script>', H, re.S).group(1))['bld']['features']
+bin_ = sum(MK.contains(shape(BLD[i]['geometry']).representative_point()) for i in Z['buildingIndices'])
+OLDR = json.loads((ROOT / 'data/gimhae-zone-261011.json').read_text())['rone']   # 상권 자체 값(다른 표본 상권·최신 공실률) — 구역과 무관
+Z['rone'] = {'market': '김해시청/동상시장', 'code': '6480062', 'types': OLDR['types'], 'overlapPct': overlap, 'overlapM2': round(Z['area'] * overlap / 100), 'oldOverlapPct': 98.8,
+             'storesIn': sum(MK.contains(Point(q[0], q[1])) for q in inz), 'bldIn': bin_, 'others': OLDR['others'],
+             'latest': {'quarter': '2026.2Q', 'smallVacancyPct': 13.7, 'smallRentWonPerM2': 12200},
+             'geometry': next(f for f in RG['features'] if f['properties']['sec_nm'] == '김해시청/동상시장')['geometry'],
              'sitesIn': [x['rank'] for x in Z['sites'] if MK.contains(Point(x['lnglat']))],
              'source': '한국부동산원 R-ONE 상권구획도(2024.3Q 재구획) ∩ 확정 구역계(1안) · 면적 비율, 점포는 상가(상권)정보 2026-06'}
+
+# 정본표 행 그대로 보강 칸(값마다 기준·기준일). 출처 문구는 공개용으로 짧게 — 내부 파일 경로·방 이름은 싣지 않는다
+DT = {r['항목']: r['기준일'] for r in C['rows']}
+def ex(label, keys, fmt, src):
+    for k in keys: assert k in R, k
+    return {'label': label, 'value': fmt(*(R[k] for k in keys)), 'source': src, 'asof': DT[keys[0]]}
+Z['extra1an'] = [
+    ex('용도지역 구성', ['용도지역 구성 — 제2종일반주거지역', '용도지역 구성 — 일반상업지역', '용도지역 구성 — 준주거지역'],
+       lambda a, b, c: f'제2종일반주거 {a}% · 일반상업 {b}% · 준주거 {c}%', '용도지역 도형 ∩ 구역 ÷ 구역 면적'),
+    ex('땅 높이·경사', ['평균 해발', '해발 범위', '평균 경사'], lambda a, b, c: f'평균 해발 {a}m(범위 {b}m) · 평균 경사 {c}°',
+       'Copernicus GLO-30 수치표면모델(30m, 건물 높이 섞임 — 참고값)'),
+    ex('최고 층수', ['최고 층수(윤곽 기준)'], lambda a: f'{a}층', '건물 윤곽 자료 층수 · 구역 안 704동'),
+    ex('봉황예술극장', ['봉황예술극장'], lambda a: f'구역 {a}', '장소 좌표 → 구역 경계 직선거리'),
+    ex('주변 거점까지 거리(경계 최단 직선)', ['봉황동 유적(봉황대공원) → 구역 거리', '수로왕릉 → 구역 거리', '수로왕릉역 → 구역 거리', '김해시청역 → 구역 거리',
+        '외국인근로자지원센터 → 구역 경계 직선거리', '김해시가족센터 → 구역 경계 직선거리', '가야글로벌센터 → 구역 경계 직선거리'],
+       lambda a, b, c, d, e, f, g: f'봉황동 유적(봉황대공원) {a}m · 수로왕릉 {b}m · 수로왕릉역 {c}m · 김해시청역 {d}m · 외국인근로자지원센터 {round(e)}m · 김해시가족센터 {round(f)}m · 가야글로벌센터 {round(g)}m',
+       '장소·역 좌표 → 구역 경계 최단 직선거리(구역 밖)'),
+    ex('다른 경계와 겹침', ['기존 사업구역(B권역 검토선 9/30) 겹침', '초광역 구역계 겹침'], lambda a, b: f'기존 사업구역(9/30 검토선) {a:,}㎡ · 초광역 구역계 {b:,}㎡',
+       '도형 겹침 평면 계산'),
+    ex('현장 촬영 길', ['구역 안 길(현장 촬영 길)'], lambda a: f'구역 안 {a}길 · 5,792m (촬영 길 전체 130 = 이전 92 + 새 38, 구역 밖 42)', '현장 촬영 길을 확정 구역계(1안)로 다시 셈'),
+    ex('쇠퇴 요건(행정동)', ['쇠퇴 요건 — 회현동(행정동 전체)', '쇠퇴 요건 — 부원동(행정동 전체)', '쇠퇴 요건 — 두 동 합계'],
+       lambda a, b, c: f'회현동 {a} · 부원동 {b} · 두 동 합계 {c}(Ⅲ 노후 합계는 구역 건축물대장 84.0%)', '인구총조사·주민등록·전국사업체조사(행정동 전체 — 구역 안 값 아님)')]
+assert '88길' not in R['구역 안 길(현장 촬영 길)'] if isinstance(R['구역 안 길(현장 촬영 길)'], str) else R['구역 안 길(현장 촬영 길)'] == 88
 
 # 새 구역으로 다시 계산하지 않은 항목 — 「자료 없음(이유)」
 Z['missing'] = [
@@ -112,8 +162,9 @@ Z['missing'] = [
     {'item': '현장 인터뷰(2026-08)', 'reason': '조사 권역이 새 구역과 달라 다시 고르지 않음 — 새 구역 현장 조사 때 다시 받음'},
     {'item': '부원동 수도 사용량', 'reason': '시 회신이 봉황동만 있음(부원동 자료 없음)'}]
 Z['pending'] = {}
+Z.pop('pendingNote', None)  # 다시 모으기 끝 — 「다시 모으는 중」 문구를 남기지 않는다
 
-blob = json.dumps({k: Z[k] for k in ('survey', 'context', 'vac1an', 'requirements', 'missing', 'rone')}, ensure_ascii=False).replace('대표콘텐츠', '')  # 사업 용어 「대표콘텐츠」는 사람 호칭이 아니다
+blob = json.dumps({k: Z[k] for k in ('survey', 'context', 'vac1an', 'requirements', 'missing', 'rone', 'decline', 'extra1an')}, ensure_ascii=False).replace('대표콘텐츠', '')  # 사업 용어 「대표콘텐츠」는 사람 호칭이 아니다
 for bad in ['⑦', '코덱스', '클로드', '대표', '남실장', '010-', '208,622', '208622', '21.8ha', '217,510', '869m', '26개 블록', '옛 확정안', '보증금']:
     assert bad not in blob, bad
 ZP.write_text(json.dumps(Z, ensure_ascii=False, separators=(',', ':')) + '\n')
