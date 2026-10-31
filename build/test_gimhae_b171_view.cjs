@@ -54,7 +54,7 @@ assert.ok(!/17\.1ha|4쪽|171,000|도면 5쪽|156,000/.test(source),'No stale pag
 assert.ok(!/남실장/.test(source),'No internal names on the public page');
 assert.ok(source.includes('data.area/10000')&&source.includes('data.source'),'Source and area labels derive from data');
 assert.ok(source.includes("d.version!=='2026-10-30-zone1an'||d.area!==208778"),'Fail closed for mixed old/new assets');
-assert.ok(fs.readFileSync(path.join(__dirname,'../gimhae-wondosim.html'),'utf8').includes('gimhae-b171.js?v=zone261030-r11'),'Reload uses revised script');
+assert.ok(fs.readFileSync(path.join(__dirname,'../gimhae-wondosim.html'),'utf8').includes('gimhae-b171.js?v=zone261030-r12'),'Reload uses revised script');
 console.log('confirmed-zone provenance, area labels and cache version: PASS');
 const css=fs.readFileSync(path.join(__dirname,'../data/gimhae-b171.css'),'utf8');
 assert.ok(!/#b-panel\s*\{[^}]*zoom\s*:\s*1\s*!important/.test(css),'B panel must inherit shared width-based zoom');

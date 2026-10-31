@@ -43,11 +43,10 @@ Z['survey'] = {
 X = js('context_zone1an.json')
 assert X['roads']['totalM'] == R['구역 안 도로 길이(OSM 차량 도로)'] and X['storeDistance']['n'] == R['점포 수(전 층)']
 RAIL = {'부원': R['부원역 → 구역 거리'], '봉황': R['봉황역 → 구역 거리']}
-# 정류장 「구역 안」 — 소수 4자리로 반올림된 좌표(약 10m 오차)가 경계 3~6m 밖 정류장 2곳을 안으로 넣었다. 원좌표(GIS 보행·교통 자료) 판정으로 바로잡는다
-EDGE_BUS = {'금강병원', '중앙지구대'}
-X['bus']['edge'] = [b for b in X['bus']['inside'] if b['name'] in EDGE_BUS]
-X['bus']['inside'] = [b for b in X['bus']['inside'] if b['name'] not in EDGE_BUS]
-assert [b['name'] for b in X['bus']['inside']] == ['김해중부경찰서'] and len(X['bus']['edge']) == 2, X['bus']
+# 정류장 — 원자료(⑦ context bus, GIS 보행·교통 자료와 같은 소수 6자리 원좌표). 화면 칸 모양(name·daily)으로 옮긴다. daily = 평일 하루 평균
+B = X['bus']; sh = lambda L: [{'name': b['name'], 'code': b['code'], 'daily': b['weekday'], 'weekend': b['weekend'], 'edgeM': b['edgeM']} for b in L]
+X['bus'] = {'inside': sh(B['inside']), 'edge': sh(B['edgeRoadside10m']), 'within300': sh(B['inside'] + B['within300']), 'source': B['source'].split(' · 좌표')[0]}
+assert (len(X['bus']['inside']), len(X['bus']['edge']), len(X['bus']['within300']), sum(b['daily'] for b in X['bus']['within300'])) == (1, 2, 23, 6777), B['counts']
 X['rail'] = [t | {'distM': RAIL[t['name']]} for t in X['rail'] if t['name'] in RAIL]
 X.pop('limits', None)
 X['boundaryNote'] = '경계가 도로 안쪽 가장자리를 따라 그어져 경계를 이루는 도로(김해대로·가락로·봉황대길 등)는 구역 밖이다. 그래서 구역 안 차량 도로는 블록 안 골목뿐이고 진출입구도 모두 골목이다'
