@@ -80,7 +80,7 @@ const pub=fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8')+html.re
 for(const bad of ['21.8ha','21.75','217,510','217510','217,511','217,995','67,510','71,890','26개 블록','블록 26개','13곳 모두 포함','208,622','208622'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 assert.ok(!/남실장|대표 제공|대표 확정|대표 결정|방 ⑦|010-|코덱스|클로드|Claude|Codex/.test(JSON.stringify(Z)+JSON.stringify(FA)),'no internal provenance');
 assert.ok(fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8').includes("#lgd::after{content:'━ 확정 구역계(1안) 20.9ha · 2026-10-30'"),'legacy legend = 1안');
-assert.ok(html.includes('gimhae-b171.js?v=zone261030-r24')&&html.includes('gimhae-meeting.js?v=1an-r24'),'cache versions');
+assert.ok(html.includes('gimhae-b171.js?v=zone261030-r25')&&html.includes('gimhae-meeting.js?v=1an-r25'),'cache versions');
 // 13곳 임시 유지(10/30 대표) — 핀 13곳 같은 모양, 목록에 밖 표시·회색 없음, 「재배치」 문구 없음
 const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8'),M=fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8');
 assert.ok(B.includes("'circle-color':SITE_COLOR")&&!B.includes('b-site-out'),'13 pins same style, list unchanged');

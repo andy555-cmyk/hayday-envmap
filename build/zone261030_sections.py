@@ -137,7 +137,7 @@ bin_ = sum(MK.contains(shape(BLD[i]['geometry']).representative_point()) for i i
 OLDR = json.loads((ROOT / 'data/gimhae-zone-261011.json').read_text())['rone']   # 상권 자체 값(다른 표본 상권·최신 공실률) — 구역과 무관
 Z['rone'] = {'market': '김해시청/동상시장', 'code': '6480062', 'types': OLDR['types'], 'overlapPct': overlap, 'overlapM2': round(Z['area'] * overlap / 100), 'oldOverlapPct': 98.8,
              'storesIn': sum(MK.contains(Point(q[0], q[1])) for q in inz), 'bldIn': bin_, 'others': OLDR['others'],
-             'latest': {'quarter': '2026.2Q', 'smallVacancyPct': 13.7, 'smallRentWonPerM2': 12200},
+             'latest': {'quarter': '2026.2Q', 'smallVacancyPct': 13.7, 'smallRentThousandWonPerM2': 12.20, 'smallRentSrc': '정본표 296행 소규모 12.25 → 12.20(2024.3Q→2026.2Q) · 표본 상권 · 구역 값 아님'},
              'geometry': next(f for f in RG['features'] if f['properties']['sec_nm'] == '김해시청/동상시장')['geometry'],
              'sitesIn': [x['rank'] for x in Z['sites'] if MK.contains(Point(x['lnglat']))],
              'source': '한국부동산원 R-ONE 상권구획도(2024.3Q 재구획) ∩ 확정 구역계(1안) · 면적 비율, 점포는 상가(상권)정보 2026-06'}
