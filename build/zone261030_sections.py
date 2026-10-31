@@ -86,6 +86,7 @@ LAB = {'ok': '충족', 'chk': '확인 필요', 'ing': '진행 중', 'no': '아�
 REQ = SITE['requirements']
 assert len(REQ) == 17 and all(r['status'] in LAB for r in REQ)
 # r1·r2 는 이 화면이 정본으로 바로잡는다 — r1 「지적선 정리 예정」은 지난 문구, r2 는 원도심 3동(동상동 포함)이 아닌 1안 행정동(회현·부원) 합계
+import re
 DC = js('decline_criteria_by_dong_zone1an.json')['rows']
 I1, I2, II1, II2 = (DC['합계'][k] for k in ('I_1', 'I_2', 'II_1', 'II_2'))
 assert (I1['max'], I1['y2025'], I1['change_pct'], II1['max'], II1['y2024'], II1['change_pct']) == (21789, 16792, -22.9, 4256, 4037, -5.1), (I1, II1)
@@ -97,14 +98,16 @@ NOW = {'r1': lambda t: t.replace('도로 안쪽 가장자리 기준 · 지적선
 for r in REQ:
     if r['id'] in NOW: r['now'] = NOW[r['id']](r['now'])
 assert '지적선 정리 예정' not in REQ[0]['now'] and '원도심 3동' not in REQ[1]['now']
-OLDP = js('decline_criteria_by_dong_zone1an.json')['III_old_buildings']['rows']
+# Ⅲ 노후는 세 줄 모두 정본표 행정동 전체 값(같은 분모) — 구역 안 대장 84.0%는 표 밖 줄로만
+OLDP = {n: float(re.search(r'\(([\d.]+)%\)', R[f'Ⅲ 노후건축물 20년 이상 — {n}(행정동 전체)' if n != '합계' else 'Ⅲ 노후건축물 20년 이상 — 두 동 합계']).group(1)) for n in ('회현동', '부원동', '합계')}
+assert OLDP['합계'] == 84.3, OLDP
 mk = lambda ok: '충족' if ok else '미충족'
 Z['decline'] = {'rows': [{'dong': n, 'I1': DC[n]['I_1']['change_pct'], 'I1met': DC[n]['I_1']['met'], 'I2': DC[n]['I_2']['longest_consecutive_decline_years'], 'I2met': DC[n]['I_2']['met'],
                           'II1': DC[n]['II_1']['change_pct'], 'II1met': DC[n]['II_1']['met'], 'II2': DC[n]['II_2']['longest_consecutive_decline_years'], 'II2met': DC[n]['II_2']['met'],
-                          'III': OLDP[n]['old_bld_pct_20y_plus'] if n != '합계' else 84.0, 'IIImet': True,
+                          'III': OLDP[n], 'IIImet': OLDP[n] >= 50,
                           'judge': R[f'쇠퇴 요건 — {n}(행정동 전체)' if n != '합계' else '쇠퇴 요건 — 두 동 합계']} for n in ('회현동', '부원동', '합계')],
                 'note': 'Ⅰ 인구(Ⅰ-1 30년 최다 대비 20% 이상 감소 · Ⅰ-2 최근 5년 중 3년 연속 감소) · Ⅱ 사업체(Ⅱ-1 10년 최다 대비 5% 이상 감소 · Ⅱ-2 최근 5년 중 3년 연속 감소) · Ⅲ 20년 이상 건축물 50% 이상. 행정동 전체 값(구역 안 값 아님)',
-                'source': '통계청 인구총조사·행정안전부 주민등록(12월 말)·김해시 기본통계 전국사업체조사(2015~2024) · Ⅲ 회현·부원은 2035 김해시 도시재생전략계획(안) 표(2022.12), 합계는 구역 안 건축물대장 516동 중 연도 확인 513동 직접 집계(2026-10-30)'}
+                'source': '통계청 인구총조사·행정안전부 주민등록(12월 말)·김해시 기본통계 전국사업체조사(2015~2024) · Ⅲ 건축물대장 행정동 전체 20년 이상 동 수(회현 1,238/1,445 · 부원 1,055/1,274 · 합계 2,293/2,719, 2026-10-30)', 'zoneOld': '구역 안만 보면 건축물대장 516동 중 연도 확인 513동, 20년 이상 431동(84.0%)'}
 Z['requirements'] = {'items': [{'id': r['id'], 'title': r['title'], 'status': r['status'], 'label': LAB[r['status']], 'now': r['now']} for r in REQ],
                      'culture': [], 'url': 'https://andy555-cmyk.github.io/hayday-envmap/gimhae-recore/',
                      'source': '김해 원도심 RE:CORE 사업 안내 누리집 「요건 점검」(국토부 가이드라인 설명회본 2026.9.11 기준, 확정 구역계(1안) 2026-10-30 판)'}
@@ -157,7 +160,7 @@ Z['extra1an'] = [
     ex('현장 촬영 길', ['구역 안 길(현장 촬영 길)'], lambda a: f'구역 안 {a}길 · 5,792m (촬영 길 전체 130 = 이전 92 + 새 38, 구역 밖 42)', '현장 촬영 길을 확정 구역계(1안)로 다시 셈'),
     ex('연도 입면 1층 상업 비율', ['연도 입면 1층 상업 비율(1안 36노선·69면)'], lambda a: f"{a.split('(')[0]} — 길가 앞줄 건물 643동 중 약 383동이 1층 상업 (36노선·69면)", '현장 360° 영상·로드뷰(2025.03) 건물 정면 판독, 동 수 가중'),
     ex('쇠퇴 요건(행정동)', ['쇠퇴 요건 — 회현동(행정동 전체)', '쇠퇴 요건 — 부원동(행정동 전체)', '쇠퇴 요건 — 두 동 합계'],
-       lambda a, b, c: f'회현동 {a} · 부원동 {b} · 두 동 합계 {c}(Ⅲ 노후 합계는 구역 건축물대장 84.0%)', '인구총조사·주민등록·전국사업체조사(행정동 전체 — 구역 안 값 아님)')]
+       lambda a, b, c: f'회현동 {a} · 부원동 {b} · 두 동 합계 {c}(Ⅲ 노후 두 동 합계 84.3% · 구역 안 건축물대장만은 84.0%)', '인구총조사·주민등록·전국사업체조사(행정동 전체 — 구역 안 값 아님)')]
 Z['extra1an'] += [
     ex('건축물대장(층별·전유)', ['U1 건축물대장 — 층별개요가 있는 건물', 'U1 건축물대장 — 1층 상업 구획', 'U1 건축물대장 — 전층 상업 구획·면적', 'U1 건축물대장 — 전유부(집합건축물) 호', 'U1 건축물대장 — 1층 용도 상위'],
        lambda a, b, c, d, e: f'층별개요 있는 건물 {a}동 · 1층 상업 구획 {b} · 전층 상업 구획 {c.split(" · ")[0]}(면적 {c.split(" · ")[1]}㎡) · 집합건축물 전유 {d}호 · 1층 용도 상위 {e}',
