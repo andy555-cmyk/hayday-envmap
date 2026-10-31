@@ -530,7 +530,7 @@
     if(scope==='b171'||scope==='zone'||scope==='zone1an'){switchScope(true);frame(0,true);}else{document.body.dataset.analysisScope='legacy';showBoundary();frame(0);}
   }
   window.GimhaeB={get active(){return active;},get data(){return data;},frame,shot,open:()=>{switchScope(true);frame(350,true);}};
-  fetch('data/gimhae-zone-261030.json?v=1an-r22').then(r=>{if(!r.ok)throw Error('경계 자료를 불러오지 못했습니다');return r.json();}).then(async d=>{
+  fetch('data/gimhae-zone-261030.json?v=1an-r23').then(r=>{if(!r.ok)throw Error('경계 자료를 불러오지 못했습니다');return r.json();}).then(async d=>{
     data=d;ctx=d.context;
     if(d.version!=='2026-10-30-zone1an'||d.area!==208778||d.sites.length!==13||d.sites.filter(t=>t.inside).length!==9)throw Error('새 경계 자료와 화면 버전이 다릅니다. 새로고침해 주세요.');
     // Verify index data against the immutable embedded source before using it.

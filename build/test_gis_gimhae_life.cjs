@@ -24,6 +24,16 @@ assert.deepStrictEqual(L.c.hosp, [22, 63, 52, 185]); assert.strictEqual(n('hosp'
 assert.deepStrictEqual(L.c.shel, [5, 32]); assert.deepStrictEqual(L.c.aed, [3, 40]); assert.deepStrictEqual(L.c.emer, [1, 0]);
 assert.deepStrictEqual(L.c.play, [2, 35]); assert.deepStrictEqual(L.c.ev, [2, 4, 60, 317]); assert.deepStrictEqual(L.c.bike, [2, 23]);
 assert.strictEqual(n('ev'), 62);
+// ⑧-B 행정동 인구 — 정본표 252~258행(회현·부원 + 비교 5개 동), 통·반은 지도에 없음
+assert.deepStrictEqual(Object.keys(L.pop).sort(), ['내외동', '동상동', '부원동', '북부동', '칠산서부동', '활천동', '회현동'].sort());
+assert.deepStrictEqual([L.pop['회현동'].chg, L.pop['회현동'].o70, L.pop['회현동'].hh], [-9.7, 20.4, 1.94]);
+assert.deepStrictEqual([L.pop['부원동'].chg, L.pop['부원동'].o70, L.pop['부원동'].hh], [-8, 15.3, 1.85]);
+assert(!L.pop['회현동'].cmp && L.pop['북부동'].cmp, '비교 동 표시');
+assert(!src.includes('통별'), '통·반 값은 지도 자료에 넣지 않음');
+// R-ONE 표본 상권 — 김해시청/동상시장 도형 + 정본표 270·272·273·274행 문구(2024.2분기까지)
+assert.strictEqual(L.rone.name, '김해시청/동상시장'); assert(L.rone.geo.coordinates[0].length > 10);
+assert(L.rone.t.big.startsWith('2013 5.0') && L.rone.t.big.includes('2024.2분기 17.5'));
+assert(!src.includes('2026.2Q'), '정본표에 없는 최신 분기 값');
 // 출처·기준일이 층마다 있다
 for (const k of ['cctv', 'bell', 'bus', 'tour', 'cul', 'hosp', 'shel', 'dust', 'aed', 'emer', 'play', 'ev', 'bike'])
   assert(L.src[k] && /^\d{4}-\d{2}-\d{2}$/.test(L.src[k][1]), k + ' 출처·기준일');
@@ -40,4 +50,6 @@ assert(html.includes('data-mode="life"') && html.includes("life: '생활·안전
 assert(html.includes('body:not([data-region="gimhae"]) #modes [data-mode="life"]{display:none}'));
 assert(html.includes("map.addLayer({id: 'ov_life_c'") && html.includes("vis('ov_life_c', MODE === 'life'"));
 assert(html.includes('function lifeKpi()'));
+assert((html.match(/'text-font': \['Noto Sans Bold'\]/g) || []).length >= 3, '글자 층 글꼴 지정(빠지면 면까지 안 그려짐)');
+assert(html.includes("map.addLayer({id: 'ov_pop_f'") && html.includes("map.addLayer({id: 'ov_rone_l'") && html.includes('구역 값 아님(행정동 전체)') && html.includes('장기공실 후보 61지번과 다른 값'));
 console.log('ok — 생활·안전 점', L.p.length, '· CCTV', n('cctv'), '· 정류장', n('bus'), '· 관광', n('tour'));

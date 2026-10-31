@@ -201,12 +201,34 @@ SRC = {  # 범례에 작게 — 기관명 · 정본표 기준일
     'shel': '경상남도 재난대피시설', 'dust': '에어코리아 미세먼지 쉼터', 'aed': '국립중앙의료원 AED',
     'emer': '국립중앙의료원 응급의료기관', 'play': '행정안전부 어린이놀이시설', 'ev': '한국환경공단 전기차 충전기',
     'bike': '행정안전부 자전거보관소'}
-OUTD = {'v': 'life1', 'cc': CC + ['기타'], 'c': C,
+# ── ⑧-B 인구(행정동 단계구분) · R-ONE 표본 상권 — 정본표 B 252~281행만. 통·반은 경계 도형이 없어 지도에 올리지 않는다
+DONG = {'회현동': '⑧-B 인구 — 회현동 2022.12→2026.09', '부원동': '⑧-B 인구 — 부원동 2022.12→2026.09'}
+for d in ('동상동', '칠산서부동', '활천동', '내외동', '북부동'): DONG[d] = f'⑧-B 인구 — {d} 2022.12→2026.09(비교)'
+POP = {}
+for d, nm in DONG.items():
+    t = row(nm)['새값']
+    m = re.search(r'인구 ([\d,]+) → ([\d,]+)\((-?[\d.]+)%\).*?세대당 ([\d.]+) → ([\d.]+).*?70세\+ ([\d.]+) → ([\d.]+)%', t)
+    assert m, (d, t)
+    a0, a1 = (int(x.replace(',', '')) for x in m.group(1, 2))
+    assert abs((a1 - a0) / a0 * 100 - float(m.group(3))) < 0.06, d
+    POP[d] = {'chg': float(m.group(3)), 'o70': float(m.group(7)), 'hh': float(m.group(5)), 'pop': a1, 't': t, 'cmp': d not in ('회현동', '부원동')}
+T_POP = row('⑧-B 인구 — 회현동 2022.12→2026.09')
+RV = {k: row(v)['새값'] for k, v in {
+    'big': '⑧-B 상권 — 원도심 중대형 공실률(연평균)', 'small': '⑧-B 상권 — 원도심 소규모 공실률(연평균)',
+    'set': '⑧-B 상권 — 원도심 집합상가 공실률(연평균)', 'rent': '⑧-B 상권 — 원도심 임대료(연평균)'}.items()}
+RG = json.load(open(Path(__file__).resolve().parent / 'data' / 'rone_gimhae_markets_2024q3.geojson'))
+rg = [f for f in RG['features'] if f['properties'].get('sec_nm') == '김해시청/동상시장']
+assert len(rg) == 1
+geo = rg[0]['geometry']
+def rnd(c): return [rnd(x) for x in c] if isinstance(c[0], list) else [round(c[0], 6), round(c[1], 6)]
+RONE = {'name': '김해시청/동상시장', 'geo': {'type': geo['type'], 'coordinates': rnd(geo['coordinates'])}, 't': RV,
+        'asof': row('⑧-B 상권 — 원도심 중대형 공실률(연평균)')['기준일']}
+OUTD = {'v': 'life2', 'cc': CC + ['기타'], 'c': C, 'pop': POP, 'popAsof': '2022-12 → 2026-09', 'rone': RONE,
         't': {k: v['새값'] for k, v in T.items()},
         'src': {k: [SRC[k], (T[k]['기준일'] if k != 'bus' else T['route']['기준일'])] for k in SRC},
         'p': P}
 txt = json.dumps(OUTD, ensure_ascii=False, separators=(',', ':'))
-for bad in ('208,622', '21.75', '217,510', '67,510', '869m', '재배치', '대표점'):
+for bad in ('2026.2Q', '208,622', '21.75', '217,510', '67,510', '869m', '재배치', '대표점'):
     assert bad not in txt, bad
 OUT.write_text('/* 김해 원도심 생활·안전 층(⑧-A) — build/gis_gimhae_life.py 가 만든다. 손으로 고치지 않는다 */\n'
                'window.__GLIFE__=' + txt + ';\n', encoding='utf-8')

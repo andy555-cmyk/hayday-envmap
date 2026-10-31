@@ -2228,7 +2228,7 @@ const REGIONS = [
    note:'16개 구·군 472,608동 · 302,958필지 · 점포 159,689개 · 국토교통부 GIS건물통합정보 2026-08-09'},
   {k:'gimhae', t:'김해 원도심', src:() => window.__GIMHAE__, file:'data/gimhae.js?v=1an-r10',
    extra:[{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v=mv1'},   // 보행·교통 실측(경전철·버스·유동인구)
-          {has:() => window.__GLIFE__, file:'data/gimhae-life.js?v=life1'}],   // 생활·안전 시설(CCTV·비상벨·정류소·관광 등)
+          {has:() => window.__GLIFE__, file:'data/gimhae-life.js?v=life2'}],   // 생활·안전 시설(CCTV·비상벨·정류소·관광 등)
    shop:() => window.__SHOP_GIMHAE__,
    note:'건물 10,065동 · 점포 26,700개(김해시 전역) · 준공연도 86%'},
 ];
@@ -4123,6 +4123,12 @@ function declineHTML(hit, p20, areaM2) {
       const tg = (k, label) => `<button type="button" class="lf-t" data-lf="${k}" aria-pressed="${LF[k] ? 'true' : 'false'}">${sw(LIFE[k][0], 'c')}${label}</button>`;
       rows.push(`<div class="lg-row"><span class="lg-k">CCTV</span>${L.cc.map((t, i) => `<span>${sw(CCTVC[i], 'c')}${esc(t === '교통정보수집' ? '교통정보' : t)}</span>`).join('')}${tg('cctv', 'CCTV 점')}<span class="lf-src">설치 목적별 색 · 진한 테두리 = 구역 안 · ${src('cctv')}</span></div>`);
       rows.push(`<div class="lg-row"><span class="lg-k">1순위</span>${tg('bell', '안전비상벨 <b>구역 안 0</b>')}${tg('bus', '버스 정류장')}${tg('tour', '관광·문화')}<span class="lf-src">정류장은 클수록 지나는 노선이 많음 · ${src('bell')} · ${src('bus')} · ${src('tour')} · ${src('cul')}</span></div>`);
+      if (L.pop) {
+        const pb = (k, t) => `<button type="button" class="lf-t" data-lp="${k}" aria-pressed="${LPOP === k ? 'true' : 'false'}">${t}</button>`;
+        const rg = LPOP ? popRange(LPOP) : null;
+        rows.push(`<div class="lg-row"><span class="lg-k">행정동 인구</span>${pb('', '끄기')}${Object.entries(POPM).map(([k, v]) => pb(k, v[0])).join('')}${rg ? `<span><i class="sw2" style="width:54px;background:linear-gradient(90deg,${POPM[LPOP][2]},${POPM[LPOP][3]})"></i>${rg[0]}${POPM[LPOP][1]} → ${rg[1]}${POPM[LPOP][1]}</span>` : ''}<span class="lf-src">회현·부원(굵은 선) + 비교 5개 동 · 구역 값 아님(행정동 전체) · 통·반은 경계 도형이 공개되지 않아 지도에 올리지 않음 · 주민등록 인구 ${esc(L.popAsof)}</span></div>`);
+      }
+      if (L.rone) rows.push(`<div class="lg-row"><span class="lg-k">표본 상권</span><button type="button" class="lf-t" data-lr="1" aria-pressed="${LRONE ? 'true' : 'false'}"><i class="sw2 ln" style="border-color:#ea580c"></i>R-ONE 「${esc(L.rone.name)}」</button><span class="lf-src">공실률·임대료는 이 상권 표본 건물 기준 · 구역 값 아님(상권 단위) · 장기공실 후보 61지번과 다른 값 · 한국부동산원 ${esc(L.rone.asof)}</span></div>`);
       rows.push(`<div class="lg-row"><span class="lg-k">2순위</span>${tg('hosp', '병·의원')}${tg('shel', '재난대피·쉼터')}${tg('aed', 'AED·응급')}${tg('play', '놀이시설')}${tg('ev', '전기차 충전')}${tg('bike', '자전거보관소')}<span class="lf-src">${['hosp', 'shel', 'dust', 'aed', 'emer', 'play', 'ev', 'bike'].map(src).join(' · ')}</span></div>`);
     }
     if (MODE === 'move' && RS && RS.busan) {
@@ -4150,6 +4156,11 @@ function declineHTML(hit, p20, areaM2) {
   const CCTVC = ['#2563eb', '#f97316', '#eab308', '#ec4899', '#94a3b8'];
   const LF = {}; Object.keys(LIFE).forEach(k => { LF[k] = !!LIFE[k][1]; });
   const LPAIR = {tour: 'cul', shel: 'dust', aed: 'emer'};   // 범례 단추 하나가 두 층을 같이 켠다
+  /* 행정동 인구 단계구분(⑧-B) — 회현·부원 + 비교 5개 동. 통·반은 경계 도형이 없어 올리지 않는다 */
+  const POPM = {chg: ['인구 증감률', '%', '#b91c1c', '#fee2e2'], o70: ['70세 이상 비율', '%', '#ede9fe', '#5b21b6'], hh: ['세대당 인구', '명', '#0e7490', '#cffafe']};
+  let LPOP = '', LRONE = false, popFC = null, roneFC = null;
+  const popRange = k => { const v = Object.values((GL() || {}).pop || {}).map(d => d[k]); return [Math.min(...v), Math.max(...v)]; };
+  const popColor = k => { const [a, b] = popRange(k); return ['interpolate', ['linear'], ['get', k], a, POPM[k][2], b === a ? a + 1 : b, POPM[k][3]]; };
   let lifeFC = null;
   const lifeOn = () => Object.keys(LF).filter(k => LF[k]);
   function ovData() {
@@ -4165,6 +4176,12 @@ function declineHTML(hit, p20, areaM2) {
       geometry: {type: 'Point', coordinates: [s.x, s.y]}})) : []};
     dongFC = G ? G.flow.geo : {type: 'FeatureCollection', features: []};
     const GLF = window.__GLIFE__;
+    popFC = {type: 'FeatureCollection', features: G && GLF && GLF.pop ? G.flow.geo.features.filter(f => GLF.pop[f.properties.n]).map(f => {
+      const d = GLF.pop[f.properties.n];
+      return {type: 'Feature', geometry: JSON.parse(JSON.stringify(f.geometry)), properties: {n: f.properties.n, chg: d.chg, o70: d.o70, hh: d.hh, cmp: d.cmp ? 1 : 0,
+        l_chg: `${f.properties.n} ${d.chg}%`, l_o70: `${f.properties.n} ${d.o70}%`, l_hh: `${f.properties.n} ${d.hh}명`}};
+    }) : []};
+    roneFC = {type: 'FeatureCollection', features: GLF && GLF.rone ? [{type: 'Feature', geometry: GLF.rone.geo, properties: {n: GLF.rone.name}}] : []};
     lifeFC = {type: 'FeatureCollection', features: GLF ? GLF.p.map((s, i) => ({type: 'Feature', id: i,
       properties: {k: s.k, z: s.z, s: s.s == null ? '' : s.s, r: s.r || 0, n: s.n || '', d: s.d || 0},
       geometry: {type: 'Point', coordinates: [s.x, s.y]}})) : []};
@@ -4192,13 +4209,31 @@ function declineHTML(hit, p20, areaM2) {
     if (!map.getLayer('ov_dong_l')) map.addLayer({id: 'ov_dong_l', type: 'line', source: 'ov_dong', layout: {visibility: 'none'},
       paint: {'line-color': '#64748b', 'line-width': 1.6, 'line-dasharray': [3, 2], 'line-opacity': 0.85}}, before);
     if (!map.getLayer('ov_dong_t')) map.addLayer({id: 'ov_dong_t', type: 'symbol', source: 'ov_dong', layout: {visibility: 'none',
-      'text-field': ['get', 'n'], 'text-size': 13, 'symbol-placement': 'point'},
+      'text-field': ['get', 'n'], 'text-size': 13, 'symbol-placement': 'point', 'text-font': ['Noto Sans Bold']},
       paint: {'text-color': '#475569', 'text-halo-color': '#fff', 'text-halo-width': 1.6}});
     if (!map.getSource('ov_bus')) map.addSource('ov_bus', {type: 'geojson', data: busFC}); else map.getSource('ov_bus').setData(busFC);
     if (!map.getLayer('ov_bus_c')) map.addLayer({id: 'ov_bus_c', type: 'circle', source: 'ov_bus', layout: {visibility: 'none'},
       paint: {'circle-radius': ['interpolate', ['linear'], ['sqrt', ['max', ['get', 'wd'], 0]], 0, 3.5, 15, 6, 36, 12],
         'circle-color': '#0f766e', 'circle-opacity': ['case', ['<', ['get', 'wd'], 0], 0.35, 0.8],
         'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.4}}, before);
+    /* 글자 층은 'text-font' 를 꼭 바탕지도 글꼴(Noto Sans)로 준다 — 빼면 기본 글꼴 요청이 404 가 나고 같은 원본의 면·선까지 통째로 안 그려진다(2026-10-31 실측).
+       자료 개수가 바뀌면 원본·층을 다시 만든다 */
+    const reMk = (src, ids, fc) => { const S = map.getSource(src);
+      if (S && (S._options.data.features || []).length !== fc.features.length) { ids.forEach(id => map.getLayer(id) && map.removeLayer(id)); map.removeSource(src); }
+      if (!map.getSource(src)) map.addSource(src, {type: 'geojson', data: JSON.parse(JSON.stringify(fc))}); };
+    reMk('lf_dong', ['ov_pop_f', 'ov_pop_l'], popFC); reMk('lf_dongt', ['ov_pop_t'], popFC);
+    if (!map.getLayer('ov_pop_f')) map.addLayer({id: 'ov_pop_f', type: 'fill', source: 'lf_dong', layout: {visibility: 'none'},
+      paint: {'fill-color': '#ccc', 'fill-opacity': 0.5}}, before);
+    if (!map.getLayer('ov_pop_l')) map.addLayer({id: 'ov_pop_l', type: 'line', source: 'lf_dong', layout: {visibility: 'none'},
+      paint: {'line-color': '#334155', 'line-width': ['case', ['==', ['get', 'cmp'], 0], 2.4, 1.2], 'line-opacity': 0.8}}, before);
+    if (!map.getLayer('ov_pop_t')) map.addLayer({id: 'ov_pop_t', type: 'symbol', source: 'lf_dongt', layout: {visibility: 'none',
+      'text-field': ['get', 'l_chg'], 'text-size': 13, 'symbol-placement': 'point', 'text-font': ['Noto Sans Bold']},
+      paint: {'text-color': '#1f2937', 'text-halo-color': '#fff', 'text-halo-width': 1.8}});
+    reMk('lf_rone', ['ov_rone_f', 'ov_rone_l'], roneFC);
+    if (!map.getLayer('ov_rone_f')) map.addLayer({id: 'ov_rone_f', type: 'fill', source: 'lf_rone', layout: {visibility: 'none'},
+      paint: {'fill-color': '#ea580c', 'fill-opacity': 0.08}}, before);
+    if (!map.getLayer('ov_rone_l')) map.addLayer({id: 'ov_rone_l', type: 'line', source: 'lf_rone', layout: {visibility: 'none'},
+      paint: {'line-color': '#ea580c', 'line-width': 2.6, 'line-dasharray': [2, 1.5]}}, before);
     if (!map.getSource('ov_life')) map.addSource('ov_life', {type: 'geojson', data: lifeFC}); else map.getSource('ov_life').setData(lifeFC);
     if (!map.getLayer('ov_life_c')) map.addLayer({id: 'ov_life_c', type: 'circle', source: 'ov_life', layout: {visibility: 'none'},
       filter: ['in', ['get', 'k'], ['literal', lifeOn()]],
@@ -4213,7 +4248,7 @@ function declineHTML(hit, p20, areaM2) {
         'circle-stroke-color': ['case', ['>', ['get', 'z'], 0], '#16181d', '#ffffff'],
         'circle-stroke-width': ['case', ['==', ['get', 'z'], 1], 2.4, ['==', ['get', 'z'], 2], 2.4, 1.2]}}, before);
     if (!map.getLayer('ov_life_t')) map.addLayer({id: 'ov_life_t', type: 'symbol', source: 'ov_life', minzoom: 15.5, layout: {visibility: 'none',
-      'text-field': ['get', 'n'], 'text-size': 12.5, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-optional': true},
+      'text-field': ['get', 'n'], 'text-size': 12.5, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-optional': true, 'text-font': ['Noto Sans Bold']},
       filter: ['all', ['in', ['get', 'k'], ['literal', ['tour', 'cul']]], ['!=', ['get', 'n'], '']],
       paint: {'text-color': '#581c87', 'text-halo-color': '#fff', 'text-halo-width': 1.6}});
     if (!map.getSource('ov_metro')) map.addSource('ov_metro', {type: 'geojson', data: metroFC}); else map.getSource('ov_metro').setData(metroFC);
@@ -4260,7 +4295,12 @@ function declineHTML(hit, p20, areaM2) {
         bike: () => ['공공 자전거보관소', '']}[p.k] || (() => [esc(p.k), '']);
       const [h, m] = T();
       show(e, `<b>${h}</b><small>${zt}${m ? ' · ' + m : ''}</small><small>${src(p.k)}</small>`); });
-    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c', 'ov_bus_c', 'ov_life_c'].forEach(id => map.on('mouseleave', id, hide));
+    const onPt = e => map.getLayer('ov_life_c') && map.getLayoutProperty('ov_life_c', 'visibility') === 'visible' && map.queryRenderedFeatures(e.point, {layers: ['ov_life_c']}).length;
+    map.on('mousemove', 'ov_pop_f', e => { if (onPt(e)) return; const p = e.features[0].properties, L = GL(); if (!L || !L.pop[p.n]) return;
+      show(e, `<b>${esc(p.n)}${+p.cmp ? ' <small style="display:inline">비교 동</small>' : ''}</b><small>${esc(L.pop[p.n].t)}</small><small>구역 값 아님(행정동 전체) · 주민등록 인구 ${esc(L.popAsof)}</small>`); });
+    map.on('mousemove', 'ov_rone_f', e => { if (onPt(e)) return; const R = (GL() || {}).rone; if (!R) return;
+      show(e, `<b>표본 상권 「${esc(R.name)}」</b><small>중대형 공실률(%) ${esc(R.t.big)}</small><small>소규모 ${esc(R.t.small)} · 집합상가 ${esc(R.t.set)}</small><small>임대료(천원/㎡) ${esc(R.t.rent)}</small><small>구역 값 아님(상권 단위) · 표본 건물 기준 · 장기공실 후보 61지번과 다른 값 · 한국부동산원 ${esc(R.asof)}</small>`); });
+    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c', 'ov_bus_c', 'ov_life_c', 'ov_pop_f', 'ov_rone_f'].forEach(id => map.on('mouseleave', id, hide));
   }
   let shopT = null;
   function refreshShops() {
@@ -4291,6 +4331,10 @@ function declineHTML(hit, p20, areaM2) {
     vis('ov_life_c', MODE === 'life' && !!GL());
     vis('ov_life_t', MODE === 'life' && !!GL() && (LF.tour || LF.cul));
     if (map.getLayer('ov_life_c')) map.setFilter('ov_life_c', ['in', ['get', 'k'], ['literal', lifeOn()]]);
+    const popOn = MODE === 'life' && !!GL() && !!LPOP;
+    ['ov_pop_f', 'ov_pop_l', 'ov_pop_t'].forEach(id => vis(id, popOn));
+    if (popOn && map.getLayer('ov_pop_f')) { map.setPaintProperty('ov_pop_f', 'fill-color', popColor(LPOP)); map.setLayoutProperty('ov_pop_t', 'text-field', ['get', 'l_' + LPOP]); }
+    vis('ov_rone_f', MODE === 'life' && !!GL() && LRONE); vis('ov_rone_l', MODE === 'life' && !!GL() && LRONE);
     /* 점포·역을 볼 때는 건물을 옅게 깐다 — 점이 묻히지 않게 */
     const fade = MODE === 'shop' || MODE === 'move' || MODE === 'life';
     if (window.__satTune) window.__satTune();   // 배경 보정 먼저, 모드 진하기는 그 뒤에
@@ -4323,8 +4367,11 @@ function declineHTML(hit, p20, areaM2) {
   document.querySelectorAll('#modes [data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
   /* 범례의 층 단추 — 생활·안전 층을 하나씩 켜고 끈다 */
   $('#legend').addEventListener('click', e => {
-    const b = e.target.closest('[data-lf]'); if (!b) return;
-    const k = b.dataset.lf; LF[k] = !LF[k]; if (LPAIR[k]) LF[LPAIR[k]] = LF[k];
+    const bp = e.target.closest('[data-lp]'), br = e.target.closest('[data-lr]');
+    if (bp) LPOP = bp.dataset.lp; else if (br) LRONE = !LRONE;
+    const b = e.target.closest('[data-lf]');
+    if (b) { const k = b.dataset.lf; LF[k] = !LF[k]; if (LPAIR[k]) LF[LPAIR[k]] = LF[k]; }
+    else if (!bp && !br) return;
     try { applyVis(); } catch (er) {}
     paintLegend();
   });
