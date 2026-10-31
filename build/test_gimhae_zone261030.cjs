@@ -80,7 +80,7 @@ const pub=fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8')+html.re
 for(const bad of ['21.8ha','21.75','217,510','217510','217,511','217,995','67,510','71,890','26개 블록','블록 26개','13곳 모두 포함','208,622','208622'])assert.ok(!pub.includes(bad),'old/forbidden: '+bad);
 assert.ok(!/남실장|대표 제공|대표 확정|대표 결정|방 ⑦|010-|코덱스|클로드|Claude|Codex/.test(JSON.stringify(Z)+JSON.stringify(FA)),'no internal provenance');
 assert.ok(fs.readFileSync(path.join(root,'data/gimhae-b171.css'),'utf8').includes("#lgd::after{content:'━ 확정 구역계(1안) 20.9ha · 2026-10-30'"),'legacy legend = 1안');
-assert.ok(html.includes('gimhae-b171.js?v=zone261030-r21')&&html.includes('gimhae-meeting.js?v=1an-r21'),'cache versions');
+assert.ok(html.includes('gimhae-b171.js?v=zone261030-r22')&&html.includes('gimhae-meeting.js?v=1an-r22'),'cache versions');
 // 13곳 임시 유지(10/30 대표) — 핀 13곳 같은 모양, 목록에 밖 표시·회색 없음, 「재배치」 문구 없음
 const B=fs.readFileSync(path.join(root,'data/gimhae-b171.js'),'utf8'),M=fs.readFileSync(path.join(root,'data/gimhae-meeting.js'),'utf8');
 assert.ok(B.includes("'circle-color':SITE_COLOR")&&!B.includes('b-site-out'),'13 pins same style, list unchanged');
@@ -101,5 +101,12 @@ assert.ok(html.includes('<link rel="icon" href="favicon.svg"')&&fs.existsSync(pa
 for(const k of ['market','code','overlapPct','overlapM2','oldOverlapPct','storesIn','bldIn','sitesIn','others','latest','geometry','source'])assert.ok(Z.rone[k]!==undefined,'rone.'+k);
 assert.ok(Z.rone.latest.smallVacancyPct===13.7&&Z.rone.latest.quarter==='2026.2Q'&&Z.rone.bldIn<=704,'rone values');
 assert.ok(!('pendingNote' in Z)&&Z.decline.rows.length===3&&Z.extra1an.length>=8,'pendingNote 없음 · 쇠퇴 동별 · 보강 칸');
+// ⑧-A 생활·환경·안전 칸 — 정본표 B 221~251행 문구 그대로(하천범람 236행 제외) · 정류장은 203행 · 관광 거리는 C행
+{const L8=Object.fromEntries(Z.extra1an.map(x=>[x.label,x.value]));
+for(const k of ['안전 시설(구역 안 · 경계 800m 안)','교통 시설','생활 SOC','관광·문화 자원','기상(김해 관측소)','대기질','교통사고(김해시 전체)'])assert.ok(L8[k],'⑧-A 칸 없음: '+k);
+assert.ok(L8['안전 시설(구역 안 · 경계 800m 안)'].includes('CCTV 구역 안 26(전부 다목적)')&&L8['안전 시설(구역 안 · 경계 800m 안)'].includes('안전비상벨 구역 안 0 · 800m 안 45'),'⑧-A 안전');
+assert.ok(L8['교통 시설'].startsWith('버스 정류장 구역 안 1곳(김해중부경찰서')&&L8['교통 시설'].includes('경계 도로변 10m 안 2곳'),'정류장은 203행');
+assert.ok(L8['관광·문화 자원'].includes('봉황동 유적(봉황대공원) 260m · 수로왕릉 552m')&&!L8['관광·문화 자원'].includes('555m'),'관광 거리는 C행');
+assert.ok(!JSON.stringify(Z.extra1an).match(/범람|침수/),'하천범람(236행) 쓰지 않음');}
 assert.ok(!/원도심 3동/.test(JSON.stringify(Z.requirements))&&!/지적선 정리 예정/.test(JSON.stringify(Z.requirements)),'요건 r1·r2 최신 문구');
 console.log('PASS: 1안 208,778㎡ · 704동 · 87.0% · 440곳 · 대장 516동 84.0% · 13곳 중 9곳 안(2·8·11·13 밖) · 정본표 2판 대조 · 재수집 38항목 · 공실 신호 레이어 7종(겹침 8) · 인구 이동(정본표 합계 대조) · 카드 4 · 전수조사 A~E(483) · 공실 거르기 440→38→4→2→1 · 요건 17 · 자료 없음 칸 · 옛 숫자 없음');

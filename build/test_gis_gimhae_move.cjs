@@ -26,7 +26,7 @@ assert.strictEqual(D['합계'].I1.change_pct, -22.9);
 for (const bad of ['217,510', '208,622', '대표', '남실장', '클로드', '코덱스', '피그마']) assert(!src.includes(bad), bad);
 // GIS 가 이 파일을 김해에서만 곁들여 받고, 보행·교통·쇠퇴 판정에 쓴다
 const html = fs.readFileSync(path.join(R, 'gis.html'), 'utf8');
-assert(html.includes("extra:{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v="));
+assert(html.includes("extra:[{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v="));
 assert(html.includes("const GM = () => (REGION === 'gimhae' && window.__GMOVE__) || null;"));
 assert(html.includes('function declineGimhae(p20)'));
 assert(!html.includes('김해 원도심에는 보행·도시철도 실측 자료가 아직 없습니다') || html.includes("if (MODE === 'move' && GM())"));

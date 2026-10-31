@@ -147,6 +147,13 @@ html[data-theme="dark"] .modes{background:#000}
 .sw2.c{border-radius:50%}
 .sw2.ln{width:20px;height:0;border-top:2.5px dashed var(--ink);border-radius:0}
 .sw2.ar{background:rgba(74,166,236,.25);border:2px solid #2f8fdd}
+/* 생활·안전(김해) — 층 켜고 끄기 */
+body:not([data-region="gimhae"]) #modes [data-mode="life"]{display:none}
+.lf-t{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);font:inherit;font-size:14px;cursor:pointer}
+.lf-t[aria-pressed="false"]{opacity:.45}
+.lf-t[aria-pressed="false"] .sw2{background:transparent!important;border:2px solid var(--ink3)}
+.lf-t b{font-weight:800}
+.lg-row .lf-src{display:block;flex-basis:100%;margin-top:-2px;font-size:12px;color:var(--ink3);white-space:normal}
 
 /* ── 패널 ── */
 .panel{position:absolute;top:14px;right:14px;bottom:14px;width:var(--R);overflow-y:auto;overscroll-behavior:contain;
@@ -173,6 +180,7 @@ body[data-mode="old"]  #res .mx[data-m~="old"],
 body[data-mode="bld"]  #res .mx[data-m~="bld"],
 body[data-mode="shop"] #res .mx[data-m~="shop"],
 body[data-mode="move"] #res .mx[data-m~="move"],
+body[data-mode="life"] #res .mx[data-m~="life"],
 body[data-mode="file"] #res .mx[data-m~="file"],
 #res.showall .mx[data-m]{display:block}
 .pane.r{display:flex;flex-direction:column}
@@ -554,6 +562,7 @@ html[data-theme="dark"] .maplibregl-ctrl-scale{background:rgba(21,26,32,.7);colo
     <button type="button" data-mode="old" role="tab" aria-label="쇠퇴 판단"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4v16h18M7 8l4 4 3-2 5 6"/><path d="M19 12v4h-4"/></svg><span>쇠퇴 판단</span></button>
     <button type="button" data-mode="shop" role="tab" aria-label="상권"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v10h16V10M3 10l2-6h14l2 6M3 10c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3M10 20v-5h4v5"/></svg><span>상권</span></button>
     <button type="button" data-mode="move" role="tab" aria-label="보행·교통"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="13" cy="4" r="2"/><path d="M9 21l2-6 3 3v3M7 12l3-4 4 1 3 4M11 15l1-5"/></svg><span>보행·교통</span></button>
+    <button type="button" data-mode="life" role="tab" aria-label="생활·안전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span>생활·안전</span></button>
     <button type="button" data-mode="file" role="tab" aria-label="자료 도구"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16V8h-8l-2-3H4zM12 11v6M9 14l3-3 3 3"/></svg><span>자료 도구</span></button>
   </nav>
   <div class="cities" id="rgn" role="group" aria-label="지역"></div>
@@ -2218,7 +2227,8 @@ const REGIONS = [
    shop:() => window.__SHOP_BUSAN__,
    note:'16개 구·군 472,608동 · 302,958필지 · 점포 159,689개 · 국토교통부 GIS건물통합정보 2026-08-09'},
   {k:'gimhae', t:'김해 원도심', src:() => window.__GIMHAE__, file:'data/gimhae.js?v=1an-r10',
-   extra:{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v=mv1'},   // 보행·교통 실측(경전철·버스·유동인구)
+   extra:[{has:() => window.__GMOVE__, file:'data/gimhae-move.js?v=mv1'},   // 보행·교통 실측(경전철·버스·유동인구)
+          {has:() => window.__GLIFE__, file:'data/gimhae-life.js?v=life1'}],   // 생활·안전 시설(CCTV·비상벨·정류소·관광 등)
    shop:() => window.__SHOP_GIMHAE__,
    note:'건물 10,065동 · 점포 26,700개(김해시 전역) · 준공연도 86%'},
 ];
@@ -2227,6 +2237,7 @@ let REGION = 'busan';   /* 켜면 부산 전역부터 보인다 */
 const lrtDay = M => { const L = window.__GMOVE__ && window.__GMOVE__.lrt; return L ? Math.round((M.wd * L.nwd + M.we * L.nwe) / (L.nwd + L.nwe)) : M.wd; };
 /* 보행·교통 실측 — 부산 전역은 도시철도·스마트교차로, 김해 원도심은 김해경전철·버스·행정동 유동인구 (2026-10-31) */
 const GM = () => (REGION === 'gimhae' && window.__GMOVE__) || null;
+const GL = () => (REGION === 'gimhae' && window.__GLIFE__) || null;
 const metroSet = () => GM() ? GM().lrt : window.__METRO__;
 const walkSet = () => GM() ? null : window.__WALK__;
 
@@ -2267,8 +2278,9 @@ function decodeBin(u8) {
 let LOADING = null;
 function ensureData(R, cb) {
   /* 곁들이 자료(김해 보행·교통)는 본 자료 뒤에 받는다. 못 받아도 본 화면은 그대로 뜬다 */
-  if (R.extra && !R.extra.has()) {
-    const X = R.extra, done = cb; X.has.busy = X.has.busy || false;
+  [].concat(R.extra || []).forEach(X => {
+    if (X.has()) return;
+    const done = cb; X.has.busy = X.has.busy || false;
     cb = () => {
       if (X.has() || X.has.busy) { done(); return; }
       X.has.busy = true;
@@ -2276,7 +2288,7 @@ function ensureData(R, cb) {
       sx.onload = sx.onerror = () => { X.has.busy = false; done(); };
       document.head.appendChild(sx);
     };
-  }
+  });
   if (R.src()) { cb(); return; }
   if (!R.file) { logLine(false, R.t + ' 자료가 없습니다'); return; }
   if (LOADING === R.k) return;                 // 같은 것을 두 번 받지 않는다
@@ -3813,7 +3825,7 @@ function declineHTML(hit, p20, areaM2) {
    ═══════════════════════════════════════════════════════════ */
 (function () {
   const MOTION = !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
-  const MODES = {bld: '건물·땅', old: '쇠퇴 판단', shop: '상권', move: '보행·교통', file: '자료 도구'};
+  const MODES = {bld: '건물·땅', old: '쇠퇴 판단', shop: '상권', move: '보행·교통', life: '생활·안전', file: '자료 도구'};
   let MODE = 'bld';
   try { const q = new URL(location.href).searchParams.get('mode'); if (MODES[q]) MODE = q; } catch (e) {}
 
@@ -3910,6 +3922,10 @@ function declineHTML(hit, p20, areaM2) {
       h: `${esc(RS.name)} 영업 중 점포 ${NE(RS.shops)}개를 불러왔습니다`,
       s: `${RS.busan ? '' : '김해시 전역 기준. '}가까이 확대하면 업종별 점포가 점으로 보입니다. ${tap}.`}
       : {h: `${esc(RS.name)}에는 점포 자료가 없습니다`, s: '건축물대장 주용도로 상업·업무 건축물을 세어 대신 보여 줍니다(추정).'};
+    if (MODE === 'life') return GL() ? {
+      h: `확정 구역 안 <span style="white-space:nowrap">CCTV ${NE(GL().c.cctv[0])}곳</span> · <span style="white-space:nowrap">안전비상벨 ${NE(GL().c.bell[0])}곳</span>`,
+      s: `구역 경계 800m 안까지 안전·교통·생활 시설을 점으로 띄웠습니다. 아래 범례에서 층을 켜고 끕니다. 숫자는 확정 구역계(1안) 기준입니다.`}
+      : {h: `${esc(RS.name)}에는 생활·안전 시설 자료가 아직 없습니다`, s: '위에서 「김해 원도심」으로 바꾸면 볼 수 있습니다.'};
     if (MODE === 'move' && GM()) { const G = GM(); return {
       h: `김해경전철 ${NE(G.lrt.st.length)}개 역 · 버스 정류장 ${NE(G.bus.st.length)}곳의 이용 실측을 띄웠습니다`,
       s: `동그라미가 클수록 평일 이용이 많습니다. ${tap} — 역은 500m, 정류장은 300m 안까지 세고, 행정동 유동인구도 함께 봅니다.`}; }
@@ -3937,6 +3953,7 @@ function declineHTML(hit, p20, areaM2) {
       if (S.comN) return {h: `상업·업무 용도 건축물 ${NE(S.comN)}동`, s: '이 지역은 점포 자료가 없어 건축물대장 주용도로 센 추정치입니다.'};
       return {h: '이 구역에는 점포가 잡히지 않았습니다', s: '반경을 넓히거나 다른 곳을 눌러 보십시오.'};
     }
+    if (MODE === 'life') return idleText();
     if (MODE === 'move' && GM()) {
       const M = S.metro, B = S.bus;
       if (M) return {h: `주변 경전철 ${M.n}개 역 · 평일 하루 평균 승하차 ${NE(M.wd)}명`,
@@ -3965,12 +3982,32 @@ function declineHTML(hit, p20, areaM2) {
   const big = (val, unit, title, note, bar) =>
     `<div class="kpi-big"><div class="kb-v">${val}<span>${unit}</span></div><div class="kb-t">${title}${bar || ''}<small>${note || ''}</small></div></div>`;
   const dash = '<b style="color:var(--ink3)">—</b>';
+  /* 생활·안전 — 그린 구역과 상관없이 확정 구역계(1안) 기준 정본 숫자만 보인다 */
+  function lifeKpi() {
+    const L = GL();
+    if (!L) return '<div class="kempty">생활·안전 시설 자료는 김해 원도심에서만 볼 수 있습니다.</div>';
+    const c = L.c, R8 = '<span class="tg g">800m 안</span>';
+    return big(N(c.cctv[0]), '곳', `${Z} CCTV 설치 지점`, `전부 다목적 · 구역 밖 800m 안 ${fmt(c.cctv[1])}곳`)
+      + '<div class="kpis">'
+      + kpi(Z, N(c.bell[0]), '곳', '안전비상벨', `800m 안 ${fmt(c.bell[1])}곳 — 구역 안에는 없음`)
+      + kpi(Z, N(c.bus[0]), '곳', '버스 정류장', `경계 도로변 ${c.bus[1]}곳 · 구역 안 정류소 경유 노선 ${c.bus[4]}개`)
+      + kpi(R8, N(c.bus[2]), '곳', '버스 정류장(800m)', `지나는 노선 ${c.bus[3]}개`)
+      + kpi(Z, N(c.tour[0]), '곳', '관광공사 등록 자원', `800m 안 ${fmt(c.tour[1])}곳 · 문화공간 ${c.cul[1]}곳`)
+      + kpi(Z, N(c.hosp[0]), '곳', '병·의원', `의사 ${c.hosp[2]}명 · 800m 안 ${c.hosp[1]}곳`)
+      + kpi(Z, N(c.shel[0]), '곳', '재난대피시설', `800m 안 ${c.shel[1]}곳`)
+      + kpi(Z, N(c.aed[0]), '대', 'AED', `800m 안 ${c.aed[1]}대 · 응급의료기관 구역 안 ${c.emer[0]}곳`)
+      + kpi(Z, N(c.play[0]), '곳', '어린이놀이시설', `800m 안 ${c.play[1]}곳`)
+      + kpi(Z, N(c.ev[0]), '곳', '전기차 충전소', `${c.ev[1]}기 · 800m 안 ${c.ev[2]}곳 ${c.ev[3]}기`)
+      + kpi(Z, N(c.bike[0]), '곳', '자전거보관소', `800m 안 ${c.bike[1]}곳`)
+      + '</div>';
+  }
   function paintKpi() {
     const box = $('#kpi'), T = $('#kpiT'), U = $('#kpiU');
     if (MODE === 'file') { box.innerHTML = ''; return; }
     T.textContent = active() ? '이 구역 한눈에' : '시작하기';
     U.textContent = active() ? MODES[MODE] : '';
     if (!BASE) { box.innerHTML = '<div class="kempty">자료를 불러오는 중입니다…</div>'; return; }
+    if (MODE === 'life') { box.innerHTML = lifeKpi(); countUp(box); return; }
     if (!active()) {
       const how = ana.mode === 'circle'
         ? `<b>지도를 누르세요.</b> 누른 자리 반경 ${fmt(ana.radius)}m 안을 바로 셉니다. 반경은 위 막대로 바꿉니다.`
@@ -4069,7 +4106,7 @@ function declineHTML(hit, p20, areaM2) {
     const el = $('#legend');
     if (!BASE) { el.innerHTML = ''; return; }
     const rows = [];
-    const fade = MODE === 'shop' || MODE === 'move';
+    const fade = MODE === 'shop' || MODE === 'move' || MODE === 'life';
     rows.push(`<div class="lg-row"${fade ? ' style="opacity:.6"' : ''}><span class="lg-k">건축물 준공</span>${AGE.map(([t, c]) => `<span>${sw(c, BASE.__pt ? 'c' : '')}${t}</span>`).join('')}</div>`);
     if (BASE.uq && BASE.uq.features && BASE.uq.features.length && !fade)
       rows.push(`<div class="lg-row"><span class="lg-k">용도지역</span>${UQ.map(([t, c]) => `<span>${sw(c)}${t}</span>`).join('')}</div>`);
@@ -4081,6 +4118,13 @@ function declineHTML(hit, p20, areaM2) {
       rows.push(`<div class="lg-row"><span class="lg-k">대중교통</span><span>${sw(LINE['김해경전철'], 'c')}김해경전철 역</span><span>${sw('#0f766e', 'c')}버스 정류장</span><span class="lg-s">· 클수록 평일 이용이 많음</span></div>`);
       rows.push(`<div class="lg-row"><span class="lg-k">행정동</span><span><i class="sw2 ln" style="border-color:#64748b"></i>행정동 경계(유동인구 단위)</span></div>`);
     }
+    if (MODE === 'life' && GL()) {
+      const L = GL(), src = k => `${esc(L.src[k][0])} ${esc(L.src[k][1])}`;
+      const tg = (k, label) => `<button type="button" class="lf-t" data-lf="${k}" aria-pressed="${LF[k] ? 'true' : 'false'}">${sw(LIFE[k][0], 'c')}${label}</button>`;
+      rows.push(`<div class="lg-row"><span class="lg-k">CCTV</span>${L.cc.map((t, i) => `<span>${sw(CCTVC[i], 'c')}${esc(t === '교통정보수집' ? '교통정보' : t)}</span>`).join('')}${tg('cctv', 'CCTV 점')}<span class="lf-src">설치 목적별 색 · 진한 테두리 = 구역 안 · ${src('cctv')}</span></div>`);
+      rows.push(`<div class="lg-row"><span class="lg-k">1순위</span>${tg('bell', '안전비상벨 <b>구역 안 0</b>')}${tg('bus', '버스 정류장')}${tg('tour', '관광·문화')}<span class="lf-src">정류장은 클수록 지나는 노선이 많음 · ${src('bell')} · ${src('bus')} · ${src('tour')} · ${src('cul')}</span></div>`);
+      rows.push(`<div class="lg-row"><span class="lg-k">2순위</span>${tg('hosp', '병·의원')}${tg('shel', '재난대피·쉼터')}${tg('aed', 'AED·응급')}${tg('play', '놀이시설')}${tg('ev', '전기차 충전')}${tg('bike', '자전거보관소')}<span class="lf-src">${['hosp', 'shel', 'dust', 'aed', 'emer', 'play', 'ev', 'bike'].map(src).join(' · ')}</span></div>`);
+    }
     if (MODE === 'move' && RS && RS.busan) {
       rows.push(`<div class="lg-row"><span class="lg-k">도시철도 역</span>${Object.entries(LINE).map(([t, c]) => `<span>${sw(c, 'c')}${t}</span>`).join('')}</div>`);
       rows.push(`<div class="lg-row"><span class="lg-k">스마트교차로</span><span>${sw('#7c3aed', 'c')}보행자 실측</span><span><i class="sw2 c" style="background:#fff;border:2px solid #8a939c"></i>차량만</span><span class="lg-s">· 클수록 평일 이용이 많음</span></div>`);
@@ -4090,6 +4134,7 @@ function declineHTML(hit, p20, areaM2) {
     const zone = BASE.zone && BASE.zone.features && BASE.zone.features.length;
     const z1 = BASE.zone1an;
     rows.push(`<div class="lg-row"><span>${'<i class="sw2 ar"></i>'}분석 구역</span>${z1 ? `<span><i class="sw2" style="background:#0a9e78;height:4px"></i>${esc(z1.name.split(' · ')[0])} ${z1.ha}ha · ${z1.date}</span><span><i class="sw2 ln" style="opacity:.45"></i>옛 원도심 구역계(참고)</span>` : zone ? '<span><i class="sw2 ln"></i>대상지 구역계</span>' : ''}${
+      MODE === 'life' ? '<span class="lg-s">점은 구역 경계 800m 안까지</span>' :
       MODE === 'move' ? `<span class="lg-s">${GM() ? '역은 500m · 정류장은 300m 안까지 셉니다' : '역은 500m · 교차로는 300m 안까지 셉니다'}</span>` : ''}</div>`);
     el.innerHTML = rows.join('');
   }
@@ -4098,6 +4143,15 @@ function declineHTML(hit, p20, areaM2) {
   const SHOP_Z = 14.5;
   const sum = a => a.reduce((x, y) => x + y, 0);
   let metroFC = null, walkFC = null, busFC = null, dongFC = null;
+  /* 생활·안전 층 — 색 · 처음 켜 둘지(1순위만) */
+  const LIFE = {cctv: ['#2563eb', 1], bell: ['#dc2626', 1], bus: ['#0f766e', 1], tour: ['#9333ea', 1], cul: ['#9333ea', 1],
+    hosp: ['#0891b2', 0], shel: ['#65a30d', 0], dust: ['#65a30d', 0], aed: ['#e11d48', 0], emer: ['#e11d48', 0],
+    play: ['#f59e0b', 0], ev: ['#475569', 0], bike: ['#a16207', 0]};
+  const CCTVC = ['#2563eb', '#f97316', '#eab308', '#ec4899', '#94a3b8'];
+  const LF = {}; Object.keys(LIFE).forEach(k => { LF[k] = !!LIFE[k][1]; });
+  const LPAIR = {tour: 'cul', shel: 'dust', aed: 'emer'};   // 범례 단추 하나가 두 층을 같이 켠다
+  let lifeFC = null;
+  const lifeOn = () => Object.keys(LF).filter(k => LF[k]);
   function ovData() {
     const hitM = new Set(((window.__S || {}).metro || {}).names || []);
     const hitW = new Set(((window.__S || {}).walk || {}).names || []);
@@ -4110,6 +4164,10 @@ function declineHTML(hit, p20, areaM2) {
       properties: {n: s.n, c: s.c, d: s.d, wd: s.wd == null ? -1 : s.wd, we: s.we == null ? -1 : s.we},
       geometry: {type: 'Point', coordinates: [s.x, s.y]}})) : []};
     dongFC = G ? G.flow.geo : {type: 'FeatureCollection', features: []};
+    const GLF = window.__GLIFE__;
+    lifeFC = {type: 'FeatureCollection', features: GLF ? GLF.p.map((s, i) => ({type: 'Feature', id: i,
+      properties: {k: s.k, z: s.z, s: s.s == null ? '' : s.s, r: s.r || 0, n: s.n || '', d: s.d || 0},
+      geometry: {type: 'Point', coordinates: [s.x, s.y]}})) : []};
     walkFC = {type: 'FeatureCollection', features: ((window.__WALK__ || {}).ix || []).map((s, i) => ({type: 'Feature', id: i,
       properties: {n: s.n, w: sum(s.w), v: sum(s.v), on: sum(s.w) > 0 ? 1 : 0, hit: on && hitW.has(s.n) ? 1 : 0},
       geometry: {type: 'Point', coordinates: [s.x, s.y]}}))};
@@ -4141,6 +4199,23 @@ function declineHTML(hit, p20, areaM2) {
       paint: {'circle-radius': ['interpolate', ['linear'], ['sqrt', ['max', ['get', 'wd'], 0]], 0, 3.5, 15, 6, 36, 12],
         'circle-color': '#0f766e', 'circle-opacity': ['case', ['<', ['get', 'wd'], 0], 0.35, 0.8],
         'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.4}}, before);
+    if (!map.getSource('ov_life')) map.addSource('ov_life', {type: 'geojson', data: lifeFC}); else map.getSource('ov_life').setData(lifeFC);
+    if (!map.getLayer('ov_life_c')) map.addLayer({id: 'ov_life_c', type: 'circle', source: 'ov_life', layout: {visibility: 'none'},
+      filter: ['in', ['get', 'k'], ['literal', lifeOn()]],
+      paint: {'circle-radius': ['case',
+          ['==', ['get', 'k'], 'bus'], ['interpolate', ['linear'], ['get', 'r'], 1, 4, 10, 7, 20, 10, 35, 14],
+          ['==', ['get', 'k'], 'ev'], ['interpolate', ['linear'], ['get', 'r'], 1, 4, 10, 7, 30, 11],
+          ['==', ['get', 'k'], 'cctv'], 4.2,
+          ['==', ['get', 'k'], 'bell'], 6.5, ['in', ['get', 'k'], ['literal', ['tour', 'cul']]], 7, 5.5],
+        'circle-color': ['case', ['==', ['get', 'k'], 'cctv'], ['match', ['get', 's'], ...CCTVC.slice(0, 4).flatMap((c, i) => [i, c]), CCTVC[4]],
+          ['match', ['get', 'k'], ...Object.entries(LIFE).flatMap(([k, v]) => [k, v[0]]), '#6b7280']],
+        'circle-opacity': 0.88,
+        'circle-stroke-color': ['case', ['>', ['get', 'z'], 0], '#16181d', '#ffffff'],
+        'circle-stroke-width': ['case', ['==', ['get', 'z'], 1], 2.4, ['==', ['get', 'z'], 2], 2.4, 1.2]}}, before);
+    if (!map.getLayer('ov_life_t')) map.addLayer({id: 'ov_life_t', type: 'symbol', source: 'ov_life', minzoom: 15.5, layout: {visibility: 'none',
+      'text-field': ['get', 'n'], 'text-size': 12.5, 'text-offset': [0, 1.1], 'text-anchor': 'top', 'text-optional': true},
+      filter: ['all', ['in', ['get', 'k'], ['literal', ['tour', 'cul']]], ['!=', ['get', 'n'], '']],
+      paint: {'text-color': '#581c87', 'text-halo-color': '#fff', 'text-halo-width': 1.6}});
     if (!map.getSource('ov_metro')) map.addSource('ov_metro', {type: 'geojson', data: metroFC}); else map.getSource('ov_metro').setData(metroFC);
     if (!map.getLayer('ov_metro_c')) map.addLayer({id: 'ov_metro_c', type: 'circle', source: 'ov_metro', layout: {visibility: 'none'},
       paint: {'circle-radius': ['interpolate', ['linear'], ['sqrt', ['get', 'wd']], 0, 5, 100, 8, 290, 17],
@@ -4168,7 +4243,24 @@ function declineHTML(hit, p20, areaM2) {
       show(e, `<b>${esc(p.n)}</b><small>${+p.on ? `평일 하루 보행자 ${fmt(p.w)}명(영상 계수) · 차량 ${fmt(p.v)}대` : `보행자를 세지 않는 교차로 · 차량 ${fmt(p.v)}대`}</small><small>스마트교차로 2026-08 평일 5일 평균</small>`); });
     map.on('mousemove', 'ov_shop_c', e => { const p = e.features[0].properties; const S = BASE && BASE.shops;
       show(e, `<b>${esc(S ? S.cat[p.c] || '' : '')}</b><small>${esc(S ? S.mid[p.m] || '' : '')}</small><small>소상공인 상가정보 2026-06</small>`); });
-    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c', 'ov_bus_c'].forEach(id => map.on('mouseleave', id, hide));
+    map.on('mousemove', 'ov_life_c', e => { const p = e.features[0].properties, L = GL(); if (!L) return;
+      const zt = +p.z === 1 ? '구역 안' : +p.z === 2 ? '구역 경계 도로변' : '구역 밖 800m 안';
+      const src = k => `${esc(L.src[k][0])} ${esc(L.src[k][1])}`;
+      const T = {
+        cctv: () => [`CCTV · ${esc(L.cc[+p.s] || '기타')}`, ''],
+        bell: () => ['안전비상벨', p.s ? `${esc(p.s)} 설치` : ''],
+        bus: () => [esc(p.n), `지나는 노선 ${fmt(+p.r)}개`],
+        tour: () => [p.n ? esc(p.n) : esc(p.s), (p.n ? esc(p.s) + ' · ' : '') + (+p.d ? `구역 경계까지 ${fmt(+p.d)}m` : '관광공사 등록')],
+        cul: () => [esc(p.n), esc(p.s) + (+p.d ? ` · 구역 경계까지 ${fmt(+p.d)}m` : '')],
+        hosp: () => [esc(p.s) || '병·의원', ''],
+        shel: () => ['재난대피시설', ''], dust: () => ['미세먼지·더위 쉼터', ''],
+        aed: () => ['AED(자동심장충격기)', ''], emer: () => ['응급의료기관', esc(p.s)],
+        play: () => ['어린이놀이시설', p.s ? `${esc(p.s)} 안` : ''],
+        ev: () => ['전기차 충전소', `충전기 ${fmt(+p.r)}기${+p.s ? ` · 급속 ${fmt(+p.s)}기` : ''}`],
+        bike: () => ['공공 자전거보관소', '']}[p.k] || (() => [esc(p.k), '']);
+      const [h, m] = T();
+      show(e, `<b>${h}</b><small>${zt}${m ? ' · ' + m : ''}</small><small>${src(p.k)}</small>`); });
+    ['ov_metro_c', 'ov_walk_c', 'ov_shop_c', 'ov_bus_c', 'ov_life_c'].forEach(id => map.on('mouseleave', id, hide));
   }
   let shopT = null;
   function refreshShops() {
@@ -4196,8 +4288,11 @@ function declineHTML(hit, p20, areaM2) {
     vis('ov_dong_l', MODE === 'move' && gmv);
     vis('ov_dong_t', MODE === 'move' && gmv);
     vis('ov_shop_c', MODE === 'shop');
+    vis('ov_life_c', MODE === 'life' && !!GL());
+    vis('ov_life_t', MODE === 'life' && !!GL() && (LF.tour || LF.cul));
+    if (map.getLayer('ov_life_c')) map.setFilter('ov_life_c', ['in', ['get', 'k'], ['literal', lifeOn()]]);
     /* 점포·역을 볼 때는 건물을 옅게 깐다 — 점이 묻히지 않게 */
-    const fade = MODE === 'shop' || MODE === 'move';
+    const fade = MODE === 'shop' || MODE === 'move' || MODE === 'life';
     if (window.__satTune) window.__satTune();   // 배경 보정 먼저, 모드 진하기는 그 뒤에
     if (fade) {
       if (map.getLayer('base_bld_c')) map.setPaintProperty('base_bld_c', 'circle-opacity', 0.22);
@@ -4219,13 +4314,20 @@ function declineHTML(hit, p20, areaM2) {
     try { const u = new URL(location.href);
       if (m === 'bld') u.searchParams.delete('mode'); else u.searchParams.set('mode', m);
       history.replaceState(null, '', u); } catch (e) {}
-    const RT = {bld: '건물·땅 자세히', old: '쇠퇴 판단 자세히', shop: '상권 자세히', move: '보행·교통 자세히', file: '구역 집계'};
+    const RT = {bld: '건물·땅 자세히', old: '쇠퇴 판단 자세히', shop: '상권 자세히', move: '보행·교통 자세히', life: '생활·안전 자세히', file: '구역 집계'};
     $('#resT').textContent = RT[m];
     try { applyVis(); } catch (e) {}
     paintAll();
     const P = $('#panel'); if (P && innerWidth > 940) P.scrollTop = 0;
   }
   document.querySelectorAll('#modes [data-mode]').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  /* 범례의 층 단추 — 생활·안전 층을 하나씩 켜고 끈다 */
+  $('#legend').addEventListener('click', e => {
+    const b = e.target.closest('[data-lf]'); if (!b) return;
+    const k = b.dataset.lf; LF[k] = !LF[k]; if (LPAIR[k]) LF[LPAIR[k]] = LF[k];
+    try { applyVis(); } catch (er) {}
+    paintLegend();
+  });
 
   function paintAll() {
     try { paintHero(); } catch (e) { console.error(e); }
@@ -4244,9 +4346,10 @@ function declineHTML(hit, p20, areaM2) {
     _lbn(R);
     /* 지역을 바꾸면 건물 층이 새로 올라가 그린 구역을 덮는다 — 구역 선을 맨 위로 다시 올린다 */
     window.__S = null; window.__decl = null;
+    document.body.dataset.region = R.k;
     try { regionStats(); } catch (e) { console.error(e); }
     try { addOv(); applyVis(); } catch (e) { console.error(e); }
-    ['ov_shop_c', 'ov_walk_c', 'ov_metro_c', 'ana_f', 'ana_c', 'ana_l', 'ana_rub', 'ana_mid', 'ana_p'].forEach(id => { try { if (map.getLayer(id)) map.moveLayer(id); } catch (e) {} });
+    ['ov_shop_c', 'ov_walk_c', 'ov_metro_c', 'ov_life_c', 'ov_life_t', 'ana_f', 'ana_c', 'ana_l', 'ana_rub', 'ana_mid', 'ana_p'].forEach(id => { try { if (map.getLayer(id)) map.moveLayer(id); } catch (e) {} });
     paintAll();
   };
   const _ra = window.__reAddBase;
